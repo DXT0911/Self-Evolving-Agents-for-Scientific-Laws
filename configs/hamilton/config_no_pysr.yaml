@@ -1,5 +1,5 @@
-# Hamilton Playground 配置文件
-# 通用符号回归 / ODE 发现 Agent
+# Hamilton Playground 配置文件（无 PySR）
+# 纯代码驱动的方程发现 Agent
 
 # ============================================
 # LLM 配置
@@ -19,7 +19,7 @@ llm:
   default: "openai"
 
 # ============================================
-# Agent 配置（新版 per-agent 格式）
+# Agent 配置
 # ============================================
 agents:
   hamilton:
@@ -33,15 +33,13 @@ agents:
       preserve_system_messages: true
       preserve_recent_turns: 10
 
-    system_prompt_file: "prompts/hamilton_system.txt"
+    system_prompt_file: "prompts/hamilton_system_no_pysr.txt"
     user_prompt_file: "prompts/hamilton_user.txt"
 
-    # Per-agent skills（只加载需要的，不污染 prompt）
+    # 只保留 evo-protocol，不加载 pysr
     skills:
-      - pysr
       - evo-protocol
 
-    # Per-agent tools
     tools:
       builtin: ["*"]
 

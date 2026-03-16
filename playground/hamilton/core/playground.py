@@ -13,8 +13,6 @@ HCC 分层记忆：
 
 import json
 import logging
-import os
-import shutil
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -76,60 +74,17 @@ class HamiltonPlayground(BasePlayground):
         """
         super().set_run_dir(run_dir, task_id=task_id)
 
-    def _init_workspace(self, task_description: str) -> None:
-        """Unified workspace initialization: seed template files + create runtime files.
+    def _init_workspace(self) -> None:
+        """Initialize workspace with L2 persistent files.
 
-        Steps:
-        1. Copy tools/ template dir (if missing)
-        2. Copy data.csv / data_ood.csv from template (if missing)
-        3. Ensure skills/__init__.py for symlink compatibility
-        4. Create findings.md / plan.md (if missing)
-        5. Validate data.csv exists
+        Creates: findings.md, plan.md, lib/ (if not exist).
+        Agent is responsible for creating any data directories it needs.
         """
         workspace = self.workspace_dir
         if not workspace:
             return
 
         workspace.mkdir(parents=True, exist_ok=True)
-
-        # --- Phase 1: Seed from template ---
-        template_dir = self._project_root / "playground" / "hamilton" / "workspace"
-        if template_dir.exists():
-            try:
-                # task.md
-                src_task = template_dir / "task.md"
-                dst_task = workspace / "task.md"
-                if src_task.exists() and not dst_task.exists():
-                    shutil.copy2(src_task, dst_task)
-                    self.logger.info("Seeded task.md into workspace")
-
-                # data files → input/ subdirectory
-                input_dir = workspace / "input"
-                input_dir.mkdir(parents=True, exist_ok=True)
-                src_input = template_dir / "input"
-                csv_source = src_input if src_input.exists() else template_dir
-                for src in csv_source.glob("*.csv"):
-                    dst = input_dir / src.name
-                    if not dst.exists():
-                        if src.is_symlink():
-                            link_target = os.readlink(src)
-                            os.symlink(link_target, dst)
-                        else:
-                            shutil.copy2(src, dst)
-                        self.logger.info(f"Seeded input/{src.name}")
-            except Exception as e:
-                self.logger.warning(f"Failed to seed Hamilton workspace template: {e}", exc_info=True)
-
-        # --- Phase 3: Create runtime files ---
-        # input/ must have at least one CSV
-        input_dir = workspace / "input"
-        csv_files = list(input_dir.glob("*.csv")) if input_dir.exists() else []
-        if not csv_files:
-            raise FileNotFoundError(
-                f"No CSV data files found in: {input_dir}\n"
-                "Hamilton expects data CSVs in 'input/' subdirectory.\n"
-                "Tip: put your CSVs in 'playground/hamilton/workspace/input/' so they will be auto-seeded."
-            )
 
         # findings.md (L2 — knowledge accumulation, append-only)
         findings_file = workspace / "findings.md"
@@ -157,7 +112,7 @@ class HamiltonPlayground(BasePlayground):
         # plan.md (L2 — strategic plan with Current Best markers)
         plan_file = workspace / "plan.md"
         if not plan_file.exists():
-            self._create_plan_file(plan_file, task_description)
+            self._create_plan_file(plan_file)
             self.logger.info(f"Created {plan_file}")
 
     def setup(self) -> None:
@@ -205,7 +160,7 @@ class HamiltonPlayground(BasePlayground):
             self.logger.info(f"Task: {task_description}")
 
             # 初始化workspace
-            self._init_workspace(task_description)
+            self._init_workspace()
 
             # 循环执行多轮
             for round_num in range(1, max_rounds + 1):
@@ -260,27 +215,9 @@ class HamiltonPlayground(BasePlayground):
         finally:
             self.cleanup()
 
-    def _create_plan_file(self, plan_file: Path, task_description: str):
-        """创建 plan.md 研究计划文件
-
-        优先使用 evo-protocol skill 的模板；若不可用则使用内置模板。
-        """
-        # Try to load template from evo-protocol skill
-        template_path = self._project_root / "evomaster" / "skills" / "evo-protocol" / "references" / "plan_template.md"
-        if template_path.exists():
-            try:
-                template = template_path.read_text(encoding="utf-8")
-                plan_content = template.replace("{task_description}", task_description)
-                plan_file.write_text(plan_content, encoding="utf-8")
-                return
-            except Exception as e:
-                self.logger.warning(f"Failed to load plan template from evo-protocol skill: {e}")
-
-        # Fallback: inline template (includes Current Best markers)
+    def _create_plan_file(self, plan_file: Path):
+        """创建 plan.md 研究计划文件"""
         plan_content = f"""# 研究计划
-
-## 任务
-{task_description}
 
 {CURRENT_BEST_BEGIN}
 ## 当前最优
@@ -334,12 +271,12 @@ class HamiltonPlayground(BasePlayground):
         return False
 
     def _save_experiment_record(self):
-        """保存实验记录"""
+        """保存实验记录到 run_dir"""
         try:
-            experiment_cfg = getattr(self.config, 'experiment', {})
-            if not isinstance(experiment_cfg, dict):
-                experiment_cfg = {}
-            record_dir = Path(experiment_cfg.get('record_dir', './playground/hamilton/records'))
+            if self.run_dir:
+                record_dir = Path(self.run_dir) / "records"
+            else:
+                record_dir = Path("./runs") / "hamilton" / "records"
             record_dir.mkdir(parents=True, exist_ok=True)
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
