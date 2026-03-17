@@ -76,15 +76,18 @@ class HamiltonPlayground(BasePlayground):
         """
         super().set_run_dir(run_dir, task_id=task_id)
 
+    def _get_experiment_config(self) -> dict:
+        """Return experiment config as a plain dict."""
+        experiment_cfg = getattr(self.config, "experiment", {})
+        return experiment_cfg if isinstance(experiment_cfg, dict) else {}
+
     def _init_workspace(self, task_description: str) -> None:
         """Unified workspace initialization: seed template files + create runtime files.
 
         Steps:
-        1. Copy tools/ template dir (if missing)
-        2. Copy data.csv / data_ood.csv from template (if missing)
-        3. Ensure skills/__init__.py for symlink compatibility
-        4. Create findings.md / plan.md (if missing)
-        5. Validate data.csv exists
+        1. Copy task template and input CSVs from the configured workspace template dir
+        2. Create findings.md / plan.md / lib/ (if missing)
+        3. Optionally validate that input/*.csv exists
         """
         workspace = self.workspace_dir
         if not workspace:
@@ -92,8 +95,16 @@ class HamiltonPlayground(BasePlayground):
 
         workspace.mkdir(parents=True, exist_ok=True)
 
+        experiment_cfg = self._get_experiment_config()
+
+        # SRBENCH_ANCHOR_CORE_TEMPLATE_DIR:
+        # Allow Hamilton's loop to reuse a different workspace template for benchmark-style tasks.
+        template_dir_value = experiment_cfg.get("workspace_template_dir", "./playground/hamilton/workspace")
+        template_dir = Path(template_dir_value)
+        if not template_dir.is_absolute():
+            template_dir = (self._project_root / template_dir).resolve()
+
         # --- Phase 1: Seed from template ---
-        template_dir = self._project_root / "playground" / "hamilton" / "workspace"
         if template_dir.exists():
             try:
                 # task.md
@@ -121,17 +132,22 @@ class HamiltonPlayground(BasePlayground):
                 self.logger.warning(f"Failed to seed Hamilton workspace template: {e}", exc_info=True)
 
         # --- Phase 3: Create runtime files ---
-        # input/ must have at least one CSV
+        # SRBENCH_ANCHOR_CORE_INPUT_POLICY:
+        # Some benchmarks provide problem packs instead of Hamilton's input/*.csv convention.
+        require_input_csv = bool(experiment_cfg.get("require_input_csv", True))
         input_dir = workspace / "input"
-        csv_files = list(input_dir.glob("*.csv")) if input_dir.exists() else []
-        if not csv_files:
-            raise FileNotFoundError(
-                f"No CSV data files found in: {input_dir}\n"
-                "Hamilton expects data CSVs in 'input/' subdirectory.\n"
-                "Tip: put your CSVs in 'playground/hamilton/workspace/input/' so they will be auto-seeded."
-            )
+        if require_input_csv:
+            csv_files = list(input_dir.glob("*.csv")) if input_dir.exists() else []
+            if not csv_files:
+                raise FileNotFoundError(
+                    f"No CSV data files found in: {input_dir}\n"
+                    "Hamilton expects data CSVs in 'input/' subdirectory.\n"
+                    "Tip: put your CSVs in the configured workspace template's input/ directory so they will be auto-seeded."
+                )
 
         # findings.md (L2 — knowledge accumulation, append-only)
+        # SRBENCH_ANCHOR_FINDINGS_APPEND: seed a stable append marker so agents
+        # can add new round notes without fragile line-number inserts.
         findings_file = workspace / "findings.md"
         if not findings_file.exists():
             findings_file.write_text(
@@ -142,7 +158,8 @@ class HamiltonPlayground(BasePlayground):
                 "| 轮次 | 方法 | 方程 | MSE (训练) | MSE (OOD) | 结论 |\n"
                 "|------|------|------|-----------|-----------|------|\n\n"
                 "## 最优方程演化\n"
-                "（记录最优方程在各轮中的变化过程）\n",
+                "（记录最优方程在各轮中的变化过程）\n\n"
+                "<!-- EVO_FINDINGS_APPEND -->\n",
                 encoding="utf-8",
             )
             self.logger.info(f"Created {findings_file}")
@@ -196,9 +213,7 @@ class HamiltonPlayground(BasePlayground):
             self.experiment_record["task"] = task_description
 
             # 获取最大轮数
-            experiment_cfg = getattr(self.config, 'experiment', {})
-            if not isinstance(experiment_cfg, dict):
-                experiment_cfg = {}
+            experiment_cfg = self._get_experiment_config()
             max_rounds = int(experiment_cfg.get('max_rounds', 5) or 5)
 
             self.logger.info(f"Starting Hamilton experiment with {max_rounds} max rounds")
@@ -336,9 +351,7 @@ class HamiltonPlayground(BasePlayground):
     def _save_experiment_record(self):
         """保存实验记录"""
         try:
-            experiment_cfg = getattr(self.config, 'experiment', {})
-            if not isinstance(experiment_cfg, dict):
-                experiment_cfg = {}
+            experiment_cfg = self._get_experiment_config()
             record_dir = Path(experiment_cfg.get('record_dir', './playground/hamilton/records'))
             record_dir.mkdir(parents=True, exist_ok=True)
 

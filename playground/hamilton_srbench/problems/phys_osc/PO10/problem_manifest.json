@@ -1,0 +1,83 @@
+{
+  "source_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/full_problems/phys_osc/PO10",
+  "staged_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+  "copied_files": [
+    "X_train_for_eval.npy",
+    "config.yaml",
+    "evaluator.py",
+    "initial_program.py",
+    "y_train_for_eval.npy"
+  ],
+  "hidden_files": [
+    "X_ood_test_for_eval.npy",
+    "X_test_for_eval.npy",
+    "y_ood_test_for_eval.npy",
+    "y_test_for_eval.npy"
+  ],
+  "include_hidden": false,
+  "source_inventory": {
+    "X_ood_test_for_eval.npy": {
+      "sha256": "c1b58299b4949175fe2061820100c6f896125001489f4f6b48666b805eca7bf4",
+      "size_bytes": 8128
+    },
+    "X_test_for_eval.npy": {
+      "sha256": "e5b31b4eca5bdf751c706da39c0b82dd620ec22dd9aeb43bfa0da0507a3d5253",
+      "size_bytes": 8128
+    },
+    "X_train_for_eval.npy": {
+      "sha256": "c5d5cc57b0ccb50870676caff74af8ca698cb83bc1b364528fda03bda024d15b",
+      "size_bytes": 64128
+    },
+    "config.yaml": {
+      "sha256": "8f22b56af1262c834a25e1e264535e1b985223f5e9a46c8141ff8c63a12cb30b",
+      "size_bytes": 2090
+    },
+    "evaluator.py": {
+      "sha256": "15d2a3ddd0e572c1b4bc0264f122a7cce49e706969c838cd1da00c3ecd128d3b",
+      "size_bytes": 8190
+    },
+    "initial_program.py": {
+      "sha256": "4f6dc36027beef10ab5b4c9b90bb06cde5f7dd066a799d5176c188aaff8e3b4c",
+      "size_bytes": 1632
+    },
+    "y_ood_test_for_eval.npy": {
+      "sha256": "04fa9898bd2fd2cc294f9f5b9c7a81b0ab9da47d47b39eca5e8c5860ec6dd020",
+      "size_bytes": 4128
+    },
+    "y_test_for_eval.npy": {
+      "sha256": "7207aaf27b96f60ac9a3efe52e04eecd91683651de9570c64f8ed117ff6df747",
+      "size_bytes": 4128
+    },
+    "y_train_for_eval.npy": {
+      "sha256": "8dbea36ac85c537c43065355bb4647f4a34e885eed702719e8529fef3408cecc",
+      "size_bytes": 32128
+    }
+  },
+  "copied_inventory": {
+    "X_train_for_eval.npy": {
+      "sha256": "c5d5cc57b0ccb50870676caff74af8ca698cb83bc1b364528fda03bda024d15b",
+      "size_bytes": 64128
+    },
+    "config.yaml": {
+      "sha256": "8f22b56af1262c834a25e1e264535e1b985223f5e9a46c8141ff8c63a12cb30b",
+      "size_bytes": 2090
+    },
+    "evaluator.py": {
+      "sha256": "15d2a3ddd0e572c1b4bc0264f122a7cce49e706969c838cd1da00c3ecd128d3b",
+      "size_bytes": 8190
+    },
+    "initial_program.py": {
+      "sha256": "4f6dc36027beef10ab5b4c9b90bb06cde5f7dd066a799d5176c188aaff8e3b4c",
+      "size_bytes": 1632
+    },
+    "y_train_for_eval.npy": {
+      "sha256": "8dbea36ac85c537c43065355bb4647f4a34e885eed702719e8529fef3408cecc",
+      "size_bytes": 32128
+    }
+  },
+  "train_hashes": {
+    "X_train_for_eval.npy": "c5d5cc57b0ccb50870676caff74af8ca698cb83bc1b364528fda03bda024d15b",
+    "y_train_for_eval.npy": "8dbea36ac85c537c43065355bb4647f4a34e885eed702719e8529fef3408cecc"
+  },
+  "source_pack_fingerprint": "f0a330d3e5b37cc858bb145ba330838e60349d699b7cb4f64920c43685544563"
+}

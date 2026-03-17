@@ -1,0 +1,603 @@
+{
+  "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+  "problem_pack_fingerprint": "f0a330d3e5b37cc858bb145ba330838e60349d699b7cb4f64920c43685544563",
+  "problem_train_hashes": {
+    "X_train_for_eval.npy": "c5d5cc57b0ccb50870676caff74af8ca698cb83bc1b364528fda03bda024d15b",
+    "y_train_for_eval.npy": "8dbea36ac85c537c43065355bb4647f4a34e885eed702719e8529fef3408cecc"
+  },
+  "restarts": 6,
+  "seed": 3,
+  "param_dim": 10,
+  "ranked_results": [
+    {
+      "label": "candidate_c",
+      "program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_c.py",
+      "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+      "restarts": 6,
+      "seed": 3,
+      "best_restart": 2,
+      "best_seed": 5,
+      "optimization_success": false,
+      "optimization_message": "Desired error not necessarily achieved due to precision loss.",
+      "best_params": [
+        1.1675779054330775,
+        2709.0731142006753,
+        0.18062476753444862,
+        -0.0005882059376055143,
+        -2690.1402526977704,
+        0.15961775596281177,
+        124.21208042707809,
+        -0.011286100203433406,
+        54.60943528433664,
+        0.9991761150650714
+      ],
+      "train": {
+        "mse": 77.27653965564036,
+        "nmse": 0.7107705008952763,
+        "negative_mse": -77.27653965564036,
+        "combined_score": -1.888047666698418
+      },
+      "test": null,
+      "ood": null,
+      "restart_history": [
+        {
+          "restart": 0,
+          "seed": 3,
+          "train_mse": 97.34161769110912,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            13.359662667771607,
+            121.84418951179966,
+            -0.0017895159075122327,
+            -4.2433331178930604,
+            65.56614948757205,
+            60.806277304664725,
+            0.13071752983547952,
+            -69.47858995351257,
+            29.578690011604635,
+            0.11367201992140341
+          ]
+        },
+        {
+          "restart": 1,
+          "seed": 4,
+          "train_mse": 77.29075499508163,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1690758164467814,
+            1751.992099235488,
+            0.2246687411016466,
+            -0.0007606136810372981,
+            -1733.0644098139728,
+            0.16209234745116746,
+            131.93991224376526,
+            -0.015984267509256946,
+            318.7875846139095,
+            0.5439414007634982
+          ]
+        },
+        {
+          "restart": 2,
+          "seed": 5,
+          "train_mse": 77.27653965564036,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1675779054330775,
+            2709.0731142006753,
+            0.18062476753444862,
+            -0.0005882059376055143,
+            -2690.1402526977704,
+            0.15961775596281177,
+            124.21208042707809,
+            -0.011286100203433406,
+            54.60943528433664,
+            0.9991761150650714
+          ]
+        },
+        {
+          "restart": 3,
+          "seed": 6,
+          "train_mse": 97.34286810067924,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            13.362883264116412,
+            33.02184357403953,
+            -0.007232059976400543,
+            -4.039402810305225,
+            31.069793151072783,
+            60.81691525473206,
+            0.12749382652014152,
+            -35.21473242471626,
+            14.62611058126853,
+            0.12297237488719004
+          ]
+        },
+        {
+          "restart": 4,
+          "seed": 7,
+          "train_mse": 77.29627974348645,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.169158710456987,
+            1589.3379413680639,
+            0.23585991250771962,
+            -0.0008105179865919085,
+            -1570.4118455427488,
+            0.1627569538368842,
+            502.92989723445027,
+            -0.00442400761564387,
+            483.90283809192726,
+            0.4679349528437208
+          ]
+        },
+        {
+          "restart": 5,
+          "seed": 8,
+          "train_mse": 77.27805197009532,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.168426870302647,
+            2066.5599612485203,
+            -0.20686585639085844,
+            0.0006743492075174249,
+            -2047.6280317283977,
+            0.16074031095092495,
+            315.2213012635379,
+            -0.004461216237741701,
+            55.11437709373606,
+            0.47896545416271696
+          ]
+        }
+      ]
+    },
+    {
+      "label": "candidate_b",
+      "program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_b.py",
+      "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+      "restarts": 6,
+      "seed": 3,
+      "best_restart": 2,
+      "best_seed": 5,
+      "optimization_success": false,
+      "optimization_message": "Desired error not necessarily achieved due to precision loss.",
+      "best_params": [
+        1.1673547032281373,
+        693.140014228949,
+        0.1733778875644204,
+        -0.0005989765683331292,
+        -2916.822204837168,
+        0.16017067262283405,
+        3.2354219573083762,
+        -1.2233776027737279e-05,
+        0.04875771072716806,
+        0.9991761150650714
+      ],
+      "train": {
+        "mse": 77.32784352874768,
+        "nmse": 0.7112423812324246,
+        "negative_mse": -77.32784352874768,
+        "combined_score": -1.888335899015632
+      },
+      "test": null,
+      "ood": null,
+      "restart_history": [
+        {
+          "restart": 0,
+          "seed": 3,
+          "train_mse": 77.32884417192888,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1684334210752374,
+            4.240311694536024,
+            0.19311058651276125,
+            -0.0006709538925911521,
+            -2349.975180304844,
+            0.16118508507581886,
+            557.6604055122611,
+            -1.2822708304746484e-09,
+            0.7345771514092145,
+            0.11367201992140341
+          ]
+        },
+        {
+          "restart": 1,
+          "seed": 4,
+          "train_mse": 77.32875774608613,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1681287216467584,
+            410.2987840026982,
+            0.19119695181073648,
+            -0.0006660065658374672,
+            -2396.105036494318,
+            0.16123511624808384,
+            4.885997444839063,
+            2.9699617031559913e-06,
+            0.8716352741876564,
+            0.5439414007634982
+          ]
+        },
+        {
+          "restart": 2,
+          "seed": 5,
+          "train_mse": 77.32784352874768,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1673547032281373,
+            693.140014228949,
+            0.1733778875644204,
+            -0.0005989765683331292,
+            -2916.822204837168,
+            0.16017067262283405,
+            3.2354219573083762,
+            -1.2233776027737279e-05,
+            0.04875771072716806,
+            0.9991761150650714
+          ]
+        },
+        {
+          "restart": 3,
+          "seed": 6,
+          "train_mse": 77.35657697880735,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.184621950719598,
+            625.1858924595664,
+            -2.74403911530083e-05,
+            1.3496127740374984,
+            -2522.99368264433,
+            0.18307114158798468,
+            17.53287854977802,
+            0.018560545871579934,
+            0.6799176611640223,
+            0.12297237488719004
+          ]
+        },
+        {
+          "restart": 4,
+          "seed": 7,
+          "train_mse": 77.3290240090623,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1686496414052212,
+            680.3710538361701,
+            0.1962202325713125,
+            -0.0006811878915988687,
+            -2275.8542765410384,
+            0.1613313877385636,
+            2.372825821749764,
+            -2.3760281641665864e-07,
+            0.7970694287520462,
+            0.4679349528437208
+          ]
+        },
+        {
+          "restart": 5,
+          "seed": 8,
+          "train_mse": 77.33025994213546,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1693468430388014,
+            2.289297517741842,
+            0.21530141732517943,
+            -0.0007456473457932491,
+            -1886.4055698887764,
+            0.16251042216205167,
+            831.2687902385114,
+            -6.698756486024263e-06,
+            0.10695359647277436,
+            0.47896545416271696
+          ]
+        }
+      ]
+    },
+    {
+      "label": "candidate_a",
+      "program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_a.py",
+      "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+      "restarts": 6,
+      "seed": 3,
+      "best_restart": 3,
+      "best_seed": 6,
+      "optimization_success": false,
+      "optimization_message": "Desired error not necessarily achieved due to precision loss.",
+      "best_params": [
+        1.1688636544059607,
+        2079.5282124097034,
+        0.20613558909713842,
+        -0.0007164957118961237,
+        -2060.6093280234436,
+        0.1618243829462443,
+        -5.951220970891272e-09,
+        0.32996345538545835,
+        0.6799176611640223,
+        0.12297237488719004
+      ],
+      "train": {
+        "mse": 77.32961562438253,
+        "nmse": 0.7112586805298261,
+        "negative_mse": -77.32961562438253,
+        "combined_score": -1.8883458514790936
+      },
+      "test": null,
+      "ood": null,
+      "restart_history": [
+        {
+          "restart": 0,
+          "seed": 3,
+          "train_mse": 77.33060046755318,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.169429577094709,
+            1823.1398120756908,
+            0.219859253203969,
+            -0.0007664917070634368,
+            -1804.221122923086,
+            0.16251660222120556,
+            7.247969870755371e-05,
+            0.15973891463707857,
+            0.7345771514092145,
+            0.11367201992140341
+          ]
+        },
+        {
+          "restart": 1,
+          "seed": 4,
+          "train_mse": 77.33209070932935,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1703423260579735,
+            1513.768981135209,
+            0.24132332656446745,
+            -0.0008429712743872626,
+            -1494.8518607148285,
+            0.16394142553651947,
+            9.178318720704819e-05,
+            0.17452781614402846,
+            0.8716352741876564,
+            0.5439414007634982
+          ]
+        },
+        {
+          "restart": 2,
+          "seed": 5,
+          "train_mse": 77.34194806790467,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.175956330357832,
+            783.2877093976288,
+            0.33214388624601204,
+            -0.0012020377493413158,
+            -764.3715517445302,
+            0.17193511655915905,
+            0.0014947644767545724,
+            0.045275193902445166,
+            0.04875771072716806,
+            0.9991761150650714
+          ]
+        },
+        {
+          "restart": 3,
+          "seed": 6,
+          "train_mse": 77.32961562438253,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1688636544059607,
+            2079.5282124097034,
+            0.20613558909713842,
+            -0.0007164957118961237,
+            -2060.6093280234436,
+            0.1618243829462443,
+            -5.951220970891272e-09,
+            0.32996345538545835,
+            0.6799176611640223,
+            0.12297237488719004
+          ]
+        },
+        {
+          "restart": 4,
+          "seed": 7,
+          "train_mse": 77.330923195767,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1695875649233711,
+            1757.1939866615721,
+            -0.2237465071970026,
+            0.0007820906320265152,
+            -1738.2754483563372,
+            0.16289970063379813,
+            -0.0001231790049091177,
+            0.8212284183827663,
+            0.7970694287520462,
+            0.4679349528437208
+          ]
+        },
+        {
+          "restart": 5,
+          "seed": 8,
+          "train_mse": 77.3374777337871,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.173297281704126,
+            1036.6174169345375,
+            -0.28814219477255404,
+            0.0010349726908037568,
+            -1017.7009707594505,
+            0.1682326484793329,
+            -0.0012249265685275062,
+            0.37274890308935305,
+            0.10695359647277436,
+            0.47896545416271696
+          ]
+        }
+      ]
+    },
+    {
+      "label": "candidate_a",
+      "program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round3/scripts/candidate_a.py",
+      "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/problems/phys_osc/PO10",
+      "restarts": 6,
+      "seed": 3,
+      "best_restart": 1,
+      "best_seed": 4,
+      "optimization_success": false,
+      "optimization_message": "Desired error not necessarily achieved due to precision loss.",
+      "best_params": [
+        1.1689728567261213,
+        2016.2138648916073,
+        0.20935418630972463,
+        -0.0007277793676838986,
+        -1997.2950402617928,
+        0.1619872250178004,
+        0.8019012069858072,
+        0.17452781614402846,
+        0.8716352741876564,
+        0.5439414007634982
+      ],
+      "train": {
+        "mse": 77.32981404447322,
+        "nmse": 0.7112605055487502,
+        "negative_mse": -77.32981404447322,
+        "combined_score": -1.8883469658340433
+      },
+      "test": null,
+      "ood": null,
+      "restart_history": [
+        {
+          "restart": 0,
+          "seed": 3,
+          "train_mse": 97.35544840877142,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            13.3400879930237,
+            119.23015922519166,
+            -0.0015842370607433939,
+            -4.2668429668372205,
+            61.870480669565154,
+            60.712710575914834,
+            0.479051298140834,
+            0.15973891463707857,
+            0.7345771514092145,
+            0.11367201992140341
+          ]
+        },
+        {
+          "restart": 1,
+          "seed": 4,
+          "train_mse": 77.32981404447322,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1689728567261213,
+            2016.2138648916073,
+            0.20935418630972463,
+            -0.0007277793676838986,
+            -1997.2950402617928,
+            0.1619872250178004,
+            0.8019012069858072,
+            0.17452781614402846,
+            0.8716352741876564,
+            0.5439414007634982
+          ]
+        },
+        {
+          "restart": 2,
+          "seed": 5,
+          "train_mse": 77.33004656939966,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1694915983012468,
+            1958.3123670594532,
+            0.21239748905067338,
+            -0.0007398573367288813,
+            -1939.3966673058046,
+            0.16263753081726479,
+            0.40847320541999865,
+            0.045275193902445166,
+            0.04875771072716806,
+            0.9991761150650714
+          ]
+        },
+        {
+          "restart": 3,
+          "seed": 6,
+          "train_mse": 97.35535216531038,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            13.338831128066426,
+            71.09851125915026,
+            -0.002415205851708744,
+            -4.739174313818659,
+            8.584003045038404,
+            60.70604936986032,
+            0.6743239305044936,
+            0.32996345538545835,
+            0.6799176611640223,
+            0.12297237488719004
+          ]
+        },
+        {
+          "restart": 4,
+          "seed": 7,
+          "train_mse": 77.33140043270043,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1698583331972203,
+            1621.8231253961098,
+            0.23348766467896526,
+            -0.0008125467112094038,
+            -1602.9048534317892,
+            0.1632999298318839,
+            0.005265304565574724,
+            0.8212284183827663,
+            0.7970694287520462,
+            0.4679349528437208
+          ]
+        },
+        {
+          "restart": 5,
+          "seed": 8,
+          "train_mse": 77.33125199114855,
+          "success": false,
+          "message": "Desired error not necessarily achieved due to precision loss.",
+          "params": [
+            1.1699367728449563,
+            1655.4092852370222,
+            -0.23107351401422763,
+            0.0008075022328268559,
+            -1636.4947125940491,
+            0.1633408876852124,
+            0.4378818731227988,
+            0.37274890308935305,
+            0.10695359647277436,
+            0.47896545416271696
+          ]
+        }
+      ]
+    }
+  ],
+  "best_program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_c.py",
+  "summary_table": "rank | label       | train_mse | train_score | success | program                                                                                                                                            \n-----+-------------+-----------+-------------+---------+----------------------------------------------------------------------------------------------------------------------------------------------------\n1    | candidate_c | 77.2765   | -1.88805    | no      | /home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_c.py\n2    | candidate_b | 77.3278   | -1.88834    | no      | /home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_b.py\n3    | candidate_a | 77.3296   | -1.88835    | no      | /home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round4/scripts/candidate_a.py\n4    | candidate_a | 77.3298   | -1.88835    | no      | /home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/runs/hamilton_20260317_133242/workspaces/task_0/history/round3/scripts/candidate_a.py"
+}

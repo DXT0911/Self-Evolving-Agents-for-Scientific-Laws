@@ -1,0 +1,19 @@
+    complexity  ...                                                                                lambda_format
+0            1  ...                                                            PySRFunction(X=>17.9064620000000)
+1            4  ...                                                          PySRFunction(X=>cos(x0) + 17.73169)
+2            5  ...                                                    PySRFunction(X=>sin(cos(x0)) + 17.752361)
+3            6  ...                                                      PySRFunction(X=>17.881233 - sin(x0/x1))
+4            8  ...                                             PySRFunction(X=>17.766367 - 5.539908*sin(x0/x1))
+5            9  ...                                        PySRFunction(X=>17.758358 - 6.267159*sin(sin(x0/x1)))
+6           10  ...                                          PySRFunction(X=>x0*x0 + cos(x1)*95.9508 - 75.74674)
+7           11  ...                                   PySRFunction(X=>x0*x0 + sin(cos(x1))*133.33284 - 93.44153)
+8           13  ...                        PySRFunction(X=>(x0*x0 + sin(cos(x1))*133.01074 - 94.2692)*1.0624208)
+9           14  ...                          PySRFunction(X=>x0*x0 + sin(cos(x1))*132.7151 - cos(x0) - 92.76911)
+10          15  ...                          PySRFunction(X=>x0*x0 - 228.00554*x1/sin(x1) - cos(x0) + 246.75664)
+11          16  ...            PySRFunction(X=>x0*x0 + sin(cos(x1))*133.33284 - cos(x0*(-1.1343775)) - 93.44153)
+12          17  ...              PySRFunction(X=>(x0*x0 - 227.41835*x1/sin(x1) - cos(x0) + 244.38518)*1.1072716)
+13          18  ...             PySRFunction(X=>x0*x0 - (x1*x1*43.471252 + cos(x0*(-1.9968022)/x1)) + 19.602066)
+14          19  ...       PySRFunction(X=>(x0*x0 - (x1*x1*42.448936 + cos(x0)) - cos(x0) + 16.955656)*1.1516287)
+15          20  ...  PySRFunction(X=>(x0*x0 - (x1*x1*42.535645 + sin(cos(x0))) - cos(x0) + 17.008593)*1.1491485)
+
+[16 rows x 6 columns]

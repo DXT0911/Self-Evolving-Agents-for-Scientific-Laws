@@ -1,0 +1,9 @@
+Evaluating model: candidate_model.py
+Using NUM_INPUT_FEATURES_EXPECTED = 2
+Using MODEL_NUM_PARAMS_EXPECTED = 10
+Loading X_train from: ./problems/phys_osc/PO10/X_train_for_eval.npy
+Loading y_train from: ./problems/phys_osc/PO10/y_train_for_eval.npy
+
+Evaluation Results:
+  combined_score: -1.8909
+  negative_mse: -77.7882

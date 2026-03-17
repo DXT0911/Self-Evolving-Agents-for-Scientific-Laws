@@ -1,0 +1,15 @@
+本轮编号：{input_data[round]}
+本轮工作目录：history/round{input_data[round]}/（脚本放 scripts/，结果放 results/）
+
+当前 benchmark 约定：
+- 当前最佳候选程序文件：`candidate_model.py`
+- 题目资产目录挂载在：`problems/`
+- 题目目录内的 `initial_program.py` / `evaluator.py` / `config.yaml` 仅用于读取和执行，不要直接改写
+- 本轮必须留下可审查记录：`task.md`、`plan.md`、`findings.md`
+- 对于非简单问题，优先考虑用 PySR 辅助搜索；若未使用，需在 `findings.md` 说明原因
+- formal search 时，本轮至少生成 3 个候选，并用 `scripts/hamilton_srbench/select_best_candidate.py` 统一选优
+- 追加 `findings.md` 时，保留尾部 `<!-- EVO_FINDINGS_APPEND -->`，并通过替换该锚点来追加本轮记录，不要用尾部行号插入
+- 如果这是 5 轮正式搜索，则第 1~4 轮必须返回 `task_completed="false"`
+
+## 当前任务
+{description}

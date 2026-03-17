@@ -1,0 +1,17 @@
+{
+  "source_dir": "/tmp/hamilton_srbench_exports/problems/phys_osc/PO10",
+  "staged_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/full_problems/phys_osc/PO10",
+  "copied_files": [
+    "X_train_for_eval.npy",
+    "config.yaml",
+    "evaluator.py",
+    "initial_program.py",
+    "y_train_for_eval.npy",
+    "X_ood_test_for_eval.npy",
+    "X_test_for_eval.npy",
+    "y_ood_test_for_eval.npy",
+    "y_test_for_eval.npy"
+  ],
+  "hidden_files": [],
+  "include_hidden": true
+}

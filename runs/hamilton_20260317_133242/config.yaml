@@ -1,0 +1,71 @@
+# SRBENCH_ANCHOR_CFG_MAIN
+# Hamilton configuration for OpenEvolve symbolic regression benchmark tasks.
+
+llm:
+  openai:
+    provider: "openai"
+    model: "gpt-5"
+    api_key: "sk-1HEDl1RNtaMQV7TDet0FUA"
+    base_url: "https://llm.dp.tech"
+    temperature: 0.7
+    max_tokens: 12000
+    timeout: 120
+    max_retries: 3
+    retry_delay: 1.0
+
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 120
+    enable_tools: true
+
+    context:
+      max_tokens: 200000
+      truncation_strategy: "latest_half"
+      preserve_system_messages: true
+      preserve_recent_turns: 10
+
+    system_prompt_file: "prompts/hamilton_system.txt"
+    user_prompt_file: "prompts/hamilton_user.txt"
+
+    skills:
+      # SRBENCH_ANCHOR_SKILL_SCOPE
+      - pysr
+
+    tools:
+      builtin: ["*"]
+
+session:
+  type: "local"
+
+  local:
+    # SRBENCH_ANCHOR_RUNTIME_PYTHON
+    working_dir: "./playground/hamilton_srbench/workspace"
+    timeout: 21600
+    gpu_devices: null
+    cpu_devices: null
+    symlinks:
+      ".venv": ".venv"
+      "scripts": "scripts"
+      "evomaster/skills/pysr": "skills/pysr"
+      "playground/hamilton_srbench/problems": "problems"
+
+experiment:
+  record_dir: "./playground/hamilton_srbench/records"
+  max_rounds: 5
+  workspace_template_dir: "./playground/hamilton_srbench/workspace"
+  require_input_csv: false
+
+llm_output:
+  show_in_console: true
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false

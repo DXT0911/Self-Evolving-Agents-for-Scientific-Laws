@@ -1,0 +1,13 @@
+{
+  "problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/full_problems/phys_osc/PO10",
+  "split": "phys_osc",
+  "problem": "PO10",
+  "workdir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/openevolve_runs_layoutfix/phys_osc/PO10",
+  "nested_problem_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/openevolve_runs_layoutfix/phys_osc/PO10/problems/phys_osc/PO10",
+  "config_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/openevolve_runs_layoutfix/phys_osc/PO10/config.yaml",
+  "iterations": 50,
+  "api_key_env": "OPENAI_API_KEY",
+  "best_program_path": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/openevolve_runs_layoutfix/phys_osc/PO10/openevolve_output/best/best_program.py",
+  "checkpoint_dir": "/home/zychen/SRAgent/Self-Evolving-Agents-for-Scientific-Laws/playground/hamilton_srbench/openevolve_runs_layoutfix/phys_osc/PO10/openevolve_output/checkpoints",
+  "exit_code": 0
+}
