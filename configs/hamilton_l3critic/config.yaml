@@ -1,0 +1,84 @@
+llm:
+  openai:
+    provider: "openai"
+    model: "gpt-5"
+    api_key: "sk-1HEDl1RNtaMQV7TDet0FUA"
+    base_url: "https://llm.dp.tech"
+    temperature: 0.7
+    max_tokens: 128000
+    timeout: 120
+    max_retries: 3
+    retry_delay: 1.0
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 120
+    enable_tools: true
+    context:
+      max_tokens: 200000
+      truncation_strategy: "latest_half"
+      preserve_system_messages: true
+      preserve_recent_turns: 10
+    system_prompt_file: "prompts/hamilton_system.txt"
+    user_prompt_file: "prompts/hamilton_user.txt"
+    skills:
+      - pysr
+      - evo-protocol
+    tools:
+      builtin: ["*"]
+
+  critic:
+    llm: "openai"
+    max_turns: 60
+    enable_tools: true
+    context:
+      max_tokens: 160000
+      truncation_strategy: "latest_half"
+      preserve_system_messages: true
+      preserve_recent_turns: 6
+    system_prompt_file: "prompts/critic_system.txt"
+    user_prompt_file: "prompts/critic_user.txt"
+    skills:
+      - pysr
+      - evo-protocol
+    tools:
+      builtin: ["*"]
+
+session:
+  type: "local"
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 21600
+    gpu_devices: null
+    cpu_devices: null
+    symlinks: {}
+
+experiment:
+  max_rounds: 3
+  dual_agent_enabled: true
+  critic_gate_enabled: true
+
+memory:
+  l3:
+    enabled: true
+    store_dir: "./runs/hamilton_shared_memory"
+    bootstrap_top_k: 6
+    critic_top_k: 6
+    max_context_chars: 12000
+    promotion_policy: "critic_aware"
+    merge_policy: "signature_v1"
+    role_filtered: true
+
+llm_output:
+  show_in_console: true
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false
