@@ -1,0 +1,7 @@
+本轮编号：{input_data[round]}
+提案工件：{input_data[proposal_path]}
+Critic L3 上下文：{input_data[critic_l3_context_path]}
+本轮工作目录：{input_data[round_dir]}
+
+## 任务
+{description}
