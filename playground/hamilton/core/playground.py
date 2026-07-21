@@ -13,6 +13,7 @@ HCC 分层记忆：
 
 import json
 import logging
+import shutil
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -26,6 +27,7 @@ from evomaster.core import BasePlayground, register_playground
 from .constants import CURRENT_BEST_BEGIN, CURRENT_BEST_END, STRATEGY_QUEUE_BEGIN, STRATEGY_QUEUE_END
 
 from .exp import RoundExp
+from .pysr_preflight import PySRPreflightError, run_preflight
 
 
 @register_playground("hamilton")
@@ -77,14 +79,38 @@ class HamiltonPlayground(BasePlayground):
     def _init_workspace(self) -> None:
         """Initialize workspace with L2 persistent files.
 
-        Creates: findings.md, plan.md, lib/ (if not exist).
-        Agent is responsible for creating any data directories it needs.
+        Seeds task.md and input/ from the Hamilton workspace template, then creates
+        findings.md, plan.md and lib/ if they do not exist.
         """
         workspace = self.workspace_dir
         if not workspace:
             return
 
         workspace.mkdir(parents=True, exist_ok=True)
+
+        experiment_cfg = getattr(self.config, "experiment", {})
+        if isinstance(experiment_cfg, dict) and experiment_cfg.get("max_total_evals"):
+            (workspace / ".hamilton_budget.json").write_text(
+                json.dumps(
+                    {"max_total_evals": int(experiment_cfg["max_total_evals"])},
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+
+        template_workspace = self._project_root / "playground" / "hamilton" / "workspace"
+        template_task = template_workspace / "task.md"
+        workspace_task = workspace / "task.md"
+        if template_task.exists() and not workspace_task.exists():
+            shutil.copy2(template_task, workspace_task)
+            self.logger.info(f"Seeded {workspace_task}")
+
+        template_input = template_workspace / "input"
+        workspace_input = workspace / "input"
+        if template_input.exists() and not workspace_input.exists():
+            shutil.copytree(template_input, workspace_input)
+            self.logger.info(f"Seeded {workspace_input}")
 
         # findings.md (L2 — knowledge accumulation, append-only)
         findings_file = workspace / "findings.md"
@@ -155,16 +181,69 @@ class HamiltonPlayground(BasePlayground):
             if not isinstance(experiment_cfg, dict):
                 experiment_cfg = {}
             max_rounds = int(experiment_cfg.get('max_rounds', 5) or 5)
+            start_round = int(experiment_cfg.get("start_round", 1) or 1)
+            max_total_tokens = int(experiment_cfg.get("max_total_tokens", 0) or 0)
+            per_round_tokens = int(experiment_cfg.get("max_tokens_per_round", 0) or 0)
+            stall_rounds = int(experiment_cfg.get("stall_rounds", 0) or 0)
+            total_tokens = 0
+            stale_count = 0
+            incumbent_score = None
+            termination_reason = "max_rounds_reached"
 
             self.logger.info(f"Starting Hamilton experiment with {max_rounds} max rounds")
             self.logger.info(f"Task: {task_description}")
 
             # 初始化workspace
             self._init_workspace()
+            preflight_cfg = experiment_cfg.get("pysr_preflight", {})
+            if not isinstance(preflight_cfg, dict):
+                raise ValueError("experiment.pysr_preflight must be a mapping")
+            if preflight_cfg.get("enabled", True):
+                preflight_timeout = int(
+                    preflight_cfg.get("timeout_seconds", 180) or 180
+                )
+                self.logger.info(
+                    "Running Julia/PySR preflight before the first agent round"
+                )
+                try:
+                    preflight_result = run_preflight(
+                        timeout_seconds=preflight_timeout
+                    )
+                except PySRPreflightError as exc:
+                    raise RuntimeError(
+                        "Julia/PySR preflight failed before any LLM or search "
+                        f"budget was consumed: {exc}"
+                    ) from exc
+                self.experiment_record["pysr_preflight"] = preflight_result
+                self.logger.info(
+                    "Julia/PySR preflight ready: PySR %s, Julia %s, %.3fs",
+                    preflight_result["warmup"]["pysr_version"],
+                    preflight_result["warmup"]["julia_version"],
+                    preflight_result["warmup"]["controller_elapsed_seconds"],
+                )
+            final_ood_lock = (
+                self.workspace_dir / ".hamilton_final_ood.lock"
+                if self.workspace_dir
+                else None
+            )
+            if final_ood_lock and final_ood_lock.is_file():
+                raise RuntimeError(
+                    "This workspace has a finalized tier3 OOD attestation; "
+                    "further adaptive rounds are prohibited."
+                )
 
             # 循环执行多轮
-            for round_num in range(1, max_rounds + 1):
+            for round_num in range(start_round, max_rounds + 1):
                 self.logger.info("=" * 60)
+
+                if max_total_tokens:
+                    remaining = max_total_tokens - total_tokens
+                    if remaining <= 0:
+                        termination_reason = "token_budget_reached"
+                        break
+                    self.agent.config.max_total_tokens = (
+                        min(per_round_tokens, remaining) if per_round_tokens else remaining
+                    )
                 self.logger.info(f"Round {round_num}/{max_rounds}")
                 self.logger.info("=" * 60)
 
@@ -180,6 +259,8 @@ class HamiltonPlayground(BasePlayground):
                 # 执行单轮
                 result = exp.run(task_description)
                 signal = result.get("signal") or {}
+                round_tokens = self._trajectory_token_usage(result.get("trajectory"))
+                total_tokens += round_tokens
 
                 # 记录结果（确保可 JSON 序列化；完整轨迹已由 trajectories/trajectory.json 持久化）
                 round_record = {
@@ -188,20 +269,53 @@ class HamiltonPlayground(BasePlayground):
                     "findings": result.get("findings", ""),
                     "signal": signal,
                     "trajectory": self._summarize_trajectory(result.get("trajectory")),
+                    "token_usage": round_tokens,
                 }
                 self.experiment_record["rounds"].append(round_record)
+                self.experiment_record["total_token_usage"] = total_tokens
+
+                if not signal.get("closed", False):
+                    self.logger.warning("Stopping because the current round did not close cleanly")
+                    termination_reason = "round_incomplete"
+                    break
+
+                decision = signal.get("closure", {}).get("scientific_decision", {})
+                expected = decision.get("incumbent_expected") or {}
+                score = expected.get("score")
+                if isinstance(score, (int, float)):
+                    if incumbent_score is None or score < incumbent_score - 1e-12:
+                        incumbent_score = float(score)
+                        stale_count = 0
+                    else:
+                        stale_count += 1
 
                 # 检查是否完成
                 if self._is_satisfied(signal):
                     self.logger.info("Found satisfactory result!")
+                    termination_reason = "scientific_success"
+                    break
+                if max_total_tokens and total_tokens >= max_total_tokens:
+                    termination_reason = "token_budget_reached"
+                    break
+                if stall_rounds and stale_count >= stall_rounds:
+                    self.logger.info(f"Stopping after {stale_count} rounds without incumbent improvement")
+                    termination_reason = "incumbent_stalled"
                     break
 
             # 保存实验记录
             self._save_experiment_record()
 
+            final_signal = (
+                self.experiment_record["rounds"][-1].get("signal", {})
+                if self.experiment_record["rounds"]
+                else {}
+            )
             return {
-                "status": "completed",
+                "status": "completed" if final_signal.get("closed") else "incomplete",
                 "total_rounds": len(self.experiment_record["rounds"]),
+                "research_satisfied": bool(final_signal.get("satisfied", False)),
+                "termination_reason": termination_reason,
+                "total_token_usage": total_tokens,
                 "experiment_record": self.experiment_record,
             }
 
@@ -218,6 +332,10 @@ class HamiltonPlayground(BasePlayground):
     def _create_plan_file(self, plan_file: Path):
         """创建 plan.md 研究计划文件"""
         plan_content = f"""# 研究计划
+
+<!-- EVO_INITIAL_PRIORS_BEGIN -->
+{{"status": "pending"}}
+<!-- EVO_INITIAL_PRIORS_END -->
 
 {CURRENT_BEST_BEGIN}
 ## 当前最优
@@ -260,6 +378,15 @@ class HamiltonPlayground(BasePlayground):
             return {"status": status, "steps": steps_n}
         except Exception:
             return {}
+
+    @staticmethod
+    def _trajectory_token_usage(trajectory) -> int:
+        total = 0
+        for step in getattr(trajectory, "steps", []) or []:
+            message = getattr(step, "assistant_message", None)
+            usage = getattr(message, "meta", {}).get("usage", {}) if message else {}
+            total += int(usage.get("total_tokens", 0) or 0)
+        return total
 
     def _is_satisfied(self, signal) -> bool:
         """判断是否找到满意结果（只接受结构化信号，避免关键字误触发）"""
