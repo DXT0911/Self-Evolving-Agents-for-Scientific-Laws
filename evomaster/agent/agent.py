@@ -37,6 +37,10 @@ if TYPE_CHECKING:
 class AgentConfig(BaseModel):
     """Agent 配置"""
     max_turns: int = Field(default=100, description="最大执行轮数")
+    max_total_tokens: int | None = Field(
+        default=None,
+        description="Maximum API tokens consumed by one agent run.",
+    )
     context_config: ContextConfig = Field(
         default_factory=ContextConfig,
         description="上下文管理配置"
@@ -150,6 +154,16 @@ class BaseAgent(ABC):
         try:
             # 执行循环
             for turn in range(self.config.max_turns):
+                if self.config.max_total_tokens is not None:
+                    used = self._trajectory_token_usage()
+                    estimated_next = self.context_manager.estimate_tokens(self.current_dialog) + 2048
+                    if used + estimated_next > self.config.max_total_tokens:
+                        self.logger.warning(
+                            f"Token budget preflight stopped run: used={used}, "
+                            f"estimated_next={estimated_next}, limit={self.config.max_total_tokens}"
+                        )
+                        self.trajectory.finish("failed", {"reason": "token_budget_preflight"})
+                        break
                 # 清晰显示当前步骤
                 self.logger.info("=" * 80)
                 self.logger.info(f"📍 Step [{turn + 1}/{self.config.max_turns}]")
@@ -161,6 +175,13 @@ class BaseAgent(ABC):
                     self.logger.info("✅ Agent finished task")
                     self.logger.info("=" * 80)
                     self.trajectory.finish("completed")
+                    break
+                if (
+                    self.config.max_total_tokens is not None
+                    and self._trajectory_token_usage() >= self.config.max_total_tokens
+                ):
+                    self.logger.warning("Token budget exhausted")
+                    self.trajectory.finish("failed", {"reason": "token_budget_exhausted"})
                     break
             else:
                 self.logger.warning("=" * 80)
@@ -176,6 +197,16 @@ class BaseAgent(ABC):
             raise
 
         return self.trajectory
+
+    def _trajectory_token_usage(self) -> int:
+        if self.trajectory is None:
+            return 0
+        total = 0
+        for step in self.trajectory.steps:
+            message = step.assistant_message
+            if message is not None:
+                total += int(message.meta.get("usage", {}).get("total_tokens", 0) or 0)
+        return total
 
     def _initialize(self, task: TaskInstance) -> None:
         """初始化执行环境
