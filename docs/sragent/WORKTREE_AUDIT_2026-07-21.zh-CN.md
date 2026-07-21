@@ -16,9 +16,11 @@ diff，不应进入提交。
 
 ## 安全审计
 
-- 新增和修改文件中未发现新的明文 API key；Hamilton 配置使用 `${HAMILTON_API_KEY}`。
-- 基线历史曾包含旧凭证。本次提交只能从当前树删除它，不能清除既有 Git 历史；旧凭证必须
-  保持服务端撤销状态。
+- 原 57 项变更中未发现新加入的明文 API key；Hamilton 配置使用 `${HAMILTON_API_KEY}`。
+- 对完整当前树复核时，额外发现未包含在原 57 项变更中的 `examples/llm/config.yaml` 也含有
+  基线遗留凭证，已改为 `${OPENAI_API_KEY}` 和 `${ANTHROPIC_API_KEY}`。
+- 基线历史曾包含旧凭证。本次提交只能从当前树删除它们，不能清除既有 Git 历史；所有旧
+  凭证必须保持服务端撤销状态。
 - 5 个训练 CSV 保留在公开 `workspace/input/`。
 - 5 个 held-out test CSV 和 3 个最终 OOD CSV 从公开 workspace 删除，已迁移到被 Git 忽略的
   `playground/hamilton/benchmarks/viv/private/`，不得提交。
@@ -146,5 +148,6 @@ diff，不应进入提交。
 4. `feat(sragent): add private OOD evaluation and PySR preflight`
 5. `test(sragent): add runner and governance contract coverage`
 6. `docs(sragent): consolidate Hamilton research status and run records`
+7. `fix(security): remove credentials from LLM example config`
 
 不 push、不改写基线历史，也不提交 `runs/`、`.env` 或私有 benchmark 目录。
