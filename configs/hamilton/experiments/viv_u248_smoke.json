@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "experiment_id": "viv-u248-standard-tool-smoke",
+  "data": {
+    "train_file": "input/U248_train.csv",
+    "allowed_files": [
+      "input/U248_train.csv"
+    ],
+    "time_column": "t",
+    "feature_columns": [
+      "x",
+      "v"
+    ],
+    "target_column": "a",
+    "max_rows": 2000,
+    "validation_fraction": 0.2
+  },
+  "search": {
+    "engine": "pysr",
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "unary_operators": [],
+    "niterations": 5,
+    "max_evals": 200,
+    "populations": 4,
+    "population_size": 12,
+    "tournament_selection_n": 8,
+    "maxsize": 15,
+    "parsimony": 0.01,
+    "random_state": 42,
+    "top_k": 5
+  },
+  "verification": {
+    "short_ode": {
+      "enabled": true,
+      "position_column": "x",
+      "velocity_column": "v",
+      "duration": 1.0,
+      "points": 200
+    }
+  },
+  "output": {
+    "result_file": "history/round1/results/viv-u248-standard-tool-smoke.json",
+    "run_directory": "history/round1/results/viv-u248-standard-tool-smoke-pysr"
+  }
+}

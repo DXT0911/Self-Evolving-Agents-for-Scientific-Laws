@@ -485,7 +485,13 @@ class BasePlayground:
 
         # 计算启用的工具名称列表（用于过滤暴露给 LLM 的工具）
         # builtin 为 ["*"] 时表示所有工具都启用，为 [] 时不启用任何工具
-        enabled_tool_names = builtin if builtin else []
+        enabled_tool_names = list(builtin) if builtin else []
+        # Skills are operated through the use_skill tool. Configurations traditionally
+        # list only user-facing builtin tools, so expose use_skill automatically whenever
+        # a skill set is configured; otherwise the prompt advertises an unavailable tool
+        # and the agent cannot reach the experiment runner.
+        if skill_config and "use_skill" not in enabled_tool_names:
+            enabled_tool_names.append("use_skill")
 
         # 创建工具注册表（始终注册所有工具）
         tools = self._setup_tools(
@@ -496,7 +502,11 @@ class BasePlayground:
         max_turns = agent_config.get('max_turns', 20)
         context_config_dict = agent_config.get('context', {})
         context_config = ContextConfig(**context_config_dict)
-        agent_cfg = AgentConfig(max_turns=max_turns, context_config=context_config)
+        agent_cfg = AgentConfig(
+            max_turns=max_turns,
+            max_total_tokens=agent_config.get("max_total_tokens"),
+            context_config=context_config,
+        )
 
         # 获取输出配置
         output_config = self._get_output_config()

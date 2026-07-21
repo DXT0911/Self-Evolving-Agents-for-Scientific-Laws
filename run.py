@@ -21,6 +21,12 @@ import importlib
 from pathlib import Path
 from datetime import datetime
 
+# Windows commonly defaults stdout/stderr to GBK. Agent-generated scientific text may
+# contain characters such as superscripts that GBK cannot encode, so keep the CLI UTF-8.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 # 添加项目根目录到 sys.path
 project_root = Path(__file__).parent
 if str(project_root) not in sys.path:
