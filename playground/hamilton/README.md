@@ -2,6 +2,16 @@
 
 Hamilton 是基于 EvoMaster 框架的符号回归（Symbolic Regression）Agent，专门用于在**过完备变量**环境下发现数学方程。
 
+## Benchmark 隔离
+
+- Agent 只读取运行 workspace 中的公开 `task.md`、`plan.md` 和 `findings.md`。
+- 参考方程、系数、目标标签和 sealed test/OOD 资产保存在 workspace 外的
+  `benchmarks/<name>/private/`，该目录被 Git 忽略且不得提交。
+- LLM 文件工具被限制在 active workspace，不能通过绝对路径读取私有 benchmark。
+- 第一轮先使用 `literature-grounding` 和 `literature_search` 建立有来源的宽泛物理
+  先验；不得产生候选方程、单项式列表、系数、次数或 PySR 模板。
+- 第一轮闭环检查要求 `plan.md` 含有效的 `EVO_INITIAL_PRIORS` 块。
+
 ## 架构
 
 单 Agent + HCC（Hierarchical Cognitive Caching）分层记忆，四阶段闭环迭代。
@@ -9,13 +19,13 @@ Hamilton 是基于 EvoMaster 框架的符号回归（Symbolic Regression）Agent
 ```
 ┌─────────────────────────────────────────────────────┐
 │                HamiltonPlayground                    │
-│              (多轮循环编排 + L2 post-check)           │
+│       (多轮编排 + 预算/preflight + closure 审计)       │
 └─────────────────────────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────┐
 │                     RoundExp                         │
-│  系统: 重置 L1 → Agent 执行 → 解析 signal → post-check │
+│ 系统: 重置 L1 → Agent 执行 → 解析 signal → 治理审计    │
 └─────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -41,9 +51,12 @@ Round N 开始
     │     └─ Phase 4 Finish: 发出 satisfied 信号
     │
     ├─ 系统: 解析 satisfied 信号
-    ├─ 系统: L2 post-check（检测 findings.md / plan.md 是否更新）
+    ├─ 系统: closure 与科学治理审计
+    │     ├─ 检查 trace、结果 JSON、findings、plan 和 finish
+    │     ├─ 检查初始文献先验、incumbent 与 promotion gates
+    │     └─ 检查下一轮契约及唯一配置叶字段变更
     │
-Round N 结束 → satisfied=true ? 停止 : 进入 Round N+1
+Round N 结束 → closed=false ? 立即停止 : 按 satisfied 决定结束或下一轮
 ```
 
 ### HCC 分层记忆
@@ -70,10 +83,10 @@ playground/hamilton/
 │   ├── hamilton_system.txt # Agent 系统提示（四阶段协议 + HCC 规范）
 │   └── hamilton_user.txt   # Agent 用户提示（任务注入）
 ├── benchmarks/
-│   └── viv/               # VIV 多风速基准数据 + 任务描述
+│   └── viv/private/       # controller 私有 test/OOD/答案资产（Git ignored）
 ├── workspace/             # 模板目录（自动 seed 到 run workspace）
 │   ├── task.md            # 任务描述（含数据路径和评估标准）
-│   └── input/             # 数据文件（CSV）
+│   └── input/             # 仅公开训练 CSV
 ├── README.md
 └── TODO.md
 ```
@@ -103,6 +116,19 @@ playground/hamilton/
 - PySR API 速查和模板指南
 - Agent 通过 `use_skill pysr get_info` / `get_reference` 按需加载
 
+### 标准 SR 实验 Skill (`evomaster/skills/run-sr-experiment/`)
+
+- Agent 只创建 JSON 实验配置，不再临时编写 PySR 脚本
+- `run_experiment.py` 统一执行数据白名单检查、连续时间验证划分、PySR 搜索、基础指标和短时 ODE 积分
+- 对最终选择的原单位方程输出结构化残差诊断：状态依赖、训练分箱、时间相关、
+  频谱以及可选的振子半径/相位分箱；不保存逐点残差
+- OOD 采用四级协议：Tier 0 连续时间内部验证；Tier 1 同工况不同初态；
+  Tier 2 共享方程的留一工况验证；Tier 3 外部工况一次性最终验收
+- Tier 1--3 由 workspace 外的控制器对冻结候选执行，并用私有账本限制访问次数；
+  Tier 3 验收后写入锁文件，禁止继续自适应搜索
+- 强制确定性串行运行，并保存候选方程、数据指纹、环境版本和结构化失败原因
+- 先使用 `--validate-only` 检查配置，再执行正式搜索
+
 ### Evo Protocol Skill (`evomaster/skills/evo-protocol/`)
 - 科学迭代协议（假设 → 实验 → 记录 → 迭代）
 - plan 模板（含 Current Best markers）、完整规则、收敛指南
@@ -110,7 +136,8 @@ playground/hamilton/
 ### Signal 机制
 - Agent 调用 `finish(message="...", task_completed="true"/"false")` 结束本轮
 - 系统从 `task_completed` 判断是否停止迭代（`"true"` = 停止，`"false"` = 继续）
-- 如果 Agent 未调用 finish，系统默认继续迭代并输出 warning
+- `finish` 只是闭环证据之一；结果、L2 更新或治理决策缺失时该轮仍为 `closed=false`
+- 如果 Agent 未调用 `finish`，当前轮闭环失败，多轮控制器立即停止
 
 ---
 
@@ -132,7 +159,10 @@ python run.py --agent hamilton --task "task" --run-dir runs/my_experiment
 
 ### 配置
 
-修改 `configs/hamilton/config.yaml`：
+默认研究入口是 `configs/hamilton/config.yaml`。历史 smoke、恢复和长跑配置的用途与
+可复现限制见 `configs/hamilton/README.md`；它们不是可直接复用的正式 benchmark 配置。
+
+关键配置示例：
 
 ```yaml
 agent:
@@ -140,6 +170,8 @@ agent:
 
 experiment:
   max_rounds: 10      # 最大迭代轮数
+  scientific_governance: true
+  require_literature_grounding: true
 ```
 
 ---
@@ -155,8 +187,10 @@ experiment:
 ### 单 Agent 闭环
 一个 Agent 完成发现 → 验证 → 提炼全流程，避免多 Agent 间信息损耗。
 
-### 系统最小职责
-系统只做三件事：重置 L1、解析 satisfied 信号、L2 post-check。所有语义决策由 Agent 自主完成。
+### 控制器职责
+Agent 负责提出假设和解释证据；控制器负责 workspace 隔离、预算、PySR preflight、标准化
+执行、closure 证明、科学治理审计和私有 OOD 访问。控制器验证流程条件，但不替 Agent 生成
+科学结论。
 
 ### 可调试性
 - 每轮脚本保存到 `history/round{N}/scripts/`

@@ -3,6 +3,9 @@
   【<a href="./README.md">English</a> | <a href="./README-zh.md">简体中文</a>】
 </p>
 
+> 本 fork 的 SR Agent 研究入口：[`WORKSPACE.md`](./WORKSPACE.md)；
+> 实验协议：[`docs/sragent/RESEARCH_PROTOCOL.md`](./docs/sragent/RESEARCH_PROTOCOL.md)。
+
 <div align="center">
 
 **构建通向自主演进科研（Autonomous Scientific Research）的通用智能体基座**

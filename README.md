@@ -6,6 +6,10 @@
   【<a href="./README.md">English</a> | <a href="./README-zh.md">简体中文</a>】
 </p>
 
+> SR Agent research in this fork starts at [`WORKSPACE.md`](./WORKSPACE.md).
+> See [`docs/sragent/RESEARCH_PROTOCOL.md`](./docs/sragent/RESEARCH_PROTOCOL.md)
+> for the experiment protocol.
+
 <div align="center">
 
 **The Universal Infrastructure for Building Evolving Autonomous Scientific Research Agents.**

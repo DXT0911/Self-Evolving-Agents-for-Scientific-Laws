@@ -1,0 +1,74 @@
+# Hamilton 低预算端到端冒烟测试配置
+#
+# 使用前请在仓库根目录的 .env 中设置：
+# HAMILTON_API_KEY="..."
+#
+# 该配置只运行一轮，并限制 Agent 工具调用次数。它用于验证数据读取、
+# PySR 调用、候选方程评估、L2 记录和 finish 信号这条链路是否可用，
+# 不用于生成正式研究结论。
+
+llm:
+  openai:
+    provider: "openai"
+    model: "deepseek-v4-pro"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    temperature: 0.2
+    max_tokens: 16000
+    timeout: 120
+    max_retries: 1
+    retry_delay: 1.0
+
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 18
+    enable_tools: true
+
+    context:
+      max_tokens: 32000
+      truncation_strategy: "latest_half"
+      preserve_system_messages: true
+      preserve_recent_turns: 6
+
+    system_prompt_file: "prompts/hamilton_system.txt"
+    user_prompt_file: "prompts/hamilton_user.txt"
+
+    skills:
+      - literature-grounding
+      - pysr
+      - run-sr-experiment
+      - evo-protocol
+
+    tools:
+      builtin: ["str_replace_editor", "literature_search", "think", "finish"]
+
+session:
+  type: "local"
+
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 1800
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
+    gpu_devices: null
+    cpu_devices: null
+    symlinks: {}
+
+experiment:
+  max_rounds: 1
+  scientific_governance: true
+  require_literature_grounding: true
+
+llm_output:
+  show_in_console: true
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false

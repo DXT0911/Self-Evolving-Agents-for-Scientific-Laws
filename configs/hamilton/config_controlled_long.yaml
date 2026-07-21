@@ -1,0 +1,76 @@
+llm:
+  openai:
+    provider: "openai"
+    model: "deepseek-v4-pro"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    temperature: 0.2
+    max_tokens: 6000
+    timeout: 120
+    max_retries: 1
+    retry_delay: 1.0
+
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 16
+    max_total_tokens: 240000
+    enable_tools: true
+
+    context:
+      max_tokens: 18000
+      truncation_strategy: "latest_half"
+      preserve_system_messages: true
+      preserve_recent_turns: 5
+
+    system_prompt_file: "prompts/hamilton_adaptive_system.txt"
+    user_prompt_file: "prompts/hamilton_adaptive_user.txt"
+
+    skills:
+      - literature-grounding
+      - pysr
+      - run-sr-experiment
+      - evo-protocol
+
+    tools:
+      builtin: ["str_replace_editor", "literature_search", "think", "finish"]
+
+session:
+  type: "local"
+
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 1800
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
+    gpu_devices: null
+    cpu_devices: null
+    symlinks: {}
+
+experiment:
+  pysr_preflight:
+    enabled: true
+    timeout_seconds: 180
+  # Resume the preserved baseline in retry1; execute rounds 2 and 3.
+  start_round: 2
+  max_rounds: 3
+  scientific_governance: true
+  # 707695 tokens were consumed by the two guarded setup attempts. This remaining
+  # cap keeps the complete authorized long-run total below approximately 1.2M.
+  max_total_tokens: 480000
+  max_tokens_per_round: 240000
+  max_total_evals: 100000
+  stall_rounds: 3
+
+llm_output:
+  show_in_console: false
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false
