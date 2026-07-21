@@ -1,0 +1,1032 @@
+"""Contract tests for the configuration-driven SR experiment runner."""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+import numpy as np
+import pandas as pd
+import sympy
+
+from playground.hamilton.core.exp import RoundExp
+from playground.hamilton.core.ood_evaluator import (
+    OODAccessLedger,
+    OODProtocolError,
+    canonical_hash,
+    evaluate_tier,
+    finalize_tier3,
+    freeze_candidate_bundle,
+    load_frozen_bundle,
+    release_summary,
+    verify_frozen_sources,
+)
+from evomaster.agent.tools.builtin.editor import EditorTool, list_local_directory
+from evomaster.agent.tools.builtin.literature import LiteratureSearchTool
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+RUNNER_PATH = (
+    PROJECT_ROOT
+    / "evomaster"
+    / "skills"
+    / "run-sr-experiment"
+    / "scripts"
+    / "run_experiment.py"
+)
+SPEC = importlib.util.spec_from_file_location("run_sr_experiment_script", RUNNER_PATH)
+RUNNER = importlib.util.module_from_spec(SPEC)
+assert SPEC and SPEC.loader
+SPEC.loader.exec_module(RUNNER)
+
+
+def valid_config() -> dict:
+    return {
+        "schema_version": 1,
+        "experiment_id": "contract-test",
+        "data": {
+            "train_file": "input/train.csv",
+            "allowed_files": ["input/train.csv"],
+            "time_column": "t",
+            "feature_columns": ["x", "v"],
+            "target_column": "a",
+            "max_rows": 10,
+            "standardize_search": False,
+            "validation_fraction": 0.2,
+        },
+        "search": {
+            "engine": "pysr",
+            "binary_operators": ["+", "*"],
+            "unary_operators": [],
+            "niterations": 1,
+            "max_evals": 10,
+            "populations": 1,
+            "population_size": 4,
+            "tournament_selection_n": 2,
+            "maxsize": 5,
+            "parsimony": 0.01,
+            "random_state": 42,
+            "top_k": 3,
+        },
+        "verification": {"short_ode": {"enabled": False}},
+        "output": {
+            "result_file": "results/result.json",
+            "run_directory": "results/pysr-run",
+        },
+    }
+
+
+class StandardRunnerContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        (self.workspace / "input").mkdir()
+        pd.DataFrame(
+            {
+                "t": range(10),
+                "x": range(10),
+                "v": range(10),
+                "a": range(10),
+            }
+        ).to_csv(self.workspace / "input" / "train.csv", index=False)
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def write_config(self, config: dict) -> Path:
+        path = self.workspace / "experiment.json"
+        path.write_text(json.dumps(config), encoding="utf-8")
+        return path
+
+    def test_valid_config_and_contiguous_split(self) -> None:
+        config, paths = RUNNER.load_and_validate(self.write_config(valid_config()), self.workspace)
+        train, validation, split = RUNNER.load_data(config, paths["train"])
+        self.assertEqual(len(train), 8)
+        self.assertEqual(len(validation), 2)
+        self.assertEqual(split["train_time"], [0.0, 7.0])
+        self.assertEqual(split["validation_time"], [8.0, 9.0])
+        self.assertEqual(split["search_rows"], 8)
+
+    def test_null_max_rows_reads_complete_file_and_stride_spans_discovery_block(self) -> None:
+        config = valid_config()
+        config["data"]["max_rows"] = None
+        config["data"]["search_stride"] = 3
+        normalized, paths = RUNNER.load_and_validate(self.write_config(config), self.workspace)
+        train, validation, split = RUNNER.load_data(normalized, paths["train"])
+        self.assertEqual(len(train), 8)
+        self.assertEqual(len(validation), 2)
+        self.assertEqual(split["search_rows"], 3)
+        self.assertEqual(split["search_stride"], 3)
+
+    def test_rejects_non_boolean_standardize_search(self) -> None:
+        config = valid_config()
+        config["data"]["standardize_search"] = "yes"
+        with self.assertRaisesRegex(RUNNER.ConfigError, "must be boolean"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_standardization_uses_training_block_only(self) -> None:
+        config = valid_config()
+        config["data"]["standardize_search"] = True
+        normalized, paths = RUNNER.load_and_validate(self.write_config(config), self.workspace)
+        train, validation, _ = RUNNER.load_data(normalized, paths["train"])
+        validation.loc[:, ["x", "v", "a"]] = 1_000_000
+
+        transform = RUNNER.build_search_transform(train, ["x", "v"], "a", True)
+
+        self.assertEqual(transform["fit_source"], "training_block_only")
+        self.assertAlmostEqual(transform["feature_mean"]["x"], 3.5)
+        self.assertAlmostEqual(transform["target_mean"], 3.5)
+        self.assertLess(transform["feature_std"]["x"], 10)
+
+    def test_restores_search_equation_to_original_units(self) -> None:
+        x, v = sympy.symbols("x v")
+        transform = {
+            "enabled": True,
+            "feature_mean": {"x": 10.0, "v": 100.0},
+            "feature_std": {"x": 2.0, "v": 10.0},
+            "target_mean": 5.0,
+            "target_std": 4.0,
+        }
+        restored = RUNNER.restore_original_units(2 * x + v**2, ["x", "v"], transform)
+        expected = 5 + 4 * (2 * ((x - 10) / 2) + ((v - 100) / 10) ** 2)
+        difference = sympy.lambdify((x, v), restored - expected, modules="math")
+        self.assertAlmostEqual(float(difference(13.0, 117.0)), 0.0, places=12)
+
+    def test_standardized_candidate_is_evaluated_in_original_units(self) -> None:
+        config = valid_config()
+        config["data"]["standardize_search"] = True
+        normalized, paths = RUNNER.load_and_validate(self.write_config(config), self.workspace)
+        train, validation, _ = RUNNER.load_data(normalized, paths["train"])
+        transform = RUNNER.build_search_transform(train, ["x", "v"], "a", True)
+
+        class FakeModel:
+            @staticmethod
+            def sympy(index: int):
+                return sympy.Symbol("x")
+
+        equations = pd.DataFrame(
+            [{"equation": "x", "loss": 0.0, "complexity": 1, "score": 1.0}]
+        )
+        candidate = RUNNER.evaluate_candidates(
+            FakeModel(),
+            equations,
+            normalized,
+            train,
+            validation,
+            transform,
+        )[0]
+        self.assertEqual(candidate["search_space_equation"], "x")
+        self.assertAlmostEqual(candidate["metrics"]["validation"]["mse"], 0.0)
+        self.assertNotEqual(candidate["simplified_equation"], candidate["search_space_equation"])
+
+    def test_rejects_training_file_outside_allowlist(self) -> None:
+        config = valid_config()
+        config["data"]["allowed_files"] = ["input/other.csv"]
+        with self.assertRaisesRegex(RUNNER.ConfigError, "must appear exactly"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_rejects_output_path_escape(self) -> None:
+        config = valid_config()
+        config["output"]["result_file"] = "../escaped.json"
+        with self.assertRaisesRegex(RUNNER.ConfigError, "inside workspace"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_rejects_cumulative_evaluation_budget_overrun(self) -> None:
+        (self.workspace / ".hamilton_budget.json").write_text(
+            json.dumps({"max_total_evals": 15}),
+            encoding="utf-8",
+        )
+        previous = self.workspace / "history" / "round1" / "results"
+        previous.mkdir(parents=True)
+        (previous / "previous.json").write_text(
+            json.dumps(
+                {
+                    "status": "completed",
+                    "config": {"search": {"max_evals": 7}},
+                    "selected": {"scientific_score": 1.0},
+                }
+            ),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(RUNNER.ConfigError, "total PySR evaluation budget exceeded"):
+            RUNNER.load_and_validate(self.write_config(valid_config()), self.workspace)
+
+    def test_rejects_invalid_pysr_population_settings(self) -> None:
+        config = valid_config()
+        config["search"]["tournament_selection_n"] = 4
+        with self.assertRaisesRegex(RUNNER.ConfigError, "smaller than"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_rejects_candidate_pool_larger_than_top_k(self) -> None:
+        config = valid_config()
+        config["verification"]["candidate_ranking"] = {
+            "enabled": True,
+            "max_candidates": 4,
+            "weights": {
+                "validation_nrmse": 1.0,
+                "trajectory_nrmse": 1.0,
+                "complexity": 0.1,
+            },
+            "failure_penalty": 100.0,
+        }
+        with self.assertRaisesRegex(RUNNER.ConfigError, "cannot exceed"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_rejects_invalid_residual_diagnostic_bins(self) -> None:
+        config = valid_config()
+        config["verification"]["residual_diagnostics"] = {
+            "enabled": True,
+            "feature_bins": 1,
+            "phase_bins": 8,
+            "max_lag": 10,
+            "high_frequency_fraction": 0.25,
+        }
+        with self.assertRaisesRegex(RUNNER.ConfigError, "feature_bins must be between"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_structured_residual_diagnostics_find_state_and_time_patterns(self) -> None:
+        config = valid_config()
+        config["verification"]["residual_diagnostics"] = {
+            "enabled": True,
+            "feature_bins": 4,
+            "phase_bins": 8,
+            "max_lag": 20,
+            "high_frequency_fraction": 0.25,
+        }
+        config["verification"]["short_ode"] = {
+            "enabled": False,
+            "position_column": "x",
+            "velocity_column": "v",
+        }
+        time_values = np.arange(100, dtype=float) * 0.05
+        frame = pd.DataFrame(
+            {
+                "t": time_values,
+                "x": np.linspace(-2.0, 2.0, len(time_values)),
+                "v": np.sin(2 * np.pi * time_values),
+            }
+        )
+        frame["a"] = 1.5 * frame["x"] + 0.2 * np.sin(4 * np.pi * time_values)
+        train = frame.iloc[:80].copy()
+        validation = frame.iloc[80:].copy()
+        train_prediction = np.zeros(len(train))
+        validation_prediction = np.zeros(len(validation))
+
+        result = RUNNER.residual_diagnostics(
+            train,
+            validation,
+            train_prediction,
+            validation_prediction,
+            config,
+        )
+
+        self.assertEqual(result["definition"], "target_minus_prediction_in_original_units")
+        self.assertEqual(result["role"], "diagnostic_only_not_in_scientific_score")
+        state = result["train"]["state_dependence"]
+        self.assertGreater(abs(state["pearson_correlation"]["x"]), 0.9)
+        self.assertEqual(
+            sum(item["count"] for item in state["feature_quantile_bins"]["x"]),
+            len(train),
+        )
+        temporal = result["train"]["temporal_structure"]
+        self.assertIsNotNone(temporal["strongest_reported_autocorrelation"]["value"])
+        self.assertEqual(temporal["spectrum"]["status"], "completed")
+        self.assertIn("oscillator_state", result["train"])
+        self.assertNotIn("residual_values", result["train"])
+        json.dumps(result, allow_nan=False)
+
+    def test_candidate_scoring_uses_validation_and_complexity(self) -> None:
+        config = valid_config()
+        config["verification"]["candidate_ranking"] = {
+            "enabled": True,
+            "max_candidates": 2,
+            "weights": {
+                "validation_nrmse": 1.0,
+                "trajectory_nrmse": 0.0,
+                "complexity": 0.1,
+            },
+            "failure_penalty": 100.0,
+        }
+        config["verification"]["short_ode"] = {"enabled": False}
+        config, paths = RUNNER.load_and_validate(self.write_config(config), self.workspace)
+        train, validation, _ = RUNNER.load_data(config, paths["train"])
+
+        class FakeModel:
+            @staticmethod
+            def sympy(index: int):
+                x = sympy.Symbol("x")
+                return x if index == 0 else 0 * x
+
+        equations = pd.DataFrame(
+            [
+                {"equation": "x", "loss": 0.1, "complexity": 1, "score": 1.0},
+                {"equation": "0", "loss": 0.2, "complexity": 1, "score": 0.5},
+            ]
+        )
+        candidates = RUNNER.evaluate_candidates(FakeModel(), equations, config, train, validation)
+        self.assertEqual(len(candidates), 2)
+        self.assertIn("scientific_score", candidates[0]["ranking"])
+        self.assertLess(
+            candidates[0]["ranking"]["scientific_score"],
+            candidates[1]["ranking"]["scientific_score"],
+        )
+
+    def test_linear_diagnostic_reports_scale_aware_effects(self) -> None:
+        config, paths = RUNNER.load_and_validate(self.write_config(valid_config()), self.workspace)
+        train, validation, _ = RUNNER.load_data(config, paths["train"])
+        diagnostic = RUNNER.linear_diagnostic(train, validation, ["x", "v"], "a")
+        self.assertEqual(
+            diagnostic["scale_aware"]["method"],
+            "coefficient_times_train_std_over_target_std",
+        )
+        self.assertEqual(set(diagnostic["scale_aware"]["standardized_effect"]), {"x", "v"})
+
+
+class RoundClosureContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        self.round_dir = self.workspace / "history" / "round1"
+        (self.round_dir / "results").mkdir(parents=True)
+        (self.round_dir / "trace.md").write_text("initial trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("initial findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("initial plan", encoding="utf-8")
+        self.exp = object.__new__(RoundExp)
+        self.exp.run_dir = self.workspace
+        self.exp.round_num = 1
+        self.exp.logger = __import__("logging").getLogger("round-closure-test")
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    @staticmethod
+    def finish_trajectory(task_completed: str = "true") -> SimpleNamespace:
+        function = SimpleNamespace(
+            name="finish",
+            arguments=json.dumps({"message": "closed", "task_completed": task_completed}),
+        )
+        call = SimpleNamespace(function=function)
+        assistant = SimpleNamespace(tool_calls=[call])
+        return SimpleNamespace(steps=[SimpleNamespace(assistant_message=assistant)])
+
+    def test_accepts_complete_round_closure(self) -> None:
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("updated plan", encoding="utf-8")
+        (self.round_dir / "results" / "result.json").write_text(
+            json.dumps({"status": "completed"}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, self.finish_trajectory())
+        self.assertTrue(closure["closed"])
+        self.assertEqual(closure["completed_result_files"], ["history\\round1\\results\\result.json"])
+
+    def test_accepts_controller_declared_completed_result_on_promotion_resume(self) -> None:
+        result = self.round_dir / "results" / "result.json"
+        result.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        self.exp.config = SimpleNamespace(
+            experiment={
+                "resume_completed_result": "history/round1/results/result.json",
+            }
+        )
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("updated plan", encoding="utf-8")
+        closure = self.exp._check_round_closure(
+            before,
+            self.finish_trajectory(task_completed="true"),
+        )
+        self.assertTrue(closure["closed"])
+        self.assertEqual(
+            closure["completed_result_files"],
+            ["history\\round1\\results\\result.json"],
+        )
+
+    def test_rejects_round_one_without_required_literature_grounding(self) -> None:
+        self.exp.config = SimpleNamespace(
+            experiment={"require_literature_grounding": True}
+        )
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("updated plan without priors", encoding="utf-8")
+        (self.round_dir / "results" / "result.json").write_text(
+            json.dumps({"status": "completed"}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, self.finish_trajectory())
+        self.assertFalse(closure["closed"])
+        self.assertFalse(closure["initial_priors"]["valid"])
+
+    def test_rejects_missing_promotion_and_finish(self) -> None:
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.round_dir / "results" / "result.json").write_text(
+            json.dumps({"status": "completed"}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, SimpleNamespace(steps=[]))
+        self.assertFalse(closure["closed"])
+        self.assertFalse(closure["finish_called"])
+        self.assertFalse(closure["findings_updated"])
+        self.assertFalse(closure["plan_updated"])
+
+    @staticmethod
+    def continuation_contract() -> str:
+        return """<!-- EVO_NEXT_ROUND_BEGIN -->
+## 下一轮实验契约
+- 上轮失败：candidate failed
+- 原因假设：verification was too short
+- 下一轮主变量：verification duration
+- 保持不变：data and search
+- 预期证据：ranking changes
+- 成功标准：long rollout passes
+- 失败后的策略：change search
+<!-- EVO_NEXT_ROUND_END -->"""
+
+    def test_continuing_round_requires_next_round_contract(self) -> None:
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("updated plan without contract", encoding="utf-8")
+        (self.round_dir / "results" / "result.json").write_text(
+            json.dumps({"status": "completed", "config": {"search": {"niterations": 1}}}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, self.finish_trajectory("false"))
+        self.assertFalse(closure["closed"])
+        self.assertFalse(closure["continuation_contract_valid"])
+
+    def test_round_two_requires_meaningful_config_change(self) -> None:
+        previous_config = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"niterations": 10},
+            "verification": {"short_ode": {"duration": 1.0}},
+            "output": {"result_file": "old.json"},
+        }
+        (self.round_dir / "results" / "previous.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        self.exp.round_num = 2
+        round_two = self.workspace / "history" / "round2"
+        (round_two / "results").mkdir(parents=True)
+        (round_two / "trace.md").write_text("initial trace", encoding="utf-8")
+        before = self.exp._snapshot_closure_artifacts()
+
+        (round_two / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text(self.continuation_contract(), encoding="utf-8")
+        (round_two / "results" / "same.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, self.finish_trajectory("false"))
+        self.assertFalse(closure["closed"])
+        self.assertFalse(closure["meaningful_config_change"])
+
+        changed_config = json.loads(json.dumps(previous_config))
+        changed_config["verification"]["short_ode"]["duration"] = 5.0
+        (round_two / "results" / "same.json").unlink()
+        (round_two / "results" / "changed.json").write_text(
+            json.dumps({"status": "completed", "config": changed_config}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(before, self.finish_trajectory("false"))
+        self.assertTrue(closure["closed"])
+        self.assertTrue(closure["meaningful_config_change"])
+        self.assertEqual(
+            closure["changed_config_fields"],
+            ["verification.short_ode.duration"],
+        )
+
+    def test_round_two_rejects_multiple_config_changes(self) -> None:
+        previous_config = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"niterations": 10, "parsimony": 0.1},
+            "verification": {"short_ode": {"duration": 1.0}},
+        }
+        (self.round_dir / "results" / "previous.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        self.exp.round_num = 2
+        round_two = self.workspace / "history" / "round2"
+        (round_two / "results").mkdir(parents=True)
+        (round_two / "trace.md").write_text("initial trace", encoding="utf-8")
+        changed = json.loads(json.dumps(previous_config))
+        changed["search"]["niterations"] = 20
+        changed["search"]["parsimony"] = 0.01
+        (round_two / "results" / "changed.json").write_text(
+            json.dumps({"status": "completed", "config": changed}),
+            encoding="utf-8",
+        )
+        valid, fields = self.exp._single_config_change(
+            ["history/round2/results/changed.json"]
+        )
+        self.assertFalse(valid)
+        self.assertEqual(fields, ["search.niterations", "search.parsimony"])
+
+
+class ScientificGovernanceTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        self.exp = object.__new__(RoundExp)
+        self.exp.run_dir = self.workspace
+        self.exp.round_num = 2
+        self.exp.config = SimpleNamespace(experiment={"scientific_governance": True})
+        self.exp.logger = __import__("logging").getLogger("scientific-governance-test")
+        for round_num, score in ((1, 0.8), (2, 0.9)):
+            results = self.workspace / "history" / f"round{round_num}" / "results"
+            results.mkdir(parents=True)
+            (results / f"r{round_num}.json").write_text(
+                json.dumps(
+                    {
+                        "status": "completed",
+                        "selected": {
+                            "scientific_score": score,
+                            "simplified_equation": f"eq{round_num}",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def write_decision(
+        self,
+        *,
+        incumbent: str = "history/round1/results/r1.json",
+        incumbent_action: str = "retain",
+        claim_strength: str = "supported",
+        evidence: list[str] | None = None,
+        alternatives_tested: int = 0,
+        promotion_gate_passed: bool = False,
+        gate_passed: bool = False,
+        solver_completion_only: bool = False,
+    ) -> None:
+        decision = {
+            "incumbent": {"result_file": incumbent, "action": incumbent_action},
+            "claims": [
+                {
+                    "statement": "intervention changed the measured outcome",
+                    "strength": claim_strength,
+                    "evidence": evidence or ["history/round2/results/r2.json: scientific_score=0.9"],
+                    "alternatives_tested": alternatives_tested,
+                }
+            ],
+            "scale_diagnostics": {
+                "method": "standardized_feature_effect",
+                "raw_coefficient_comparison": False,
+                "evidence": "diagnostics.linear_raw_features.scale_aware.standardized_effect",
+            },
+            "promotion_gates": [
+                {
+                    "name": "candidate validity",
+                    "passed": promotion_gate_passed,
+                    "evidence": "validation and rollout thresholds",
+                }
+            ],
+            "scientific_gates": [
+                {
+                    "name": "held-out validation",
+                    "passed": gate_passed,
+                    "evidence": "validation R2 threshold comparison",
+                }
+            ],
+            "solver_completion_only": solver_completion_only,
+            "next_strategy": {
+                "diagnosed_failure": "held-out validation did not improve",
+                "evidence": "round2 score 0.9 is worse than 0.8",
+                "config_field": "search.max_evals",
+                "expected_effect": "lower held-out scientific score",
+                "risks": ["more compute may not diversify structures"],
+                "falsification": "score remains greater than or equal to 0.8",
+            },
+        }
+        (self.workspace / "plan.md").write_text(
+            "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->\n"
+            + json.dumps(decision, ensure_ascii=False)
+            + "\n<!-- EVO_SCIENTIFIC_DECISION_END -->",
+            encoding="utf-8",
+        )
+
+    def test_retains_lower_scoring_historical_incumbent(self) -> None:
+        self.write_decision()
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertTrue(audit["valid"])
+        self.assertEqual(
+            audit["incumbent_expected"]["path"],
+            "history/round1/results/r1.json",
+        )
+
+    def test_rejects_latest_result_when_its_score_is_worse(self) -> None:
+        self.write_decision(
+            incumbent="history/round2/results/r2.json",
+            incumbent_action="promote",
+            promotion_gate_passed=True,
+        )
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["valid"])
+        self.assertFalse(audit["incumbent_valid"])
+
+    def test_lower_score_requires_promotion_gate(self) -> None:
+        result = self.workspace / "history" / "round2" / "results" / "r2.json"
+        payload = json.loads(result.read_text(encoding="utf-8"))
+        payload["selected"]["scientific_score"] = 0.7
+        result.write_text(json.dumps(payload), encoding="utf-8")
+
+        self.write_decision(promotion_gate_passed=False)
+        retained = self.exp._audit_scientific_decision("false")
+        self.assertTrue(retained["incumbent_valid"])
+
+        self.write_decision(
+            incumbent="history/round2/results/r2.json",
+            incumbent_action="promote",
+            promotion_gate_passed=True,
+        )
+        promoted = self.exp._audit_scientific_decision("false")
+        self.assertTrue(promoted["incumbent_valid"])
+
+    def test_rejects_confirmation_without_alternative_test(self) -> None:
+        self.write_decision(
+            claim_strength="confirmed",
+            evidence=["experiment one", "experiment two"],
+            alternatives_tested=0,
+        )
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["claims_valid"])
+
+    def test_rejects_solver_only_success(self) -> None:
+        self.write_decision(gate_passed=True, solver_completion_only=True)
+        audit = self.exp._audit_scientific_decision("true")
+        self.assertFalse(audit["success_gates_valid"])
+
+    def test_rejects_multiple_next_strategy_fields(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8")
+        content = content.replace(
+            '"config_field": "search.max_evals"',
+            '"config_field": "search.max_evals, search.niterations"',
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["plan_quality_valid"])
+
+
+class ProtectedDataToolTests(unittest.TestCase):
+    def test_editor_refuses_protected_tabular_file(self) -> None:
+        session = SimpleNamespace(
+            config=SimpleNamespace(blocked_read_extensions=[".csv"])
+        )
+        output, info = EditorTool().execute(
+            session,
+            json.dumps({"command": "view", "path": "C:\\workspace\\input\\secret.csv"}),
+        )
+        self.assertIn("Access denied", output)
+        self.assertIn("error", info)
+
+    def test_directory_listing_hides_protected_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "secret.csv").write_text("private", encoding="utf-8")
+            (root / "summary.json").write_text("{}", encoding="utf-8")
+            output = list_local_directory(str(root), blocked_extensions={".csv"})
+            self.assertNotIn("secret.csv", output)
+            self.assertIn("summary.json", output)
+
+    def test_editor_refuses_path_outside_active_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "workspace"
+            workspace.mkdir()
+            outside = Path(temporary) / "private" / "benchmark.json"
+            outside.parent.mkdir()
+            outside.write_text('{"answer": "hidden"}', encoding="utf-8")
+            session = SimpleNamespace(
+                config=SimpleNamespace(
+                    blocked_read_extensions=[],
+                    workspace_path=str(workspace),
+                )
+            )
+            output, info = EditorTool().execute(
+                session,
+                json.dumps({"command": "view", "path": str(outside.resolve())}),
+            )
+            self.assertIn("restricted to the active workspace", output)
+            self.assertIn("error", info)
+
+
+class LiteratureGroundingTests(unittest.TestCase):
+    def test_literature_tool_returns_structured_citations(self) -> None:
+        payload = {
+            "message": {
+                "items": [
+                    {
+                        "DOI": "10.1234/example",
+                        "title": ["General oscillator energy balance"],
+                        "author": [{"given": "Ada", "family": "Researcher"}],
+                        "published-online": {"date-parts": [[2025, 1, 2]]},
+                        "container-title": ["Journal of Dynamics"],
+                        "abstract": "<jats:p>Broad qualitative mechanism.</jats:p>",
+                        "type": "journal-article",
+                    }
+                ]
+            }
+        }
+
+        with patch.object(LiteratureSearchTool, "_request", return_value=payload):
+            output, info = LiteratureSearchTool().execute(
+                None,
+                json.dumps(
+                    {
+                        "query": "nonlinear oscillator energy balance",
+                        "max_results": 3,
+                    }
+                ),
+            )
+
+        result = json.loads(output)
+        self.assertEqual(info["result_count"], 1)
+        self.assertEqual(result["results"][0]["year"], 2025)
+        self.assertEqual(result["results"][0]["url"], "https://doi.org/10.1234/example")
+        self.assertNotIn("<jats", result["results"][0]["abstract"])
+
+    def test_initial_priors_require_citations_and_no_equation_syntax(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            plan = {
+                "status": "completed",
+                "queries": ["restoring mechanisms", "oscillator energy balance"],
+                "sources": [
+                    {"id": "S1", "title": "Paper one", "year": 2024, "url": "https://doi.org/1"},
+                    {"id": "S2", "title": "Paper two", "year": 2025, "url": "https://doi.org/2"},
+                ],
+                "priors": [
+                    {
+                        "statement": "Elastic support can provide restoring behavior.",
+                        "evidence_sources": ["S1"],
+                        "scope": "elastic oscillators",
+                        "strength": "hypothesis",
+                    },
+                    {
+                        "statement": "Energy input and dissipation can coexist.",
+                        "evidence_sources": ["S1", "S2"],
+                        "scope": "flow-coupled oscillators",
+                        "strength": "hypothesis",
+                    },
+                    {
+                        "statement": "Operating conditions may share qualitative structure.",
+                        "evidence_sources": ["S2"],
+                        "scope": "one specimen",
+                        "strength": "hypothesis",
+                    },
+                ],
+                "candidate_template_proposed": False,
+            }
+            (workspace / "plan.md").write_text(
+                "<!-- EVO_INITIAL_PRIORS_BEGIN -->\n"
+                + json.dumps(plan)
+                + "\n<!-- EVO_INITIAL_PRIORS_END -->",
+                encoding="utf-8",
+            )
+            exp = object.__new__(RoundExp)
+            exp.run_dir = workspace
+            self.assertTrue(exp._audit_initial_priors()["valid"])
+
+            plan["priors"][0]["statement"] = "a = c1*x"
+            (workspace / "plan.md").write_text(
+                "<!-- EVO_INITIAL_PRIORS_BEGIN -->\n"
+                + json.dumps(plan)
+                + "\n<!-- EVO_INITIAL_PRIORS_END -->",
+                encoding="utf-8",
+            )
+            self.assertFalse(exp._audit_initial_priors()["valid"])
+
+    def test_public_task_contains_no_reference_equation(self) -> None:
+        content = (
+            PROJECT_ROOT / "playground" / "hamilton" / "workspace" / "task.md"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("EvLOWN", content)
+        self.assertNotIn("v^3", content)
+        self.assertNotIn("omega^2", content)
+
+    def test_public_workspace_contains_training_data_only(self) -> None:
+        input_dir = PROJECT_ROOT / "playground" / "hamilton" / "workspace" / "input"
+        names = {path.name for path in input_dir.glob("*.csv")}
+        self.assertEqual(
+            names,
+            {
+                "U248_train.csv",
+                "U254_train.csv",
+                "U260_train.csv",
+                "U273_train.csv",
+                "U282_train.csv",
+            },
+        )
+
+
+class TieredOODTests(unittest.TestCase):
+    def test_freeze_bundle_detects_result_or_bundle_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "workspace"
+            result_dir = workspace / "history" / "round1" / "results"
+            result_dir.mkdir(parents=True)
+            result_path = result_dir / "candidate.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "status": "completed",
+                        "config": {
+                            "data": {
+                                "train_file": "input/U248_train.csv",
+                                "feature_columns": ["x", "v"],
+                                "target_column": "a",
+                                "time_column": "t",
+                            },
+                            "verification": {
+                                "short_ode": {
+                                    "position_column": "x",
+                                    "velocity_column": "v",
+                                }
+                            },
+                        },
+                        "selected": {"simplified_equation": "-x - v"},
+                        "data": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            frozen_path = Path(temporary) / "private" / "frozen.json"
+            bundle = freeze_candidate_bundle(
+                workspace,
+                ["history/round1/results/candidate.json"],
+                frozen_path,
+            )
+            self.assertEqual(
+                bundle["exact_condition_models"]["2.48"]["source_sha256"],
+                __import__("hashlib").sha256(result_path.read_bytes()).hexdigest(),
+            )
+            load_frozen_bundle(frozen_path)
+
+            result_path.write_text(
+                result_path.read_text(encoding="utf-8") + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(OODProtocolError, "source result changed"):
+                verify_frozen_sources(bundle, workspace)
+
+            tampered = json.loads(frozen_path.read_text(encoding="utf-8"))
+            tampered["exact_condition_models"]["2.48"]["equation"] = "0"
+            frozen_path.write_text(json.dumps(tampered), encoding="utf-8")
+            with self.assertRaisesRegex(OODProtocolError, "hash mismatch"):
+                load_frozen_bundle(frozen_path)
+
+    def test_tier1_evaluates_same_condition_different_initial_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            private = root / "private"
+            workspace = root / "workspace"
+            private.mkdir()
+            workspace.mkdir()
+            t = np.linspace(0.0, 2.0 * np.pi, 300)
+            pd.DataFrame(
+                {
+                    "t": t,
+                    "x": np.cos(t),
+                    "v": -np.sin(t),
+                    "a": -np.cos(t),
+                }
+            ).to_csv(private / "paired.csv", index=False)
+            model = {
+                "equation": "-x",
+                "feature_columns": ["x", "v"],
+                "target_column": "a",
+                "time_column": "t",
+                "position_column": "x",
+                "velocity_column": "v",
+                "training_conditions": ["2.48"],
+                "condition": "2.48",
+            }
+            core = {"2.48": model}
+            bundle = {
+                "schema_version": 1,
+                "status": "frozen",
+                "exact_condition_models": core,
+                "global_model": None,
+            }
+            bundle["freeze_id"] = canonical_hash(
+                {
+                    "exact_condition_models": core,
+                    "global_model": None,
+                }
+            )
+            manifest = {
+                "conditions": {
+                    "2.48": {
+                        "public_training_file": "input/U248_train.csv",
+                        "paired_initial_condition_file": "paired.csv",
+                    }
+                },
+                "tier_policy": {
+                    "tier1": {
+                        "feedback_policy": "development_summary",
+                        "trajectory_duration": 2.0 * np.pi,
+                        "trajectory_points": 300,
+                        "state_limit": 1000,
+                    }
+                },
+            }
+            result = evaluate_tier("tier1", bundle, manifest, workspace, private)
+            evaluation = result["evaluations"][0]
+            self.assertAlmostEqual(evaluation["pointwise"]["r2"], 1.0, places=12)
+            self.assertEqual(evaluation["trajectory"]["status"], "completed")
+            self.assertLess(evaluation["trajectory"]["position_rmse"], 1e-4)
+            summary = release_summary(result)
+            self.assertNotIn("paired.csv", json.dumps(summary))
+
+    def test_tier2_rejects_condition_specific_model(self) -> None:
+        bundle = {
+            "freeze_id": "frozen",
+            "exact_condition_models": {"2.48": {}},
+            "global_model": None,
+        }
+        manifest = {
+            "tier_policy": {"tier2": {"feedback_policy": "promotion_summary"}},
+            "conditions": {},
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.assertRaisesRegex(OODProtocolError, "requires a frozen global"):
+                evaluate_tier("tier2", bundle, manifest, root, root)
+
+    def test_private_ledger_enforces_total_access_budget(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            ledger = OODAccessLedger(
+                Path(temporary) / "ledger.json",
+                {"tier1": {"max_total_evaluations": 1}},
+            )
+            index = ledger.begin("tier1", "freeze-a")
+            ledger.finish(index, "completed")
+            with self.assertRaisesRegex(OODProtocolError, "budget exhausted"):
+                ledger.begin("tier1", "freeze-b")
+
+    def test_final_tier3_attestation_locks_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            private = root / "private"
+            workspace = root / "workspace"
+            private.mkdir()
+            workspace.mkdir()
+            result_path = private / "tier3-result.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "tier": "tier3",
+                        "status": "completed",
+                        "freeze_id": "freeze-final",
+                        "feedback_policy": "final_only",
+                        "evaluations": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (private / "ood_access_ledger.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "accesses": [
+                            {
+                                "tier": "tier3",
+                                "freeze_id": "freeze-final",
+                                "status": "completed",
+                                "result_file": str(result_path),
+                                "result_sha256": __import__("hashlib").sha256(
+                                    result_path.read_bytes()
+                                ).hexdigest(),
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = workspace / "final_ood_attestation.json"
+            attestation = finalize_tier3(private, result_path, workspace, output)
+            self.assertTrue(attestation["no_further_adaptation_allowed"])
+            self.assertTrue(output.is_file())
+            self.assertTrue((workspace / ".hamilton_final_ood.lock").is_file())
+
+
+if __name__ == "__main__":
+    unittest.main()
