@@ -1,0 +1,4 @@
+interface:
+  display_name: "Literature Grounding"
+  short_description: "Build cited physical priors without answer leakage"
+  default_prompt: "Use $literature-grounding to build cited, broad physical priors without proposing an equation template."

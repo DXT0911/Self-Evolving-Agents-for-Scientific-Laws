@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -39,6 +40,27 @@ def maybe_truncate(content: str, max_size: int = MAX_OUTPUT_SIZE, notice: str = 
         return content
     half = max_size // 2
     return content[:half] + "\n" + notice + "\n" + content[-half:]
+
+
+def list_local_directory(
+    path: str,
+    max_depth: int = 2,
+    max_entries: int = 500,
+    blocked_extensions: set[str] | None = None,
+) -> str:
+    """List a Windows local-session directory without relying on Unix `find`."""
+    root = Path(path)
+    entries = [root]
+    for candidate in root.rglob("*"):
+        relative = candidate.relative_to(root)
+        if len(relative.parts) > max_depth or any(part.startswith(".") for part in relative.parts):
+            continue
+        if candidate.is_file() and candidate.suffix.lower() in (blocked_extensions or set()):
+            continue
+        entries.append(candidate)
+        if len(entries) >= max_entries:
+            break
+    return "\n".join(str(item) for item in sorted(entries, key=lambda item: str(item).lower()))
 
 
 class EditorToolParams(BaseToolParams):
@@ -121,6 +143,15 @@ class EditorTool(BaseTool):
         assert isinstance(params, EditorToolParams)
         
         try:
+            blocked_extensions = {
+                str(suffix).lower() if str(suffix).startswith(".") else f".{str(suffix).lower()}"
+                for suffix in getattr(session.config, "blocked_read_extensions", [])
+            }
+            if Path(params.path).suffix.lower() in blocked_extensions:
+                raise ToolError(
+                    "Access denied: this data file is protected from LLM-facing tools. "
+                    "Use an approved local experiment runner and read only its summary."
+                )
             # 验证路径
             path_type = self._validate_path(session, params.command, params.path)
             
@@ -149,6 +180,21 @@ class EditorTool(BaseTool):
         # 检查是否是绝对路径
         if not Path(path).is_absolute():
             raise ToolParameterError("path", path, "The path should be an absolute path, starting with `/`.")
+
+        workspace_raw = (
+            session.get_workspace_path()
+            if hasattr(session, "get_workspace_path")
+            else None
+        ) or getattr(session.config, "workspace_path", None)
+        if workspace_raw:
+            workspace = Path(workspace_raw).resolve()
+            candidate = Path(path).resolve()
+            try:
+                candidate.relative_to(workspace)
+            except ValueError as exc:
+                raise ToolError(
+                    "Access denied: LLM-facing file tools are restricted to the active workspace."
+                ) from exc
         
         # 检查路径类型（优先检查目录，因为目录检查更可靠）
         if session.is_directory(path):
@@ -202,8 +248,15 @@ class EditorTool(BaseTool):
                 raise ToolParameterError("view_range", view_range, "The `view_range` parameter is not allowed for directories.")
             
             # 列出目录内容（最多 2 层）
-            result = session.exec_bash(f"find -L {path} -maxdepth 2 -not -path '*/\\.*' | head -500 | sort")
-            output = result.get("stdout", "")
+            if os.name == "nt" and session.__class__.__name__ == "LocalSession":
+                blocked_extensions = {
+                    str(suffix).lower() if str(suffix).startswith(".") else f".{str(suffix).lower()}"
+                    for suffix in getattr(session.config, "blocked_read_extensions", [])
+                }
+                output = list_local_directory(path, blocked_extensions=blocked_extensions)
+            else:
+                result = session.exec_bash(f"find -L {path} -maxdepth 2 -not -path '*/\\.*' | head -500 | sort")
+                output = result.get("stdout", "")
             output = maybe_truncate(output, max_size=MAX_OUTPUT_SIZE, notice=DIRECTORY_TRUNCATED_NOTICE)
             
             return f"Here's the files and directories up to 2 levels deep in {path}, excluding hidden items:\n{output}", {}

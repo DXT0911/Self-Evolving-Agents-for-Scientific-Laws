@@ -7,9 +7,9 @@
 llm:
   openai:
     provider: "openai"
-    model: "gpt-5"
-    api_key: "sk-1HEDl1RNtaMQV7TDet0FUA"
-    base_url: "https://llm.dp.tech"
+    model: "deepseek-v4-pro"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
     temperature: 0.7
     max_tokens: 128000
     timeout: 120
@@ -38,12 +38,16 @@ agents:
 
     # Per-agent skills（只加载需要的，不污染 prompt）
     skills:
+      - literature-grounding
       - pysr
+      - run-sr-experiment
       - evo-protocol
 
     # Per-agent tools
+    # Keep raw-data access behind the approved experiment runner. In particular,
+    # do not expose execute_bash to the LLM in the benchmark configuration.
     tools:
-      builtin: ["*"]
+      builtin: ["str_replace_editor", "literature_search", "think", "finish"]
 
 # ============================================
 # Session 配置
@@ -54,6 +58,7 @@ session:
   local:
     working_dir: "./playground/hamilton/workspace"
     timeout: 21600
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
     gpu_devices: null
     cpu_devices: null
     symlinks: {}
@@ -63,6 +68,11 @@ session:
 # ============================================
 experiment:
   max_rounds: 3
+  scientific_governance: true
+  require_literature_grounding: true
+  pysr_preflight:
+    enabled: true
+    timeout_seconds: 180
 
 # ============================================
 # LLM 输出 & 工具调用日志

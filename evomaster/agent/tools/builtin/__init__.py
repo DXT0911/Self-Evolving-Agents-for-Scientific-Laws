@@ -7,6 +7,7 @@ from .bash import BashTool, BashToolParams
 from .editor import EditorTool, EditorToolParams
 from .think import ThinkTool, ThinkToolParams
 from .finish import FinishTool, FinishToolParams
+from .literature import LiteratureSearchTool, LiteratureSearchToolParams
 
 __all__ = [
     "BashTool",
@@ -17,4 +18,6 @@ __all__ = [
     "ThinkToolParams",
     "FinishTool",
     "FinishToolParams",
+    "LiteratureSearchTool",
+    "LiteratureSearchToolParams",
 ]

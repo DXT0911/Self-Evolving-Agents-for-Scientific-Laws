@@ -1,5 +1,5 @@
 # Hamilton Playground 配置文件（无 PySR）
-# 纯代码驱动的方程发现 Agent
+# 不调用 PySR 的协议/对话调试配置；不用于正式 benchmark。
 
 # ============================================
 # LLM 配置
@@ -7,9 +7,9 @@
 llm:
   openai:
     provider: "openai"
-    model: "gpt-5"
-    api_key: "sk-1HEDl1RNtaMQV7TDet0FUA"
-    base_url: "https://llm.dp.tech"
+    model: "deepseek-v4-pro"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
     temperature: 0.7
     max_tokens: 128000
     timeout: 120
@@ -41,7 +41,7 @@ agents:
       - evo-protocol
 
     tools:
-      builtin: ["*"]
+      builtin: ["str_replace_editor", "think", "finish"]
 
 # ============================================
 # Session 配置
@@ -52,6 +52,7 @@ session:
   local:
     working_dir: "./playground/hamilton/workspace"
     timeout: 21600
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
     gpu_devices: null
     cpu_devices: null
     symlinks: {}
