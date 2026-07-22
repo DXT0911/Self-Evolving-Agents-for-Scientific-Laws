@@ -1,62 +1,23 @@
-"""Hamilton Round Exp - 单轮执行
+"""Hamilton discovery and verification experiment.
 
-负责单轮的 Agent 迭代。
-
-每轮流程：
-- 系统: 创建 history/round{N}/trace.md（L1 工作记忆）
-- Agent: 读 plan.md + findings.md（L2），发现方程 → 验证 → 提炼到 L2，调用 finish
-- 系统: 从 finish(task_completed) 判断是否继续
-
-文件规范：
-- history/round{N}/trace.md: L1 工作记忆，每轮独立
-- findings.md: L2 知识积累，Agent 追加
-- plan.md: L2 战略计划，Agent 全权维护（含 Current Best）
+`RoundExp` is intentionally limited to the evidence-producing part of a round. Scientific
+Promotion, L2 updates, and the final closure audit live in `PromotionExp`.
 """
+
+from __future__ import annotations
 
 import hashlib
 import json
 import logging
-import math
-import re
 from pathlib import Path
 
-from evomaster.core.exp import BaseExp
 from evomaster.agent import BaseAgent
+from evomaster.core.exp import BaseExp
 from evomaster.utils.types import TaskInstance
 
 
-NEXT_ROUND_BEGIN = "<!-- EVO_NEXT_ROUND_BEGIN -->"
-NEXT_ROUND_END = "<!-- EVO_NEXT_ROUND_END -->"
-NEXT_ROUND_FIELDS = (
-    "上轮失败",
-    "原因假设",
-    "下一轮主变量",
-    "保持不变",
-    "预期证据",
-    "成功标准",
-    "失败后的策略",
-)
-SCIENTIFIC_DECISION_BEGIN = "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->"
-SCIENTIFIC_DECISION_END = "<!-- EVO_SCIENTIFIC_DECISION_END -->"
-INITIAL_PRIORS_BEGIN = "<!-- EVO_INITIAL_PRIORS_BEGIN -->"
-INITIAL_PRIORS_END = "<!-- EVO_INITIAL_PRIORS_END -->"
-ALLOWED_CLAIM_STRENGTHS = {"observation", "hypothesis", "supported", "confirmed"}
-ALLOWED_SCALE_METHODS = {
-    "standardized_feature_effect",
-    "term_contribution",
-    "dimensional_analysis",
-    "not_applicable",
-}
-
-
 class RoundExp(BaseExp):
-    """单轮实验
-
-    负责：
-    1. 创建 L1 工作记忆（history/round{N}/trace.md）
-    2. Agent 自主执行发现 → 验证 → 提炼闭环
-    3. 从 finish(task_completed) 解析停止信号
-    """
+    """Run Discovery and Verification and return newly completed result files."""
 
     def __init__(self, agent, config, round_num):
         super().__init__(agent, config)
@@ -67,717 +28,80 @@ class RoundExp(BaseExp):
     def exp_name(self) -> str:
         return f"Round_{self.round_num}"
 
-    def run(self, task_description: str, task_id: str = "exp_001") -> dict:
-        """执行单轮实验"""
-        self.logger.info(f"Starting Round {self.round_num}")
-
-        BaseAgent.set_exp_info(exp_name=self.exp_name, exp_index=self.round_num)
-
-        # 初始化 L1 + 轮次目录
-        self._ensure_round_dirs()
-        self._init_trace()
-
-        # 记录 L2 文件状态（用于 post-check）
-        l2_snapshot = self._snapshot_l2()
-        closure_snapshot = self._snapshot_closure_artifacts()
-
-        # ========== Agent ==========
-        self.logger.info(f"[Round {self.round_num}] Running Agent...")
-        task = TaskInstance(
-            task_id=f"{task_id}_round{self.round_num}",
-            task_type="hamilton",
-            description=task_description,
-            input_data={"round": self.round_num},
-        )
-        trajectory = self.agent.run(task)
-        agent_result = self._extract_agent_response(trajectory)
-        self.logger.info(f"[Round {self.round_num}] Agent completed")
-
-        # 解析 satisfied 信号（系统唯一职责：决定是否继续迭代）
-        signal = self._parse_signal(agent_result, trajectory)
-
-        # L2 post-check: Agent 是否更新了 L2？
-        self._check_l2_promotion(l2_snapshot)
-        closure = self._check_round_closure(closure_snapshot, trajectory)
-        signal["closed"] = closure["closed"]
-        signal["closure"] = closure
-        if signal.get("satisfied") and not closure["scientific_decision"]["valid"]:
-            signal["satisfied"] = False
-            signal["governance_rejected_success"] = True
-
-        findings_content = self._read_findings()
-
-        self.logger.info(f"Round {self.round_num} completed")
-
-        return {
-            "round": self.round_num,
-            "agent_result": agent_result,
-            "signal": signal,
-            "findings": findings_content,
-            "trajectory": trajectory,
-        }
-
-    def _ensure_round_dirs(self):
-        """确保本轮目录存在"""
-        if not self.run_dir:
-            return
-        round_dir = self.run_dir / "history" / f"round{self.round_num}"
-        (round_dir / "scripts").mkdir(parents=True, exist_ok=True)
-        (round_dir / "results").mkdir(parents=True, exist_ok=True)
-
-    def _init_trace(self):
-        """创建 L1 工作记忆 — history/round{N}/trace.md"""
-        if not self.run_dir:
-            return
-
-        trace_file = self.run_dir / "history" / f"round{self.round_num}" / "trace.md"
-        trace_file.parent.mkdir(parents=True, exist_ok=True)
-        l1_template = f"""# 执行日志 — 第 {self.round_num} 轮
-
-### 操作记录
-（记录执行的脚本、使用的参数、观察到的现象）
-
-### 指标记录
-| 实验 | 方法 | 目标 | 关键参数 | MSE (训练) | MSE (OOD) | 方程 | 备注 |
-|------|------|------|---------|-----------|-----------|------|------|
-
-### 工作笔记
-（当前假设、中间观察、思考过程）
-"""
-        trace_file.write_text(l1_template, encoding="utf-8")
-        self.logger.info(f"创建 history/round{self.round_num}/trace.md（L1）")
-
-    def _read_findings(self) -> str:
-        """读取 findings.md（L2 知识）"""
-        if not self.run_dir:
-            return ""
-        findings_file = self.run_dir / "findings.md"
-        if findings_file.exists():
-            return findings_file.read_text(encoding="utf-8")
-        return ""
-
-    def _snapshot_l2(self) -> dict:
-        """记录 L2 文件的修改时间，用于 post-check"""
-        if not self.run_dir:
-            return {}
-        snapshot = {}
-        for name in ("findings.md", "plan.md"):
-            path = self.run_dir / name
-            if path.exists():
-                snapshot[name] = path.stat().st_mtime
-            else:
-                snapshot[name] = 0
-        return snapshot
-
-    def _check_l2_promotion(self, before: dict) -> None:
-        """检查 Agent 是否更新了 L2 文件（Phase 3 Promotion）"""
-        if not self.run_dir or not before:
-            return
-        unchanged = []
-        for name in ("findings.md", "plan.md"):
-            path = self.run_dir / name
-            if path.exists():
-                after_mtime = path.stat().st_mtime
-                if after_mtime <= before.get(name, 0):
-                    unchanged.append(name)
-        if unchanged:
-            self.logger.warning(
-                f"[Round {self.round_num}] L2 files not updated: {unchanged}. "
-                "Agent may have skipped Phase 3 (Promotion). "
-                "Next round will read stale L2 data."
-            )
-
     @staticmethod
     def _file_digest(path: Path) -> str | None:
         if not path.is_file():
             return None
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    def _snapshot_closure_artifacts(self) -> dict:
-        """Capture artifacts required to prove a single-round closed loop."""
+    def _round_dir(self) -> Path:
         if not self.run_dir:
-            return {}
-        round_dir = self.run_dir / "history" / f"round{self.round_num}"
-        results_dir = round_dir / "results"
+            raise RuntimeError("RoundExp requires a run workspace")
+        return self.run_dir / "history" / f"round{self.round_num}"
+
+    def _ensure_round_dirs(self) -> None:
+        round_dir = self._round_dir()
+        (round_dir / "scripts").mkdir(parents=True, exist_ok=True)
+        (round_dir / "results").mkdir(parents=True, exist_ok=True)
+
+    def _init_trace(self) -> None:
+        trace_path = self._round_dir() / "trace.md"
+        trace_path.write_text(
+            f"# Round {self.round_num} 工作记录\n\n"
+            "## Discovery / Verification\n\n"
+            "（由 Agent 记录本轮假设、实验配置、结果与验证证据）\n\n"
+            "## Promotion\n\n"
+            "（由后续 PromotionExp 更新）\n",
+            encoding="utf-8",
+        )
+
+    def _result_snapshot(self) -> dict[str, str | None]:
+        results_dir = self._round_dir() / "results"
         return {
-            "trace": self._file_digest(round_dir / "trace.md"),
-            "findings": self._file_digest(self.run_dir / "findings.md"),
-            "plan": self._file_digest(self.run_dir / "plan.md"),
-            "result_files": {
-                str(path.resolve()): self._file_digest(path)
-                for path in results_dir.glob("*.json")
-                if path.is_file()
-            },
+            str(path.resolve()): self._file_digest(path)
+            for path in results_dir.glob("*.json")
+            if path.is_file()
         }
 
-    def _completed_result_files(self, before: dict) -> list[str]:
-        if not self.run_dir:
-            return []
-        results_dir = self.run_dir / "history" / f"round{self.round_num}" / "results"
-        previous = before.get("result_files", {})
-        experiment = getattr(getattr(self, "config", None), "experiment", {})
-        resume_raw = (
-            experiment.get("resume_completed_result")
-            if isinstance(experiment, dict)
-            else None
-        )
-        resume_path = None
-        if isinstance(resume_raw, str) and resume_raw.strip():
-            candidate = (self.run_dir / resume_raw).resolve()
-            try:
-                candidate.relative_to(results_dir.resolve())
-            except ValueError:
-                self.logger.warning(
-                    "Ignoring resume_completed_result outside the current round results directory"
-                )
-            else:
-                resume_path = candidate
+    def _new_completed_results(self, before: dict[str, str | None]) -> list[str]:
         completed = []
-        for path in results_dir.glob("*.json"):
+        for path in (self._round_dir() / "results").glob("*.json"):
             resolved = str(path.resolve())
-            unchanged = self._file_digest(path) == previous.get(resolved)
-            if unchanged and path.resolve() != resume_path:
+            if self._file_digest(path) == before.get(resolved):
                 continue
             try:
                 payload = json.loads(path.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, json.JSONDecodeError):
                 continue
             if isinstance(payload, dict) and payload.get("status") == "completed":
-                completed.append(str(path.relative_to(self.run_dir)))
+                completed.append(str(path.relative_to(self.run_dir)).replace("\\", "/"))
         return sorted(completed)
 
-    def _read_result_payload(self, relative_path: str) -> dict:
-        if not self.run_dir:
-            return {}
-        try:
-            payload = json.loads((self.run_dir / relative_path).read_text(encoding="utf-8"))
-        except Exception:
-            return {}
-        return payload if isinstance(payload, dict) else {}
+    def run(self, task_description: str, task_id: str = "exp_001") -> dict:
+        self.logger.info("Starting Discovery/Verification for Round %s", self.round_num)
+        BaseAgent.set_exp_info(exp_name=self.exp_name, exp_index=self.round_num)
+        self._ensure_round_dirs()
+        self._init_trace()
+        before = self._result_snapshot()
 
-    @staticmethod
-    def _meaningful_config(config: dict) -> dict:
-        """Exclude identity/output fields so a renamed repeat is not treated as adaptation."""
-        if not isinstance(config, dict):
-            return {}
-        return {
-            "data": config.get("data"),
-            "search": config.get("search"),
-            "verification": config.get("verification"),
-        }
-
-    @staticmethod
-    def _changed_config_fields(previous: object, current: object, prefix: str = "") -> list[str]:
-        if isinstance(previous, dict) and isinstance(current, dict):
-            fields = []
-            for key in sorted(set(previous) | set(current)):
-                child = f"{prefix}.{key}" if prefix else str(key)
-                fields.extend(
-                    RoundExp._changed_config_fields(previous.get(key), current.get(key), child)
-                )
-            return fields
-        return [] if previous == current else [prefix]
-
-    def _previous_completed_configs(self) -> list[dict]:
-        if not self.run_dir or self.round_num <= 1:
-            return []
-        results_dir = self.run_dir / "history" / f"round{self.round_num - 1}" / "results"
-        configs = []
-        for path in sorted(results_dir.glob("*.json")):
-            try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
-            except Exception:
-                continue
-            if isinstance(payload, dict) and payload.get("status") == "completed":
-                configs.append(self._meaningful_config(payload.get("config", {})))
-        return configs
-
-    def _meaningful_config_changed(self, completed_results: list[str]) -> bool | None:
-        if self.round_num <= 1:
-            return None
-        previous = self._previous_completed_configs()
-        if not previous:
-            return False
-        current = [
-            self._meaningful_config(self._read_result_payload(path).get("config", {}))
-            for path in completed_results
-        ]
-        return any(config and config not in previous for config in current)
-
-    def _single_config_change(self, completed_results: list[str]) -> tuple[bool | None, list[str]]:
-        if self.round_num <= 1:
-            return None, []
-        previous = self._previous_completed_configs()
-        current = [
-            self._meaningful_config(self._read_result_payload(path).get("config", {}))
-            for path in completed_results
-        ]
-        if not previous or len(current) != 1:
-            return False, []
-        changed = self._changed_config_fields(previous[-1], current[0])
-        return len(changed) == 1, changed
-
-    def _continuation_contract_valid(self) -> bool:
-        if not self.run_dir:
-            return False
-        plan_path = self.run_dir / "plan.md"
-        if not plan_path.is_file():
-            return False
-        content = plan_path.read_text(encoding="utf-8")
-        if NEXT_ROUND_BEGIN not in content or NEXT_ROUND_END not in content:
-            return False
-        start = content.index(NEXT_ROUND_BEGIN)
-        end = content.index(NEXT_ROUND_END, start)
-        contract = content[start:end]
-        return all(field in contract for field in NEXT_ROUND_FIELDS)
-
-    @staticmethod
-    def _normalize_result_path(path: object) -> str:
-        return str(path or "").replace("\\", "/").lstrip("./")
-
-    def _all_scored_results(self) -> list[dict]:
-        if not self.run_dir:
-            return []
-        scored = []
-        for path in sorted((self.run_dir / "history").glob("round*/results/*.json")):
-            try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
-                score = float(payload["selected"]["scientific_score"])
-            except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
-                continue
-            if payload.get("status") != "completed" or not math.isfinite(score):
-                continue
-            scored.append(
-                {
-                    "path": self._normalize_result_path(path.relative_to(self.run_dir)),
-                    "score": score,
-                    "equation": payload.get("selected", {}).get("simplified_equation"),
-                }
-            )
-        return scored
-
-    def _read_scientific_decision(self) -> tuple[dict | None, str | None]:
-        if not self.run_dir:
-            return None, "workspace unavailable"
-        plan_path = self.run_dir / "plan.md"
-        if not plan_path.is_file():
-            return None, "plan.md missing"
-        content = plan_path.read_text(encoding="utf-8")
-        if SCIENTIFIC_DECISION_BEGIN not in content or SCIENTIFIC_DECISION_END not in content:
-            return None, "scientific decision block missing"
-        start = content.index(SCIENTIFIC_DECISION_BEGIN) + len(SCIENTIFIC_DECISION_BEGIN)
-        end = content.index(SCIENTIFIC_DECISION_END, start)
-        raw = content[start:end].strip()
-        if raw.startswith("```"):
-            lines = raw.splitlines()
-            raw = "\n".join(lines[1:-1]).strip()
-        try:
-            decision = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            return None, f"scientific decision JSON invalid: {exc}"
-        return (decision, None) if isinstance(decision, dict) else (None, "decision must be an object")
-
-    @staticmethod
-    def _evidence_gates_valid(gates: object) -> bool:
-        if not isinstance(gates, list) or not gates:
-            return False
-        return all(
-            isinstance(gate, dict)
-            and isinstance(gate.get("name"), str)
-            and bool(gate["name"].strip())
-            and isinstance(gate.get("passed"), bool)
-            and isinstance(gate.get("evidence"), str)
-            and bool(gate["evidence"].strip())
-            for gate in gates
+        task = TaskInstance(
+            task_id=f"{task_id}_round{self.round_num}_discovery",
+            task_type="hamilton_round",
+            description=(
+                f"{task_description}\n\n"
+                "Execute Literature Grounding when required, Discovery, and Verification "
+                "only. Produce a completed result JSON and update trace.md. Do not perform "
+                "Promotion or update the EVO_SCIENTIFIC_DECISION block; call finish with "
+                "task_completed=false after verification."
+            ),
+            input_data={"round": self.round_num, "phase": "discovery_verification"},
         )
-
-    def _audit_scientific_decision(self, task_completed: str | None) -> dict:
-        """Audit incumbent retention, claim strength, scaling, planning, and success gates."""
-        decision, parse_error = self._read_scientific_decision()
-        audit = {
-            "valid": False,
-            "errors": [parse_error] if parse_error else [],
-            "incumbent_valid": False,
-            "claims_valid": False,
-            "scale_diagnostics_valid": False,
-            "plan_quality_valid": False,
-            "success_gates_valid": False,
-        }
-        if decision is None:
-            return audit
-
-        promotion_gates = decision.get("promotion_gates")
-        promotion_gates_valid = self._evidence_gates_valid(promotion_gates)
-        audit["promotion_gates_valid"] = promotion_gates_valid
-        if not promotion_gates_valid:
-            audit["errors"].append("incumbent promotion gates are missing or unsupported")
-
-        scored = self._all_scored_results()
-        if not scored:
-            audit["errors"].append("no completed result with a finite scientific score")
-        else:
-            current_prefix = f"history/round{self.round_num}/"
-            current = [item for item in scored if item["path"].startswith(current_prefix)]
-            prior = [item for item in scored if not item["path"].startswith(current_prefix)]
-            current_best = min(current, key=lambda item: item["score"]) if current else None
-            prior_best = min(prior, key=lambda item: item["score"]) if prior else None
-            current_passes = promotion_gates_valid and all(
-                gate["passed"] for gate in promotion_gates
-            )
-            if prior_best is None:
-                best = current_best
-                expected_action = "initialize"
-            elif (
-                current_best is not None
-                and current_best["score"] < prior_best["score"]
-                and current_passes
-            ):
-                best = current_best
-                expected_action = "promote"
-            else:
-                best = prior_best
-                expected_action = "retain"
-            chosen = self._normalize_result_path(decision.get("incumbent", {}).get("result_file"))
-            action = decision.get("incumbent", {}).get("action")
-            audit["incumbent_expected"] = best
-            audit["incumbent_action_expected"] = expected_action
-            audit["incumbent_valid"] = (
-                best is not None and chosen == best["path"] and action == expected_action
-            )
-            if not audit["incumbent_valid"] and best is not None:
-                audit["errors"].append(
-                    f"incumbent must {expected_action}: {best['path']}"
-                )
-
-        claims = decision.get("claims")
-        claims_valid = isinstance(claims, list) and bool(claims)
-        if claims_valid:
-            for claim in claims:
-                if not isinstance(claim, dict):
-                    claims_valid = False
-                    break
-                strength = claim.get("strength")
-                evidence = claim.get("evidence")
-                if strength not in ALLOWED_CLAIM_STRENGTHS or not isinstance(evidence, list) or not evidence:
-                    claims_valid = False
-                    break
-                if strength == "confirmed" and (
-                    len(evidence) < 2 or int(claim.get("alternatives_tested", 0) or 0) < 1
-                ):
-                    claims_valid = False
-                    break
-        audit["claims_valid"] = claims_valid
-        if not claims_valid:
-            audit["errors"].append("claims lack evidence or overstate confirmation")
-
-        scale = decision.get("scale_diagnostics")
-        scale_valid = (
-            isinstance(scale, dict)
-            and scale.get("method") in ALLOWED_SCALE_METHODS
-            and scale.get("raw_coefficient_comparison") is False
-            and isinstance(scale.get("evidence"), str)
-            and bool(scale["evidence"].strip())
-        )
-        audit["scale_diagnostics_valid"] = scale_valid
-        if not scale_valid:
-            audit["errors"].append("scale diagnostics compare raw cross-unit coefficients")
-
-        gates = decision.get("scientific_gates")
-        scientific_incomplete = (
-            not self._evidence_gates_valid(gates)
-            or not all(gate["passed"] for gate in gates)
-        )
-        continuing = task_completed in {"false", "partial"} or scientific_incomplete
-        if continuing:
-            strategy = decision.get("next_strategy")
-            required = (
-                "diagnosed_failure",
-                "evidence",
-                "config_field",
-                "expected_effect",
-                "falsification",
-            )
-            strategy_valid = isinstance(strategy, dict) and all(
-                isinstance(strategy.get(field), str) and bool(strategy[field].strip())
-                for field in required
-            )
-            strategy_valid = (
-                strategy_valid
-                and isinstance(strategy.get("risks"), list)
-                and bool(strategy["risks"])
-                and all(isinstance(risk, str) and risk.strip() for risk in strategy["risks"])
-                and re.fullmatch(
-                    r"(?:data|search|verification)(?:\.[A-Za-z0-9_]+)+",
-                    strategy.get("config_field", ""),
-                )
-                is not None
-            )
-        else:
-            strategy_valid = True
-        audit["plan_quality_valid"] = strategy_valid
-        if not strategy_valid:
-            audit["errors"].append("next strategy lacks diagnosis, evidence, risk, or falsification")
-
-        gates_valid = self._evidence_gates_valid(gates)
-        if task_completed == "true":
-            gates_valid = (
-                gates_valid
-                and all(gate["passed"] for gate in gates)
-                and decision.get("solver_completion_only") is False
-            )
-        audit["success_gates_valid"] = gates_valid
-        if not gates_valid:
-            audit["errors"].append("scientific success gates are missing, unsupported, or solver-only")
-
-        audit["valid"] = all(
-            audit[key]
-            for key in (
-                "incumbent_valid",
-                "promotion_gates_valid",
-                "claims_valid",
-                "scale_diagnostics_valid",
-                "plan_quality_valid",
-                "success_gates_valid",
-            )
-        )
-        return audit
-
-    def _scientific_governance_enabled(self) -> bool:
-        experiment = getattr(getattr(self, "config", None), "experiment", {})
-        return isinstance(experiment, dict) and bool(experiment.get("scientific_governance", False))
-
-    def _literature_grounding_enabled(self) -> bool:
-        experiment = getattr(getattr(self, "config", None), "experiment", {})
-        return isinstance(experiment, dict) and bool(
-            experiment.get("require_literature_grounding", False)
-        )
-
-    def _audit_initial_priors(self) -> dict:
-        audit = {"valid": False, "errors": []}
-        if not self.run_dir:
-            audit["errors"].append("workspace unavailable")
-            return audit
-        plan_path = self.run_dir / "plan.md"
-        if not plan_path.is_file():
-            audit["errors"].append("plan.md missing")
-            return audit
-        content = plan_path.read_text(encoding="utf-8")
-        if INITIAL_PRIORS_BEGIN not in content or INITIAL_PRIORS_END not in content:
-            audit["errors"].append("initial literature priors block missing")
-            return audit
-        start = content.index(INITIAL_PRIORS_BEGIN) + len(INITIAL_PRIORS_BEGIN)
-        end = content.index(INITIAL_PRIORS_END, start)
-        raw = content[start:end].strip()
-        if raw.startswith("```"):
-            lines = raw.splitlines()
-            raw = "\n".join(lines[1:-1]).strip()
-        try:
-            payload = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            audit["errors"].append(f"initial priors JSON invalid: {exc}")
-            return audit
-
-        queries = payload.get("queries")
-        sources = payload.get("sources")
-        priors = payload.get("priors")
-        source_ids = {
-            item.get("id")
-            for item in sources or []
-            if isinstance(item, dict)
-            and isinstance(item.get("id"), str)
-            and item.get("title")
-            and item.get("url")
-        }
-        if payload.get("status") != "completed":
-            audit["errors"].append("initial literature grounding is not completed")
-        if not isinstance(queries, list) or len(queries) < 2 or not all(
-            isinstance(item, str) and item.strip() for item in queries
-        ):
-            audit["errors"].append("at least two broad literature queries are required")
-        if not isinstance(sources, list) or len(source_ids) < 2:
-            audit["errors"].append("at least two cited literature sources are required")
-        priors_valid = isinstance(priors, list) and len(priors) >= 3
-        if priors_valid:
-            for prior in priors:
-                evidence = prior.get("evidence_sources") if isinstance(prior, dict) else None
-                statement = prior.get("statement") if isinstance(prior, dict) else None
-                strength = prior.get("strength") if isinstance(prior, dict) else None
-                if (
-                    not isinstance(statement, str)
-                    or not statement.strip()
-                    or "=" in statement
-                    or "^" in statement
-                    or not isinstance(evidence, list)
-                    or not evidence
-                    or not set(evidence).issubset(source_ids)
-                    or strength not in {"hypothesis", "supported"}
-                ):
-                    priors_valid = False
-                    break
-        if not priors_valid:
-            audit["errors"].append(
-                "initial priors need three cited qualitative statements without equation syntax"
-            )
-        if payload.get("candidate_template_proposed") is not False:
-            audit["errors"].append("candidate_template_proposed must be false")
-        audit["valid"] = not audit["errors"]
-        return audit
-
-    def _check_round_closure(self, before: dict, trajectory) -> dict:
-        """Return machine-readable proof that all phases of the round completed."""
-        if not self.run_dir or not before:
-            return {
-                "closed": False,
-                "finish_called": False,
-                "trace_updated": False,
-                "findings_updated": False,
-                "plan_updated": False,
-                "completed_result_files": [],
-                "continuation_contract_valid": None,
-                "meaningful_config_change": None,
-                "scientific_decision": {"valid": False, "errors": ["closure snapshot unavailable"]},
-            }
-
-        round_dir = self.run_dir / "history" / f"round{self.round_num}"
-        completed_results = self._completed_result_files(before)
-        task_completed = self._extract_task_completed(trajectory)
-        continuing = task_completed in {"false", "partial"}
-        continuation_contract_valid = self._continuation_contract_valid() if continuing else None
-        meaningful_config_change = self._meaningful_config_changed(completed_results)
-        single_config_change, changed_config_fields = self._single_config_change(completed_results)
-        governance_enabled = self._scientific_governance_enabled()
-        grounding_required = self.round_num == 1 and self._literature_grounding_enabled()
-        initial_priors = (
-            self._audit_initial_priors()
-            if grounding_required
-            else {"valid": True, "enabled": False, "errors": []}
-        )
-        scientific_decision = (
-            self._audit_scientific_decision(task_completed)
-            if governance_enabled
-            else {"valid": True, "enabled": False, "errors": []}
-        )
-        closure = {
-            "finish_called": task_completed is not None,
-            "trace_updated": self._file_digest(round_dir / "trace.md") != before.get("trace"),
-            "findings_updated": self._file_digest(self.run_dir / "findings.md") != before.get("findings"),
-            "plan_updated": self._file_digest(self.run_dir / "plan.md") != before.get("plan"),
-            "completed_result_files": completed_results,
-            "continuation_contract_valid": continuation_contract_valid,
-            "meaningful_config_change": meaningful_config_change,
-            "single_config_change": single_config_change,
-            "changed_config_fields": changed_config_fields,
-            "initial_priors": initial_priors,
-            "scientific_decision": scientific_decision,
-        }
-        requirements = [
-            closure["finish_called"],
-            closure["trace_updated"],
-            closure["findings_updated"],
-            closure["plan_updated"],
-            bool(completed_results),
-            initial_priors["valid"],
-            scientific_decision["valid"],
-        ]
-        if continuing:
-            requirements.append(bool(continuation_contract_valid))
-        if self.round_num > 1:
-            requirements.append(bool(meaningful_config_change))
-            requirements.append(bool(single_config_change))
-        closure["closed"] = all(requirements)
-        if closure["closed"]:
-            self.logger.info(f"[Round {self.round_num}] Closed-loop proof: {closure}")
-        else:
-            self.logger.warning(f"[Round {self.round_num}] Closure incomplete: {closure}")
-        return closure
-
-    def _extract_agent_response(self, trajectory) -> str:
-        return super()._extract_agent_response(trajectory)
-
-    # =========================
-    # Signal parsing
-    # =========================
-
-    def _parse_signal(self, agent_message: str, trajectory) -> dict:
-        """Parse signal from finish tool's task_completed parameter.
-
-        The Agent calls finish(message=..., task_completed="true"/"false").
-        task_completed="true" → satisfied=True (stop iterating).
-        task_completed="false" → satisfied=False (continue).
-        """
-        task_completed = self._extract_task_completed(trajectory)
-
-        if task_completed is None:
-            self.logger.warning(
-                f"[Round {self.round_num}] Could not extract task_completed from trajectory. "
-                "Agent may not have called finish(). Defaulting to satisfied=False."
-            )
-            return {"round": self.round_num, "satisfied": False}
-
-        satisfied = task_completed == "true"
-
-        # Extract finish message for logging
-        finish_message = self._extract_finish_message_from_trajectory(trajectory)
-
+        trajectory = self.agent.run(task)
+        completed_results = self._new_completed_results(before)
         return {
             "round": self.round_num,
-            "satisfied": satisfied,
-            "task_completed": task_completed,
-            "notes": finish_message[:500] if finish_message else "",
+            "agent_result": self._extract_agent_response(trajectory),
+            "completed_result_files": completed_results,
+            "ready_for_promotion": bool(completed_results),
+            "trajectory": trajectory,
         }
-
-    def _extract_task_completed(self, trajectory) -> str | None:
-        """Extract task_completed value from the finish tool call in trajectory."""
-        try:
-            steps = getattr(trajectory, "steps", None)
-            if not isinstance(steps, list):
-                return None
-            for step in reversed(steps):
-                assistant_message = getattr(step, "assistant_message", None)
-                tool_calls = getattr(assistant_message, "tool_calls", None)
-                if not tool_calls:
-                    continue
-                for tc in reversed(tool_calls):
-                    fn = getattr(tc, "function", None)
-                    if not fn or getattr(fn, "name", None) != "finish":
-                        continue
-                    args = getattr(fn, "arguments", "") or ""
-                    try:
-                        parsed = json.loads(args) if isinstance(args, str) and args.strip() else {}
-                    except Exception:
-                        return None
-                    if isinstance(parsed, dict):
-                        return parsed.get("task_completed")
-        except Exception:
-            return None
-        return None
-
-    def _extract_finish_message_from_trajectory(self, trajectory) -> str:
-        """Extract finish.message from trajectory (robust fallback)."""
-        try:
-            steps = getattr(trajectory, "steps", None)
-            if not isinstance(steps, list):
-                return ""
-            for step in reversed(steps):
-                assistant_message = getattr(step, "assistant_message", None)
-                tool_calls = getattr(assistant_message, "tool_calls", None)
-                if not tool_calls:
-                    continue
-                for tc in reversed(tool_calls):
-                    fn = getattr(tc, "function", None)
-                    if not fn or getattr(fn, "name", None) != "finish":
-                        continue
-                    args = getattr(fn, "arguments", "") or ""
-                    try:
-                        parsed = json.loads(args) if isinstance(args, str) and args.strip() else {}
-                    except Exception:
-                        return args
-                    if isinstance(parsed, dict):
-                        msg = parsed.get("message")
-                        if isinstance(msg, str):
-                            return msg
-                        return json.dumps(parsed, ensure_ascii=False)
-                    return str(parsed)
-        except Exception:
-            return ""
-        return ""
