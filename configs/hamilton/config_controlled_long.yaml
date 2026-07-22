@@ -51,20 +51,22 @@ session:
 experiment:
   pysr_preflight:
     enabled: true
-    timeout_seconds: 180
+    timeout_seconds: 600
   # Resume the preserved baseline in retry1; execute rounds 2 and 3.
   start_round: 2
   max_rounds: 3
   scientific_governance: true
-  # 707695 tokens were consumed by the two guarded setup attempts. This remaining
-  # cap keeps the complete authorized long-run total below approximately 1.2M.
-  max_total_tokens: 480000
+  # P0 acceptance budget: large enough to close the recovered Promotion and still
+  # execute a fresh Discovery/Verification/Promotion cycle under one global cap.
+  max_total_tokens: 1000000
   max_tokens_per_round: 240000
   max_total_evals: 100000
   stall_rounds: 3
   promotion:
-    max_tokens: 30000
-    max_attempts: 2
+    # A real recovery attempt reached 116,916 tokens after updating plan.md but before
+    # findings.md and finish. Keep ample room for all governed closure records.
+    max_tokens: 500000
+    max_attempts: 6
 
 llm_output:
   show_in_console: false

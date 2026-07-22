@@ -48,6 +48,14 @@ Promotion phase and `EVO_NEXT_ROUND` is absent, change only
 `search.binary_operators` from `["+", "-", "*"]` to `["+", "-", "*", "/"]`.
 Record division singularity/domain risks. This exception applies only to resumed round 2.
 
+Controller correction for the P0 round-3 replay: the rejected first round-3 attempt changed
+four leaf fields. Reuse the existing `history/round3/experiment.json`, which is repaired to
+change only `search.niterations` from 500 to 2000 relative to round 2. In particular, retain
+round 2's division operator, set `data.standardize_search=false`, and set
+`verification.residual_diagnostics.enabled=false` so newly expanded schema defaults remain
+semantically equivalent to their absence in the legacy round-2 result.
+Validate that file and run it without introducing any other data/search/verification change.
+
 ## Promotion gates
 
 A later result may replace the incumbent only if:
