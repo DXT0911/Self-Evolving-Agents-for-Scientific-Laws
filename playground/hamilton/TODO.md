@@ -51,7 +51,7 @@ workspace/
 - [x] 候选、指标、短时 ODE 和复现信息的 JSON 输出
 - [x] 配置契约测试与 U248 低预算验收
 - [x] 结构化残差诊断、候选重排、标准化搜索与原单位回变换
-- [ ] 在严格治理下跑通完整 Hamilton Promotion 与 Finish 闭环
+- [x] 在严格治理下跑通完整 Hamilton Promotion 与 Finish 闭环
 
 ### Evo Protocol Skill (`evomaster/skills/evo-protocol/`) — 方法论
 - 科学迭代协议（假设→实验→记录→迭代）
@@ -91,12 +91,16 @@ workspace/
 ## TODO
 
 - [x] **P0：将 Promotion 做成确定性、可恢复且有独立预算的阶段（合约实现）**
-- [ ] P0：用一次低预算真实对话验收 PromotionExp；正式实验仍暂停
+- [x] P0：用真实对话验收 PromotionExp 的冻结、恢复和 Finish 闭环
 - [x] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收
+- [x] P0：完成 R4--R8 受控长跑；五轮均 `closed=true`，R5 incumbent 保持到终轮
+- [x] P0：修复终轮错误要求 `EVO_NEXT_ROUND` 的 continuation contract 缺陷
 - [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收
 - [ ] P2：增加已知 ground truth 且无答案泄露的合成方程 benchmark
 
-正式实验当前暂停。历史 smoke 和旧多轮结果仅用于流水线验收与失败诊断，不能作为 Hamilton
-已经完成通用科学定律发现的证据。
+R1--R8 受控实验已完成。当前 incumbent 为 `1.1619 - 1.8606x³`，scientific score 为
+`0.954`，但速度依赖、验证 R² 和 scientific score 成功门槛均未通过。该结果证明严格多轮闭环
+可以运行，并表明当前搜索设置未找到稳定的速度项；不能据此声称 Hamilton 已完成通用科学
+定律发现，也不能把“未发现速度项”解释为真实物理定律中必然不存在速度项。
