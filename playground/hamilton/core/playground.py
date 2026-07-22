@@ -27,6 +27,7 @@ from evomaster.core import BasePlayground, register_playground
 from .constants import CURRENT_BEST_BEGIN, CURRENT_BEST_END, STRATEGY_QUEUE_BEGIN, STRATEGY_QUEUE_END
 
 from .exp import RoundExp
+from .promotion_exp import PromotionExp
 from .pysr_preflight import PySRPreflightError, run_preflight
 
 
@@ -184,7 +185,17 @@ class HamiltonPlayground(BasePlayground):
             start_round = int(experiment_cfg.get("start_round", 1) or 1)
             max_total_tokens = int(experiment_cfg.get("max_total_tokens", 0) or 0)
             per_round_tokens = int(experiment_cfg.get("max_tokens_per_round", 0) or 0)
+            promotion_cfg = experiment_cfg.get("promotion", {})
+            if not isinstance(promotion_cfg, dict):
+                raise ValueError("experiment.promotion must be a mapping")
+            promotion_tokens = int(promotion_cfg.get("max_tokens", 30000) or 30000)
+            promotion_attempts = int(promotion_cfg.get("max_attempts", 2) or 2)
+            if promotion_tokens <= 0:
+                raise ValueError("experiment.promotion.max_tokens must be positive")
+            if promotion_attempts <= 0:
+                raise ValueError("experiment.promotion.max_attempts must be positive")
             stall_rounds = int(experiment_cfg.get("stall_rounds", 0) or 0)
+            original_agent_token_limit = self.agent.config.max_total_tokens
             total_tokens = 0
             stale_count = 0
             incumbent_score = None
@@ -195,32 +206,9 @@ class HamiltonPlayground(BasePlayground):
 
             # 初始化workspace
             self._init_workspace()
-            preflight_cfg = experiment_cfg.get("pysr_preflight", {})
-            if not isinstance(preflight_cfg, dict):
-                raise ValueError("experiment.pysr_preflight must be a mapping")
-            if preflight_cfg.get("enabled", True):
-                preflight_timeout = int(
-                    preflight_cfg.get("timeout_seconds", 180) or 180
-                )
-                self.logger.info(
-                    "Running Julia/PySR preflight before the first agent round"
-                )
-                try:
-                    preflight_result = run_preflight(
-                        timeout_seconds=preflight_timeout
-                    )
-                except PySRPreflightError as exc:
-                    raise RuntimeError(
-                        "Julia/PySR preflight failed before any LLM or search "
-                        f"budget was consumed: {exc}"
-                    ) from exc
-                self.experiment_record["pysr_preflight"] = preflight_result
-                self.logger.info(
-                    "Julia/PySR preflight ready: PySR %s, Julia %s, %.3fs",
-                    preflight_result["warmup"]["pysr_version"],
-                    preflight_result["warmup"]["julia_version"],
-                    preflight_result["warmup"]["controller_elapsed_seconds"],
-                )
+            if self.workspace_dir is None:
+                raise RuntimeError("Hamilton requires a persistent run workspace")
+            preflight_done = False
             final_ood_lock = (
                 self.workspace_dir / ".hamilton_final_ood.lock"
                 if self.workspace_dir
@@ -235,32 +223,92 @@ class HamiltonPlayground(BasePlayground):
             # 循环执行多轮
             for round_num in range(start_round, max_rounds + 1):
                 self.logger.info("=" * 60)
-
-                if max_total_tokens:
-                    remaining = max_total_tokens - total_tokens
-                    if remaining <= 0:
-                        termination_reason = "token_budget_reached"
-                        break
-                    self.agent.config.max_total_tokens = (
-                        min(per_round_tokens, remaining) if per_round_tokens else remaining
-                    )
                 self.logger.info(f"Round {round_num}/{max_rounds}")
                 self.logger.info("=" * 60)
 
-                # 创建单轮exp
-                exp = RoundExp(
-                    agent=self.agent,
-                    config=self.config,
-                    round_num=round_num,
+                round_dir = self.workspace_dir / "history" / f"round{round_num}"
+                promotion_input_path = round_dir / "promotion_input.json"
+                promotion_state_path = round_dir / "promotion_state.json"
+                promotion_state = {}
+                if promotion_state_path.is_file():
+                    try:
+                        promotion_state = json.loads(
+                            promotion_state_path.read_text(encoding="utf-8")
+                        )
+                    except (OSError, json.JSONDecodeError):
+                        promotion_state = {}
+                recovered_result_files = []
+                if not promotion_input_path.is_file():
+                    results_dir = round_dir / "results"
+                    for result_path in sorted(results_dir.glob("*.json")):
+                        try:
+                            result_payload = json.loads(
+                                result_path.read_text(encoding="utf-8")
+                            )
+                        except (OSError, json.JSONDecodeError):
+                            continue
+                        if result_payload.get("status") == "completed":
+                            recovered_result_files.append(
+                                result_path.relative_to(self.workspace_dir).as_posix()
+                            )
+                resume_promotion = (
+                    (promotion_input_path.is_file() or bool(recovered_result_files))
                 )
-                if self.workspace_dir:
-                    exp.set_run_dir(self.workspace_dir)
 
-                # 执行单轮
-                result = exp.run(task_description)
+                discovery_result = None
+                result_files = recovered_result_files or None
+                discovery_tokens = 0
+                if not resume_promotion:
+                    if not preflight_done:
+                        self._ensure_pysr_preflight(experiment_cfg)
+                        preflight_done = True
+                    remaining = max_total_tokens - total_tokens if max_total_tokens else 0
+                    if max_total_tokens:
+                        search_allowance = remaining - min(promotion_tokens, remaining)
+                        if search_allowance <= 0:
+                            termination_reason = "promotion_budget_reserved"
+                            break
+                        self.agent.config.max_total_tokens = (
+                            min(per_round_tokens, search_allowance)
+                            if per_round_tokens
+                            else search_allowance
+                        )
+                    elif per_round_tokens:
+                        self.agent.config.max_total_tokens = per_round_tokens
+
+                    round_exp = RoundExp(self.agent, self.config, round_num)
+                    round_exp.set_run_dir(self.workspace_dir)
+                    discovery_result = round_exp.run(task_description)
+                    discovery_tokens = self._trajectory_token_usage(
+                        discovery_result.get("trajectory")
+                    )
+                    total_tokens += discovery_tokens
+                    result_files = discovery_result.get("completed_result_files") or []
+                    if not result_files:
+                        termination_reason = "verification_incomplete"
+                        break
+
+                remaining = max_total_tokens - total_tokens if max_total_tokens else 0
+                if max_total_tokens and remaining <= 0:
+                    termination_reason = "token_budget_reached"
+                    break
+                self.agent.config.max_total_tokens = (
+                    min(promotion_tokens, remaining)
+                    if max_total_tokens
+                    else promotion_tokens
+                )
+                promotion_exp = PromotionExp(
+                    self.agent,
+                    self.config,
+                    round_num,
+                    result_files=result_files,
+                    max_attempts=promotion_attempts,
+                )
+                promotion_exp.set_run_dir(self.workspace_dir)
+                result = promotion_exp.run(task_description)
                 signal = result.get("signal") or {}
-                round_tokens = self._trajectory_token_usage(result.get("trajectory"))
-                total_tokens += round_tokens
+                promotion_used = self._trajectory_token_usage(result.get("trajectory"))
+                total_tokens += promotion_used
 
                 # 记录结果（确保可 JSON 序列化；完整轨迹已由 trajectories/trajectory.json 持久化）
                 round_record = {
@@ -268,8 +316,16 @@ class HamiltonPlayground(BasePlayground):
                     "agent_result": result.get("agent_result", ""),
                     "findings": result.get("findings", ""),
                     "signal": signal,
-                    "trajectory": self._summarize_trajectory(result.get("trajectory")),
-                    "token_usage": round_tokens,
+                    "discovery_trajectory": self._summarize_trajectory(
+                        discovery_result.get("trajectory") if discovery_result else None
+                    ),
+                    "promotion_trajectory": self._summarize_trajectory(result.get("trajectory")),
+                    "token_usage": {
+                        "discovery_verification": discovery_tokens,
+                        "promotion": promotion_used,
+                        "total": discovery_tokens + promotion_used,
+                    },
+                    "promotion_resumed": resume_promotion,
                 }
                 self.experiment_record["rounds"].append(round_record)
                 self.experiment_record["total_token_usage"] = total_tokens
@@ -327,7 +383,33 @@ class HamiltonPlayground(BasePlayground):
             }
 
         finally:
+            if self.agent is not None and "original_agent_token_limit" in locals():
+                self.agent.config.max_total_tokens = original_agent_token_limit
             self.cleanup()
+
+    def _ensure_pysr_preflight(self, experiment_cfg: dict) -> None:
+        """Run preflight lazily so Promotion-only recovery never imports PySR."""
+        preflight_cfg = experiment_cfg.get("pysr_preflight", {})
+        if not isinstance(preflight_cfg, dict):
+            raise ValueError("experiment.pysr_preflight must be a mapping")
+        if not preflight_cfg.get("enabled", True):
+            return
+        timeout = int(preflight_cfg.get("timeout_seconds", 180) or 180)
+        self.logger.info("Running Julia/PySR preflight before Discovery")
+        try:
+            result = run_preflight(timeout_seconds=timeout)
+        except PySRPreflightError as exc:
+            raise RuntimeError(
+                "Julia/PySR preflight failed before any LLM or search budget was consumed: "
+                f"{exc}"
+            ) from exc
+        self.experiment_record["pysr_preflight"] = result
+        self.logger.info(
+            "Julia/PySR preflight ready: PySR %s, Julia %s, %.3fs",
+            result["warmup"]["pysr_version"],
+            result["warmup"]["julia_version"],
+            result["warmup"]["controller_elapsed_seconds"],
+        )
 
     def _create_plan_file(self, plan_file: Path):
         """创建 plan.md 研究计划文件"""
