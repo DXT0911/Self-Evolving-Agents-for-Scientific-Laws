@@ -482,6 +482,16 @@ class PromotionExp(BaseExp):
         contract = content[start:end]
         return all(field in contract for field in NEXT_ROUND_FIELDS)
 
+    def _is_final_round(self) -> bool:
+        experiment = getattr(getattr(self, "config", None), "experiment", {})
+        if not isinstance(experiment, dict):
+            experiment = vars(experiment) if experiment is not None else {}
+        try:
+            max_rounds = int(experiment.get("max_rounds", 0) or 0)
+        except (TypeError, ValueError):
+            return False
+        return max_rounds > 0 and self.round_num >= max_rounds
+
     @staticmethod
     def _normalize_result_path(path: object) -> str:
         return str(path or "").replace("\\", "/").lstrip("./")
@@ -798,7 +808,10 @@ class PromotionExp(BaseExp):
         if completed_results is None:
             completed_results = self._completed_result_files(before)
         task_completed = self._extract_task_completed(trajectory)
-        continuing = task_completed in {"false", "partial"}
+        continuing = (
+            task_completed in {"false", "partial"}
+            and not self._is_final_round()
+        )
         continuation_contract_valid = self._continuation_contract_valid() if continuing else None
         meaningful_config_change = self._meaningful_config_changed(completed_results)
         single_config_change, changed_config_fields = self._single_config_change(completed_results)

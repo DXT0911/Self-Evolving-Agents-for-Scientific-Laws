@@ -781,6 +781,23 @@ class RoundClosureContractTests(unittest.TestCase):
         self.assertFalse(closure["closed"])
         self.assertFalse(closure["continuation_contract_valid"])
 
+    def test_final_round_does_not_require_next_round_contract(self) -> None:
+        self.exp.config = SimpleNamespace(experiment={"max_rounds": 1})
+        before = self.exp._snapshot_closure_artifacts()
+        (self.round_dir / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("updated final plan", encoding="utf-8")
+        (self.round_dir / "results" / "result.json").write_text(
+            json.dumps({"status": "completed"}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(
+            before,
+            self.finish_trajectory("false"),
+        )
+        self.assertTrue(closure["closed"])
+        self.assertIsNone(closure["continuation_contract_valid"])
+
     def test_round_two_requires_meaningful_config_change(self) -> None:
         previous_config = {
             "data": {"train_file": "input/train.csv"},
