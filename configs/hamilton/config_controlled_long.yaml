@@ -62,6 +62,9 @@ experiment:
   max_tokens_per_round: 240000
   max_total_evals: 100000
   stall_rounds: 3
+  promotion:
+    max_tokens: 30000
+    max_attempts: 2
 
 llm_output:
   show_in_console: false

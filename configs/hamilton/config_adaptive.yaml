@@ -51,6 +51,9 @@ experiment:
   max_rounds: 3
   scientific_governance: true
   require_literature_grounding: true
+  promotion:
+    max_tokens: 30000
+    max_attempts: 2
 
 llm_output:
   show_in_console: true

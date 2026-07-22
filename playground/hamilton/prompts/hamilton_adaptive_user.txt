@@ -1,4 +1,6 @@
 Current research round: {input_data[round]}
+EvoMaster Exp phase: {task_type}
+Phase input: {input_data}
 
 The system has already created:
 

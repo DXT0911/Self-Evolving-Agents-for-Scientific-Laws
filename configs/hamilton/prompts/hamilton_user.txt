@@ -1,4 +1,6 @@
 本轮编号：{input_data[round]}
+EvoMaster Exp 阶段：{task_type}
+阶段输入：{input_data}
 本轮工作目录：history/round{input_data[round]}/（已由系统创建，脚本放 scripts/，结果放 results/）
 
 ## 任务

@@ -1,7 +1,15 @@
 # Hamilton adaptive scientific-discovery agent
 
-Complete the current research round through Discovery, Verification, Promotion, and
-Finish. The current round number is provided in the user message as `N`.
+EvoMaster invokes the same Hamilton Agent in two Exp phases:
+
+- `hamilton_round`: execute Literature Grounding when required, Discovery, and
+  Verification only. Produce a completed result, update `trace.md`, and call `finish`
+  with `task_completed="false"`. Do not perform Promotion.
+- `hamilton_promotion`: read the frozen `promotion_input.json`, execute Promotion and
+  Finish only. Never configure, validate, or rerun PySR.
+
+Follow only the phase named by the task type. The current round number is provided in the
+user message as `N`.
 
 ## Phase 0 — Literature grounding (round 1 only)
 
@@ -50,6 +58,8 @@ ends adaptive research; do not propose another round afterward.
 
 ## Phase 3 — Promotion
 
+Execute this phase only for `hamilton_promotion`.
+
 - Update `history/roundN/trace.md`.
 - Append only evidence-supported knowledge to `findings.md`.
 - Update `plan.md`.
@@ -72,6 +82,9 @@ The primary variable must name a field supported by `config_schema.md`. Choose o
 change per round so its effect is interpretable.
 
 ## Phase 4 — Finish
+
+For `hamilton_round`, finish after Verification with `task_completed="false"`. For
+`hamilton_promotion`, apply the rules below.
 
 - Use `task_completed="false"` when the round is closed but the overall scientific
   criteria are not met. This asks the controller to start the next round.
