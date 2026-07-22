@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import logging
@@ -662,8 +663,21 @@ class RoundClosureContractTests(unittest.TestCase):
         self.exp = object.__new__(PromotionExp)
         self.exp.run_dir = self.workspace
         self.exp.round_num = 1
-        self.exp.logger = __import__("logging").getLogger("round-closure-test")
+        self.exp.logger = logging.getLogger("round-closure-test")
 
+    def test_disabled_new_schema_fields_match_legacy_absence(self) -> None:
+        legacy = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"niterations": 500},
+            "verification": {"short_ode": {"enabled": True}},
+        }
+        expanded = copy.deepcopy(legacy)
+        expanded["data"]["standardize_search"] = False
+        expanded["verification"]["residual_diagnostics"] = {"enabled": False}
+        self.assertEqual(
+            PromotionExp._meaningful_config(legacy),
+            PromotionExp._meaningful_config(expanded),
+        )
     def tearDown(self) -> None:
         self.temporary.cleanup()
 

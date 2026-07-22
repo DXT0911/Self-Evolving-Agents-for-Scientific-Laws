@@ -11,6 +11,7 @@
 - plan.md: L2 战略计划，Agent 全权维护（含 Current Best）
 """
 
+import copy
 import hashlib
 import json
 import logging
@@ -114,7 +115,10 @@ class PromotionExp(BaseExp):
                 f"{task_description}\n\n"
                 "Execute Promotion and Finish only. Do not run or configure PySR. "
                 "Read the frozen promotion input named in input_data, update trace.md, "
-                "findings.md and plan.md, then call finish."
+                "findings.md and plan.md, then call finish. On a recovery attempt, make "
+                "an explicit current-round recovery edit to all three files even when an "
+                "earlier partial attempt already wrote valid content; unchanged files fail "
+                "the closure audit."
             ),
             input_data={
                 "round": self.round_num,
@@ -399,11 +403,19 @@ class PromotionExp(BaseExp):
         """Exclude identity/output fields so a renamed repeat is not treated as adaptation."""
         if not isinstance(config, dict):
             return {}
-        return {
-            "data": config.get("data"),
-            "search": config.get("search"),
-            "verification": config.get("verification"),
-        }
+        meaningful = copy.deepcopy({
+            "data": config.get("data") or {},
+            "search": config.get("search") or {},
+            "verification": config.get("verification") or {},
+        })
+        # Legacy results predate these schema fields. Explicitly disabled modern
+        # diagnostics are semantically equivalent to the legacy absence.
+        if meaningful["data"].get("standardize_search") is False:
+            meaningful["data"].pop("standardize_search")
+        residual = meaningful["verification"].get("residual_diagnostics")
+        if isinstance(residual, dict) and residual.get("enabled") is False:
+            meaningful["verification"].pop("residual_diagnostics")
+        return meaningful
 
     @staticmethod
     def _changed_config_fields(previous: object, current: object, prefix: str = "") -> list[str]:

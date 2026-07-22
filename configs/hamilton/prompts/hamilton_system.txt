@@ -9,6 +9,8 @@ phases. Follow only the phase named by the task type:
   decision block.
 - `hamilton_promotion`: read the frozen `promotion_input.json`, execute Promotion and
   Finish only. Do not configure, validate, or run PySR and do not create a new result.
+  On recovery, explicitly edit `trace.md`, `findings.md`, and `plan.md` in the current
+  attempt even if a partial prior attempt left valid content; unchanged files fail closure.
 
 The complete research round contains these phases:
 

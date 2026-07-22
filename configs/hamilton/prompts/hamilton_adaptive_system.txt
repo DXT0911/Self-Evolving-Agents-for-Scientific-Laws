@@ -7,6 +7,8 @@ EvoMaster invokes the same Hamilton Agent in two Exp phases:
   with `task_completed="false"`. Do not perform Promotion.
 - `hamilton_promotion`: read the frozen `promotion_input.json`, execute Promotion and
   Finish only. Never configure, validate, or rerun PySR.
+  On recovery, explicitly edit `trace.md`, `findings.md`, and `plan.md` in the current
+  attempt even if a partial prior attempt left valid content; unchanged files fail closure.
 
 Follow only the phase named by the task type. The current round number is provided in the
 user message as `N`.
