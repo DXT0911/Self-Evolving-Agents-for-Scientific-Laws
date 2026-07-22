@@ -7,7 +7,8 @@
 ```
 每轮:
   系统 → 创建 history/round{N}/trace.md（L1 工作记忆）
-  Agent → 读 L2 → 发现方程 → 验证 → 提炼到 L2（findings.md + plan.md）→ finish(satisfied)
+  RoundExp → 同一 Agent 读 L2 → 发现方程 → 验证 → 产生冻结结果
+  PromotionExp → 同一 Agent 提炼到 L2（findings.md + plan.md）→ finish(satisfied)
   系统 → 审计结果、L2、finish、科学决策和下一轮契约，决定是否继续
 ```
 
@@ -30,6 +31,8 @@ workspace/
 └── history/
     └── round{N}/
         ├── trace.md           # L1 工作记忆（每轮独立）
+        ├── promotion_input.json # controller 冻结的 Promotion 输入
+        ├── promotion_state.json # pending/completed 与恢复尝试
         ├── scripts/           # Agent 写的脚本
         └── results/           # 每轮结果 + 派生数据
 ```
@@ -79,13 +82,16 @@ workspace/
 - [x] 文献先验合约与 benchmark 答案隔离
 - [x] Tier 0--3 OOD 冻结、私有账本和最终锁协议
 - [x] token/evaluation 预算与 Julia/PySR controller preflight
-- [x] 44 项 runner、closure、governance、安全、OOD 和 preflight 合约测试
+- [x] Promotion 从 RoundExp 拆为 EvoMaster 原生 `PromotionExp(BaseExp)` 阶段
+- [x] Promotion 结果冻结、SHA-256 恢复检查、独立 token 预算和尝试上限
+- [x] 52 项 runner、phase orchestration、closure、governance、安全、OOD 和 preflight 合约测试
 - [x] README.md 重写（单 Agent + HCC 架构）
 - [x] L1 trace.md 移入 round 目录（不再覆写根目录 execution_trace.md）
 
 ## TODO
 
-- [ ] **P0：将 Promotion 做成确定性、可恢复且有独立预算的阶段**
+- [x] **P0：将 Promotion 做成确定性、可恢复且有独立预算的阶段（合约实现）**
+- [ ] P0：用一次低预算真实对话验收 PromotionExp；正式实验仍暂停
 - [ ] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收
 - [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置

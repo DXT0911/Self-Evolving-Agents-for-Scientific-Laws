@@ -24,8 +24,8 @@ Hamilton 是基于 EvoMaster 框架的符号回归（Symbolic Regression）Agent
                           │
                           ▼
 ┌─────────────────────────────────────────────────────┐
-│                     RoundExp                         │
-│ 系统: 重置 L1 → Agent 执行 → 解析 signal → 治理审计    │
+│  RoundExp                 PromotionExp               │
+│  Discovery + Verification → Promotion + Finish       │
 └─────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -44,11 +44,15 @@ Round N 开始
     ├─ 系统: 创建 history/round{N}/trace.md（L1 工作记忆）
     ├─ 系统: 快照 L2 文件 mtime（用于 post-check）
     │
-    ├─ Agent 执行（四阶段闭环）
-    │     ├─ Phase 1 Discovery: 读 L2 → 变量分析 → 拟合/PySR
-    │     ├─ Phase 2 Verification: 残差分析 → OOD 验证
-    │     ├─ Phase 3 Promotion: 提炼结论到 findings.md + plan.md
-    │     └─ Phase 4 Finish: 发出 satisfied 信号
+    ├─ RoundExp：同一个 Agent 执行 Discovery + Verification
+    │     ├─ 读 L2 → 变量分析 → 拟合/PySR
+    │     ├─ 残差、轨迹和可用 OOD 层级验证
+    │     └─ 产生 completed result JSON
+    ├─ controller：冻结 promotion_input.json（结果路径 + SHA-256）
+    ├─ PromotionExp：同一个 Agent 执行 Promotion + Finish
+    │     ├─ 不得重新配置或运行 PySR
+    │     ├─ 提炼结论到 findings.md + plan.md
+    │     └─ 发出 satisfied 信号
     │
     ├─ 系统: 解析 satisfied 信号
     ├─ 系统: closure 与科学治理审计
@@ -58,6 +62,10 @@ Round N 开始
     │
 Round N 结束 → closed=false ? 立即停止 : 按 satisfied 决定结束或下一轮
 ```
+
+若 completed result 已存在而 Promotion 未闭合，下一次运行直接恢复 `PromotionExp`，不会
+重跑 `RoundExp` 或 PySR preflight。两个 Exp 使用同一个 Hamilton Agent，但拥有独立
+trajectory 和 token 上限。
 
 ### HCC 分层记忆
 
@@ -77,7 +85,8 @@ L2 文件驱动跨轮知识传递：Agent 每轮读取 L2 → 基于历史做决
 playground/hamilton/
 ├── core/
 │   ├── playground.py      # HamiltonPlayground: 多轮编排 + workspace 初始化
-│   ├── exp.py             # RoundExp: 单轮执行 + signal 解析 + L2 post-check
+│   ├── exp.py             # RoundExp: Discovery + Verification
+│   ├── promotion_exp.py   # PromotionExp: 恢复、L2、Finish 与治理审计
 │   └── constants.py       # Signal markers、字段定义
 ├── prompts/
 │   ├── hamilton_system.txt # Agent 系统提示（四阶段协议 + HCC 规范）
@@ -139,6 +148,14 @@ playground/hamilton/
 - `finish` 只是闭环证据之一；结果、L2 更新或治理决策缺失时该轮仍为 `closed=false`
 - 如果 Agent 未调用 `finish`，当前轮闭环失败，多轮控制器立即停止
 
+### Promotion Exp
+
+- `RoundExp` 只负责产生证据；`PromotionExp` 负责 scientific decision、L2 与 closure。
+- `promotion_input.json` 冻结本轮 completed results；恢复前会复核 SHA-256。
+- `promotion_state.json` 只记录 `pending/completed`、尝试次数和闭环错误。
+- `experiment.promotion.max_tokens` 是 Promotion 单独的 Agent-run 预算；全局预算启用时，
+  controller 会在 Discovery 前预留该额度。
+
 ---
 
 ## 使用方法
@@ -172,6 +189,9 @@ experiment:
   max_rounds: 10      # 最大迭代轮数
   scientific_governance: true
   require_literature_grounding: true
+  promotion:
+    max_tokens: 30000
+    max_attempts: 2
 ```
 
 ---

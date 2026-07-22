@@ -4,6 +4,10 @@
 literature grounding, the standard SR runner, scientific governance, and controller-side
 PySR preflight. It is not yet a frozen formal-experiment configuration.
 
+`experiment.promotion.max_tokens` limits the separate `PromotionExp` Agent run, while
+`max_attempts` bounds resumptions. When a global token budget is present, the Playground
+reserves the Promotion allowance before starting `RoundExp`.
+
 All provider credentials must come from `${HAMILTON_API_KEY}`. Never commit a literal key.
 
 ## Reusable development configurations
