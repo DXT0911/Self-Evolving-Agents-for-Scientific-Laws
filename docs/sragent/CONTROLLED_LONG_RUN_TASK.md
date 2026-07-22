@@ -56,6 +56,25 @@ round 2's division operator, set `data.standardize_search=false`, and set
 semantically equivalent to their absence in the legacy round-2 result.
 Validate that file and run it without introducing any other data/search/verification change.
 
+Controller correction for the governed round-7 replay: the rejected first round-7 attempt
+changed both `data.standardize_search` and `search.parsimony`. Reuse the repaired
+`history/round7/experiment.json`; retain `data.standardize_search=true` from round 6 and
+change only `search.parsimony` from 0.001 to 0.0.
+
+Controller correction for the governed round-8 replay: the rejected first round-8 attempt
+both reverted `data.standardize_search` and added `search.template_expression_spec`.
+Reuse the repaired `history/round8/experiment.json`; retain
+`data.standardize_search=true` and `search.parsimony=0.0` from round 7, and change only
+`search.template_expression_spec`. Existing round-8 statements in L2 describe the
+rejected attempt and must be replaced with evidence from the repaired result. Although
+round 8 is the final round and must not add an `EVO_NEXT_ROUND` continuation block, its
+scientific-decision `next_strategy` object must still record a diagnostic field,
+hypothesis, expected effect, risks, and falsification evidence for audit completeness.
+For the recovery schema, use exactly the non-empty string keys `diagnosed_failure`,
+`evidence`, `config_field`, `expected_effect`, and `falsification`, plus `risks` as a
+non-empty list of non-empty strings. Replace the incompatible `hypothesis`, string-valued
+`risks`, and `falsification_evidence` keys left by the interrupted Promotion attempt.
+
 ## Promotion gates
 
 A later result may replace the incumbent only if:
