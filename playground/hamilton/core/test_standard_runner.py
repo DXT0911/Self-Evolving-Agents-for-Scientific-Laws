@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import logging
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +16,8 @@ import pandas as pd
 import sympy
 
 from playground.hamilton.core.exp import RoundExp
+from playground.hamilton.core.promotion_exp import PromotionExp
+from playground.hamilton.core.playground import HamiltonPlayground
 from playground.hamilton.core.ood_evaluator import (
     OODAccessLedger,
     OODProtocolError,
@@ -347,6 +350,306 @@ class StandardRunnerContractTests(unittest.TestCase):
         self.assertEqual(set(diagnostic["scale_aware"]["standardized_effect"]), {"x", "v"})
 
 
+class RoundAndPromotionPhaseTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        self.round_dir = self.workspace / "history" / "round1"
+        (self.round_dir / "results").mkdir(parents=True)
+        (self.workspace / "findings.md").write_text("findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("plan", encoding="utf-8")
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def test_round_exp_produces_evidence_without_promotion(self) -> None:
+        workspace = self.workspace
+
+        class FakeAgent:
+            task = None
+
+            def run(self, task):
+                self.task = task
+                result = workspace / "history" / "round1" / "results" / "result.json"
+                result.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+                return SimpleNamespace(status="completed", steps=[], dialogs=[])
+
+        agent = FakeAgent()
+        exp = RoundExp(agent, SimpleNamespace(experiment={}), 1)
+        exp.set_run_dir(self.workspace)
+        result = exp.run("discover")
+        self.assertEqual(agent.task.task_type, "hamilton_round")
+        self.assertTrue(result["ready_for_promotion"])
+        self.assertEqual(
+            result["completed_result_files"],
+            ["history/round1/results/result.json"],
+        )
+        self.assertFalse((self.round_dir / "promotion_input.json").exists())
+
+    def test_promotion_input_is_stable_and_detects_mutation(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        exp = PromotionExp(
+            SimpleNamespace(),
+            SimpleNamespace(experiment={}),
+            1,
+            result_files=["history/round1/results/result.json"],
+        )
+        exp.set_run_dir(self.workspace)
+        first = exp._load_or_create_promotion_input()
+        second = exp._load_or_create_promotion_input()
+        self.assertEqual(first, second)
+        result_path.write_text(json.dumps({"status": "completed", "changed": True}), encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "changed after preparation"):
+            exp._load_or_create_promotion_input()
+
+    def test_promotion_attempt_limit_does_not_call_agent(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+
+        class FailingAgent:
+            def run(self, _task):
+                raise AssertionError("agent must not run after attempt exhaustion")
+
+        exp = PromotionExp(
+            FailingAgent(),
+            SimpleNamespace(experiment={}),
+            1,
+            result_files=["history/round1/results/result.json"],
+            max_attempts=2,
+        )
+        exp.set_run_dir(self.workspace)
+        exp._load_or_create_promotion_input()
+        exp._write_promotion_state({"status": "pending", "attempts": 2})
+        result = exp.run("promote")
+        self.assertTrue(result["signal"]["promotion_attempts_exhausted"])
+        self.assertFalse(result["signal"]["closed"])
+
+    def test_promotion_state_is_bound_to_frozen_input(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        exp = PromotionExp(
+            SimpleNamespace(),
+            SimpleNamespace(experiment={}),
+            1,
+            result_files=["history/round1/results/result.json"],
+        )
+        exp.set_run_dir(self.workspace)
+        exp._load_or_create_promotion_input()
+        exp._write_promotion_state(
+            {"status": "completed", "attempts": 1, "input_sha256": "wrong"}
+        )
+        with self.assertRaisesRegex(RuntimeError, "does not match the frozen input"):
+            exp.run("promote")
+
+
+class HamiltonPromotionOrchestrationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        self.agent = SimpleNamespace(config=SimpleNamespace(max_total_tokens=999))
+        self.playground = object.__new__(HamiltonPlayground)
+        self.playground.agent = self.agent
+        self.playground.config = SimpleNamespace(experiment={})
+        self.playground.logger = logging.getLogger("promotion-orchestration-test")
+        self.playground.workspace_dir = self.workspace
+        self.playground.run_dir = self.workspace
+        self.playground.experiment_record = {
+            "task": "",
+            "rounds": [],
+            "start_time": "test",
+        }
+        self.playground.setup = lambda: None
+        self.playground.cleanup = lambda: None
+        self.playground._setup_trajectory_file = lambda _output=None: None
+        self.playground._init_workspace = lambda: None
+        self.playground._save_experiment_record = lambda: None
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    @staticmethod
+    def completed_promotion_result() -> dict:
+        return {
+            "round": 1,
+            "agent_result": "promoted",
+            "findings": "findings",
+            "signal": {
+                "closed": True,
+                "satisfied": True,
+                "closure": {"scientific_decision": {}},
+            },
+            "trajectory": SimpleNamespace(status="completed", steps=[]),
+        }
+
+    def test_promotion_resume_skips_discovery_and_preflight(self) -> None:
+        round_dir = self.workspace / "history" / "round1"
+        round_dir.mkdir(parents=True)
+        (round_dir / "promotion_input.json").write_text(
+            json.dumps({"schema_version": 1, "round": 1, "results": [{}]}),
+            encoding="utf-8",
+        )
+        (round_dir / "promotion_state.json").write_text(
+            json.dumps({"status": "pending", "attempts": 1}),
+            encoding="utf-8",
+        )
+        self.playground.config = SimpleNamespace(
+            experiment={
+                "max_rounds": 1,
+                "promotion": {"max_tokens": 1234, "max_attempts": 2},
+            }
+        )
+        self.playground._ensure_pysr_preflight = lambda _cfg: self.fail(
+            "Promotion-only recovery must not run PySR preflight"
+        )
+        seen = {}
+
+        class FakePromotionExp:
+            def __init__(_self, agent, _config, _round, result_files, max_attempts):
+                seen["agent"] = agent
+                seen["result_files"] = result_files
+                seen["max_attempts"] = max_attempts
+
+            def set_run_dir(_self, _run_dir):
+                pass
+
+            def run(_self, _task):
+                seen["budget"] = self.agent.config.max_total_tokens
+                return HamiltonPromotionOrchestrationTests.completed_promotion_result()
+
+        with patch("playground.hamilton.core.playground.RoundExp") as round_mock, patch(
+            "playground.hamilton.core.playground.PromotionExp", FakePromotionExp
+        ):
+            result = self.playground.run("task")
+        round_mock.assert_not_called()
+        self.assertIs(seen["agent"], self.agent)
+        self.assertIsNone(seen["result_files"])
+        self.assertEqual(seen["budget"], 1234)
+        self.assertEqual(result["termination_reason"], "scientific_success")
+        self.assertEqual(self.agent.config.max_total_tokens, 999)
+
+    def test_completed_result_recovers_before_promotion_input_is_written(self) -> None:
+        results_dir = self.workspace / "history" / "round1" / "results"
+        results_dir.mkdir(parents=True)
+        result_path = results_dir / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        self.playground.config = SimpleNamespace(
+            experiment={
+                "max_rounds": 1,
+                "promotion": {"max_tokens": 1234, "max_attempts": 2},
+            }
+        )
+        self.playground._ensure_pysr_preflight = lambda _cfg: self.fail(
+            "Recovery from a completed result must not rerun PySR preflight"
+        )
+        seen = {}
+
+        class FakePromotionExp:
+            def __init__(_self, _agent, _config, _round, result_files, max_attempts):
+                seen["result_files"] = result_files
+
+            def set_run_dir(_self, _run_dir):
+                pass
+
+            def run(_self, _task):
+                return HamiltonPromotionOrchestrationTests.completed_promotion_result()
+
+        with patch("playground.hamilton.core.playground.RoundExp") as round_mock, patch(
+            "playground.hamilton.core.playground.PromotionExp", FakePromotionExp
+        ):
+            result = self.playground.run("task")
+        round_mock.assert_not_called()
+        self.assertEqual(
+            seen["result_files"], ["history/round1/results/result.json"]
+        )
+        self.assertEqual(result["termination_reason"], "scientific_success")
+
+    def test_completed_promotion_state_is_replayed_without_discovery(self) -> None:
+        round_dir = self.workspace / "history" / "round1"
+        round_dir.mkdir(parents=True)
+        (round_dir / "promotion_input.json").write_text(
+            json.dumps({"schema_version": 1, "round": 1, "results": [{}]}),
+            encoding="utf-8",
+        )
+        (round_dir / "promotion_state.json").write_text(
+            json.dumps({"status": "completed", "attempts": 1}),
+            encoding="utf-8",
+        )
+        self.playground.config = SimpleNamespace(
+            experiment={"max_rounds": 1, "promotion": {"max_tokens": 1234}}
+        )
+        self.playground._ensure_pysr_preflight = lambda _cfg: self.fail(
+            "Completed Promotion replay must not run PySR preflight"
+        )
+
+        class FakePromotionExp:
+            def __init__(_self, _agent, _config, _round, result_files, max_attempts):
+                self.assertIsNone(result_files)
+
+            def set_run_dir(_self, _run_dir):
+                pass
+
+            def run(_self, _task):
+                return HamiltonPromotionOrchestrationTests.completed_promotion_result()
+
+        with patch("playground.hamilton.core.playground.RoundExp") as round_mock, patch(
+            "playground.hamilton.core.playground.PromotionExp", FakePromotionExp
+        ):
+            result = self.playground.run("task")
+        round_mock.assert_not_called()
+        self.assertEqual(result["termination_reason"], "scientific_success")
+
+    def test_global_budget_reserves_promotion_before_discovery(self) -> None:
+        self.playground.config = SimpleNamespace(
+            experiment={
+                "max_rounds": 1,
+                "max_total_tokens": 100,
+                "max_tokens_per_round": 90,
+                "pysr_preflight": {"enabled": False},
+                "promotion": {"max_tokens": 30, "max_attempts": 2},
+            }
+        )
+        self.playground._ensure_pysr_preflight = lambda _cfg: None
+        seen = {}
+
+        class FakeRoundExp:
+            def __init__(_self, agent, _config, _round):
+                seen["same_round_agent"] = agent is self.agent
+
+            def set_run_dir(_self, _run_dir):
+                pass
+
+            def run(_self, _task):
+                seen["round_budget"] = self.agent.config.max_total_tokens
+                return {
+                    "round": 1,
+                    "completed_result_files": ["history/round1/results/result.json"],
+                    "trajectory": SimpleNamespace(status="completed", steps=[]),
+                }
+
+        class FakePromotionExp:
+            def __init__(_self, agent, _config, _round, result_files, max_attempts):
+                seen["same_promotion_agent"] = agent is self.agent
+                seen["result_files"] = result_files
+
+            def set_run_dir(_self, _run_dir):
+                pass
+
+            def run(_self, _task):
+                seen["promotion_budget"] = self.agent.config.max_total_tokens
+                return HamiltonPromotionOrchestrationTests.completed_promotion_result()
+
+        with patch("playground.hamilton.core.playground.RoundExp", FakeRoundExp), patch(
+            "playground.hamilton.core.playground.PromotionExp", FakePromotionExp
+        ):
+            self.playground.run("task")
+        self.assertTrue(seen["same_round_agent"])
+        self.assertTrue(seen["same_promotion_agent"])
+        self.assertEqual(seen["round_budget"], 70)
+        self.assertEqual(seen["promotion_budget"], 30)
+        self.assertEqual(self.agent.config.max_total_tokens, 999)
+
+
 class RoundClosureContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -356,7 +659,7 @@ class RoundClosureContractTests(unittest.TestCase):
         (self.round_dir / "trace.md").write_text("initial trace", encoding="utf-8")
         (self.workspace / "findings.md").write_text("initial findings", encoding="utf-8")
         (self.workspace / "plan.md").write_text("initial plan", encoding="utf-8")
-        self.exp = object.__new__(RoundExp)
+        self.exp = object.__new__(PromotionExp)
         self.exp.run_dir = self.workspace
         self.exp.round_num = 1
         self.exp.logger = __import__("logging").getLogger("round-closure-test")
@@ -539,7 +842,7 @@ class ScientificGovernanceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.workspace = Path(self.temporary.name).resolve()
-        self.exp = object.__new__(RoundExp)
+        self.exp = object.__new__(PromotionExp)
         self.exp.run_dir = self.workspace
         self.exp.round_num = 2
         self.exp.config = SimpleNamespace(experiment={"scientific_governance": True})
@@ -800,7 +1103,7 @@ class LiteratureGroundingTests(unittest.TestCase):
                 + "\n<!-- EVO_INITIAL_PRIORS_END -->",
                 encoding="utf-8",
             )
-            exp = object.__new__(RoundExp)
+            exp = object.__new__(PromotionExp)
             exp.run_dir = workspace
             self.assertTrue(exp._audit_initial_priors()["valid"])
 
