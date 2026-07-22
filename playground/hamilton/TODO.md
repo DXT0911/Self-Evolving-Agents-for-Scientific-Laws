@@ -84,7 +84,7 @@ workspace/
 - [x] token/evaluation 预算与 Julia/PySR controller preflight
 - [x] Promotion 从 RoundExp 拆为 EvoMaster 原生 `PromotionExp(BaseExp)` 阶段
 - [x] Promotion 结果冻结、SHA-256 恢复检查、独立 token 预算和尝试上限
-- [x] 52 项 runner、phase orchestration、closure、governance、安全、OOD 和 preflight 合约测试
+- [x] 53 项 runner、phase orchestration、closure、governance、安全、OOD 和 preflight 合约测试
 - [x] README.md 重写（单 Agent + HCC 架构）
 - [x] L1 trace.md 移入 round 目录（不再覆写根目录 execution_trace.md）
 
@@ -92,7 +92,7 @@ workspace/
 
 - [x] **P0：将 Promotion 做成确定性、可恢复且有独立预算的阶段（合约实现）**
 - [ ] P0：用一次低预算真实对话验收 PromotionExp；正式实验仍暂停
-- [ ] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收
+- [x] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收
 - [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收
