@@ -155,6 +155,12 @@ playground/hamilton/
 - `promotion_state.json` 只记录 `pending/completed`、尝试次数和闭环错误。
 - `experiment.promotion.max_tokens` 是 Promotion 单独的 Agent-run 预算；全局预算启用时，
   controller 会在 Discovery 前预留该额度。
+- 科学治理启用时，每轮结果必须包含已完成的结构化验证残差诊断；Promotion 必须把与
+  result JSON 一致的状态相关和时间相关证据追加为 `EVO_RESIDUAL_FEEDBACK`，并在继续
+  研究时将它连同替代解释、预期残差变化和证伪条件写入下一轮契约，否则 closure 失败。
+- 标准 runner 在进入 PySR 前将 `search.max_evals` 预扣到
+  `.hamilton_evaluation_ledger.json`；失败、拒绝、中断和重放均不返还额度，避免最终
+  completed result 主链低估真实物理尝试预算。
 
 ---
 

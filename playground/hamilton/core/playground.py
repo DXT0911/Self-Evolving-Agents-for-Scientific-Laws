@@ -101,7 +101,20 @@ class HamiltonPlayground(BasePlayground):
             )
 
         template_workspace = self._project_root / "playground" / "hamilton" / "workspace"
-        template_task = template_workspace / "task.md"
+        task_template_raw = (
+            experiment_cfg.get("task_template")
+            if isinstance(experiment_cfg, dict)
+            else None
+        )
+        template_task = (
+            (self._project_root / task_template_raw).resolve()
+            if isinstance(task_template_raw, str) and task_template_raw.strip()
+            else template_workspace / "task.md"
+        )
+        try:
+            template_task.relative_to(self._project_root.resolve())
+        except ValueError as exc:
+            raise ValueError("experiment.task_template must stay inside the project") from exc
         workspace_task = workspace / "task.md"
         if template_task.exists() and not workspace_task.exists():
             shutil.copy2(template_task, workspace_task)

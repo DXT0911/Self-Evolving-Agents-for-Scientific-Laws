@@ -9,7 +9,8 @@ Verification already completed successfully.
    CSV, or execute PySR.
 3. Update `history/round1/trace.md` with the completed experiment's quantitative
    Discovery, Verification, residual-diagnostic, and limitation evidence.
-4. Append the supported result to `findings.md`.
+4. Append the supported result and the exact current-round `EVO_RESIDUAL_FEEDBACK` JSON
+   block from `scientific_governance.md` to `findings.md`.
 5. Update `plan.md` with:
    - the incumbent equation and quantitative score evidence;
    - exactly one `EVO_SCIENTIFIC_DECISION` JSON block;
@@ -19,7 +20,8 @@ Verification already completed successfully.
    stronger evidence exists; use scale-aware evidence; include quantitative promotion
    and scientific gates; set `solver_completion_only=false`; and give the next strategy
    a diagnosed failure, evidence, one `config_field`, expected effect, risks, and
-   falsification.
+   falsification, a linked `residual_evidence` object, an alternative explanation, and
+   an observable expected residual change.
 7. Call `finish(task_completed="false")`. The message must summarize Discovery,
    Verification, Promotion, and Limitations.
 

@@ -220,6 +220,80 @@ class StandardRunnerContractTests(unittest.TestCase):
         with self.assertRaisesRegex(RUNNER.ConfigError, "total PySR evaluation budget exceeded"):
             RUNNER.load_and_validate(self.write_config(valid_config()), self.workspace)
 
+    def test_failed_and_replayed_attempts_keep_reserved_evaluation_budget(self) -> None:
+        (self.workspace / ".hamilton_budget.json").write_text(
+            json.dumps({"max_total_evals": 20}),
+            encoding="utf-8",
+        )
+        config_path = self.write_config(valid_config())
+        config, paths = RUNNER.load_and_validate(config_path, self.workspace)
+
+        first = RUNNER.reserve_evaluations(self.workspace, config, paths["result"])
+        RUNNER.finish_evaluation_attempt(
+            self.workspace,
+            first["attempt_id"],
+            "failed",
+        )
+        second = RUNNER.reserve_evaluations(self.workspace, config, paths["result"])
+        RUNNER.finish_evaluation_attempt(
+            self.workspace,
+            second["attempt_id"],
+            "completed",
+        )
+
+        ledger = RUNNER.read_evaluation_ledger(self.workspace)
+        self.assertEqual(RUNNER.evaluation_ledger_total(ledger), 20)
+        self.assertEqual(
+            [attempt["status"] for attempt in ledger["attempts"]],
+            ["failed", "completed"],
+        )
+        with self.assertRaisesRegex(
+            RUNNER.ConfigError,
+            "total PySR evaluation budget exceeded",
+        ):
+            RUNNER.load_and_validate(config_path, self.workspace)
+
+    def test_validation_does_not_reserve_evaluation_budget(self) -> None:
+        (self.workspace / ".hamilton_budget.json").write_text(
+            json.dumps({"max_total_evals": 10}),
+            encoding="utf-8",
+        )
+        RUNNER.load_and_validate(self.write_config(valid_config()), self.workspace)
+        self.assertFalse(
+            (self.workspace / ".hamilton_evaluation_ledger.json").exists()
+        )
+
+    def test_first_reservation_imports_visible_legacy_completed_results(self) -> None:
+        (self.workspace / ".hamilton_budget.json").write_text(
+            json.dumps({"max_total_evals": 20}),
+            encoding="utf-8",
+        )
+        previous = self.workspace / "history" / "round1" / "results"
+        previous.mkdir(parents=True)
+        (previous / "previous.json").write_text(
+            json.dumps(
+                {
+                    "experiment_id": "legacy",
+                    "status": "completed",
+                    "config": {"search": {"max_evals": 7}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        config, paths = RUNNER.load_and_validate(
+            self.write_config(valid_config()),
+            self.workspace,
+        )
+        attempt = RUNNER.reserve_evaluations(
+            self.workspace,
+            config,
+            paths["result"],
+        )
+        ledger = RUNNER.read_evaluation_ledger(self.workspace)
+        self.assertEqual(RUNNER.evaluation_ledger_total(ledger), 17)
+        self.assertEqual(ledger["attempts"][0]["status"], "legacy_completed")
+        self.assertEqual(ledger["attempts"][1]["attempt_id"], attempt["attempt_id"])
+
     def test_rejects_invalid_pysr_population_settings(self) -> None:
         config = valid_config()
         config["search"]["tournament_selection_n"] = 4
@@ -651,6 +725,44 @@ class HamiltonPromotionOrchestrationTests(unittest.TestCase):
         self.assertEqual(self.agent.config.max_total_tokens, 999)
 
 
+class HamiltonWorkspaceTemplateTests(unittest.TestCase):
+    def test_custom_task_template_seeds_blind_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            custom_task = root / "docs" / "blind_task.md"
+            custom_task.parent.mkdir(parents=True)
+            custom_task.write_text("# Blind task\nNo prior result.", encoding="utf-8")
+            default_input = root / "playground" / "hamilton" / "workspace" / "input"
+            default_input.mkdir(parents=True)
+            (default_input / "train.txt").write_text("public", encoding="utf-8")
+
+            playground = object.__new__(HamiltonPlayground)
+            playground.workspace_dir = root / "run" / "workspace"
+            playground._project_root = root
+            playground.config = SimpleNamespace(
+                experiment={
+                    "task_template": "docs/blind_task.md",
+                    "max_total_evals": 100,
+                }
+            )
+            playground.logger = logging.getLogger("workspace-template-test")
+            playground._init_workspace()
+
+            self.assertEqual(
+                (playground.workspace_dir / "task.md").read_text(encoding="utf-8"),
+                "# Blind task\nNo prior result.",
+            )
+            self.assertTrue((playground.workspace_dir / "input" / "train.txt").is_file())
+            self.assertEqual(
+                json.loads(
+                    (playground.workspace_dir / ".hamilton_budget.json").read_text(
+                        encoding="utf-8"
+                    )
+                )["max_total_evals"],
+                100,
+            )
+
+
 class RoundClosureContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -761,10 +873,14 @@ class RoundClosureContractTests(unittest.TestCase):
 ## 下一轮实验契约
 - 上轮失败：candidate failed
 - 原因假设：verification was too short
+- 残差证据：validation residual autocorrelation remained high
+- 替代解释：derivative noise may create the same autocorrelation
 - 下一轮主变量：verification duration
 - 保持不变：data and search
 - 预期证据：ranking changes
+- 预期残差变化：validation residual autocorrelation decreases
 - 成功标准：long rollout passes
+- 证伪条件：residual autocorrelation does not decrease
 - 失败后的策略：change search
 <!-- EVO_NEXT_ROUND_END -->"""
 
@@ -780,6 +896,14 @@ class RoundClosureContractTests(unittest.TestCase):
         closure = self.exp._check_round_closure(before, self.finish_trajectory("false"))
         self.assertFalse(closure["closed"])
         self.assertFalse(closure["continuation_contract_valid"])
+
+    def test_next_round_contract_rejects_empty_residual_falsification(self) -> None:
+        contract = self.continuation_contract().replace(
+            "- 证伪条件：residual autocorrelation does not decrease",
+            "- 证伪条件：",
+        )
+        (self.workspace / "plan.md").write_text(contract, encoding="utf-8")
+        self.assertFalse(self.exp._continuation_contract_valid())
 
     def test_final_round_does_not_require_next_round_contract(self) -> None:
         self.exp.config = SimpleNamespace(experiment={"max_rounds": 1})
@@ -885,17 +1009,69 @@ class ScientificGovernanceTests(unittest.TestCase):
                 json.dumps(
                     {
                         "status": "completed",
+                        "config": {
+                            "data": {"train_file": "input/train.csv"},
+                            "search": {"max_evals": 10 * round_num},
+                            "verification": {
+                                "residual_diagnostics": {"enabled": True}
+                            },
+                        },
                         "selected": {
                             "scientific_score": score,
                             "simplified_equation": f"eq{round_num}",
+                        },
+                        "verification": {
+                            "residual_diagnostics": {
+                                "enabled": True,
+                                "status": "completed",
+                                "validation": {
+                                    "state_dependence": {
+                                        "strongest_absolute_correlation": {
+                                            "signal": "v",
+                                            "value": 0.25 + 0.01 * round_num,
+                                        }
+                                    },
+                                    "temporal_structure": {
+                                        "strongest_reported_autocorrelation": {
+                                            "lag": 5,
+                                            "value": 0.4 + 0.01 * round_num,
+                                        }
+                                    },
+                                },
+                            }
                         },
                     }
                 ),
                 encoding="utf-8",
             )
+        self.write_residual_feedback()
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
+
+    def write_residual_feedback(
+        self,
+        *,
+        state_value: float = 0.27,
+        temporal_value: float = 0.42,
+        alternatives: list[str] | None = None,
+    ) -> None:
+        feedback = {
+            "round": 2,
+            "result_file": "history/round2/results/r2.json",
+            "strongest_state_dependence": {"signal": "v", "value": state_value},
+            "strongest_temporal_dependence": {"lag": 5, "value": temporal_value},
+            "interpretation": "validation residual retains state and temporal structure",
+            "alternative_explanations": alternatives or ["derivative estimation bias"],
+            "limitations": ["the pattern does not identify a unique missing term"],
+            "next_testable_question": "does one controlled intervention reduce the pattern",
+        }
+        (self.workspace / "findings.md").write_text(
+            "<!-- EVO_RESIDUAL_FEEDBACK_BEGIN -->\n"
+            + json.dumps(feedback, ensure_ascii=False)
+            + "\n<!-- EVO_RESIDUAL_FEEDBACK_END -->",
+            encoding="utf-8",
+        )
 
     def write_decision(
         self,
@@ -942,8 +1118,15 @@ class ScientificGovernanceTests(unittest.TestCase):
             "next_strategy": {
                 "diagnosed_failure": "held-out validation did not improve",
                 "evidence": "round2 score 0.9 is worse than 0.8",
+                "residual_evidence": {
+                    "result_file": "history/round2/results/r2.json",
+                    "finding": "both",
+                    "observed": "state correlation=0.27 and lag-5 autocorrelation=0.42",
+                },
                 "config_field": "search.max_evals",
                 "expected_effect": "lower held-out scientific score",
+                "alternative_explanation": "derivative estimation bias may create the pattern",
+                "expected_residual_change": "state and temporal dependence decrease",
                 "risks": ["more compute may not diversify structures"],
                 "falsification": "score remains greater than or equal to 0.8",
             },
@@ -1017,6 +1200,83 @@ class ScientificGovernanceTests(unittest.TestCase):
         plan.write_text(content, encoding="utf-8")
         audit = self.exp._audit_scientific_decision("false")
         self.assertFalse(audit["plan_quality_valid"])
+
+    def test_rejects_missing_residual_feedback_block(self) -> None:
+        (self.workspace / "findings.md").write_text("narrative only", encoding="utf-8")
+        self.write_decision()
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["residual_feedback_valid"])
+        self.assertFalse(audit["valid"])
+
+    def test_rejects_disabled_residual_diagnostics(self) -> None:
+        result = self.workspace / "history" / "round2" / "results" / "r2.json"
+        payload = json.loads(result.read_text(encoding="utf-8"))
+        payload["verification"]["residual_diagnostics"] = {
+            "enabled": False,
+            "status": "disabled",
+        }
+        result.write_text(json.dumps(payload), encoding="utf-8")
+        self.write_decision()
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["residual_feedback_valid"])
+
+    def test_rejects_residual_values_not_matching_result(self) -> None:
+        self.write_residual_feedback(state_value=0.99)
+        self.write_decision()
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["residual_feedback_valid"])
+
+    def test_rejects_residual_finding_without_alternative_explanation(self) -> None:
+        self.write_residual_feedback(alternatives=[])
+        findings = self.workspace / "findings.md"
+        content = findings.read_text(encoding="utf-8").replace(
+            '["derivative estimation bias"]',
+            "[]",
+        )
+        findings.write_text(content, encoding="utf-8")
+        self.write_decision()
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["residual_feedback_valid"])
+
+    def test_rejects_next_strategy_without_expected_residual_change(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8")
+        content = content.replace(
+            '"expected_residual_change": "state and temporal dependence decrease",',
+            "",
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["plan_quality_valid"])
+
+    def test_round_closure_requires_and_accepts_linked_residual_feedback(self) -> None:
+        trace = self.workspace / "history" / "round2" / "trace.md"
+        trace.write_text("initial trace", encoding="utf-8")
+        (self.workspace / "plan.md").write_text("initial plan", encoding="utf-8")
+        before = self.exp._snapshot_closure_artifacts()
+
+        trace.write_text("updated trace", encoding="utf-8")
+        findings = self.workspace / "findings.md"
+        findings.write_text(
+            findings.read_text(encoding="utf-8") + "\nround 2 promoted",
+            encoding="utf-8",
+        )
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        plan.write_text(
+            plan.read_text(encoding="utf-8")
+            + "\n"
+            + RoundClosureContractTests.continuation_contract(),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(
+            before,
+            RoundClosureContractTests.finish_trajectory("false"),
+            completed_results=["history/round2/results/r2.json"],
+        )
+        self.assertTrue(closure["scientific_decision"]["residual_feedback_valid"])
+        self.assertTrue(closure["closed"])
 
 
 class ProtectedDataToolTests(unittest.TestCase):

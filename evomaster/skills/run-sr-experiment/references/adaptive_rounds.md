@@ -10,10 +10,14 @@ When continuing, maintain this block in `plan.md`:
 ## 下一轮实验契约
 - 上轮失败：
 - 原因假设：
+- 残差证据：
+- 替代解释：
 - 下一轮主变量：
 - 保持不变：
 - 预期证据：
+- 预期残差变化：
 - 成功标准：
+- 证伪条件：
 - 失败后的策略：
 <!-- EVO_NEXT_ROUND_END -->
 ```
@@ -25,7 +29,8 @@ configuration leaves invalidate the round.
 
 After execution:
 
-- append verified evidence to `findings.md`;
+- append a machine-readable `EVO_RESIDUAL_FEEDBACK` block with verified current-round
+  validation-residual evidence to `findings.md`;
 - record whether the causal hypothesis was supported;
 - update the incumbent and scientific decision block defined in `scientific_governance.md`;
 - replace the contract with the next one if research remains incomplete;

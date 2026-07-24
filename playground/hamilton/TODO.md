@@ -95,6 +95,8 @@ workspace/
 - [x] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收
 - [x] P0：完成 R4--R8 受控长跑；五轮均 `closed=true`，R5 incumbent 保持到终轮
 - [x] P0：修复终轮错误要求 `EVO_NEXT_ROUND` 的 continuation contract 缺陷
+- [x] P0：将结构化残差恢复为 Verification → Promotion → 下一轮契约的强制反馈通道
+- [x] P0：按物理尝试预扣并累计 accepted/rejected/failed/replayed PySR evaluation 预算
 - [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收

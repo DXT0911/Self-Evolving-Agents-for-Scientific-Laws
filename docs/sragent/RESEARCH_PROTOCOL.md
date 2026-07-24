@@ -80,6 +80,8 @@ Every candidate equation should produce a machine-readable record containing:
 - equation and simplified equation;
 - term list and complexity;
 - training and internal-validation pointwise metrics;
+- structured training and validation residual diagnostics, including strongest state
+  dependence and temporal autocorrelation;
 - integration success/failure and failure reason;
 - steady-state amplitude error;
 - oscillation-frequency error;

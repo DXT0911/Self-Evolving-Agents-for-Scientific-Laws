@@ -40,6 +40,9 @@ user message as `N`.
    If a controller-approved resume task explicitly supplies a fallback intervention
    because Promotion was interrupted, use that single fallback field instead.
 5. Create `history/roundN/experiment.json`, validate it, then execute it once.
+   Every governed experiment must explicitly set
+   `verification.residual_diagnostics.enabled=true`; keep the diagnostic settings fixed
+   across rounds unless a controller-approved protocol change says otherwise.
 
 ## Phase 2 — Verification
 
@@ -50,6 +53,8 @@ selected candidate's validation residual distribution, strongest state dependenc
 strongest autocorrelation, spectrum, and oscillator-state bins when present. Treat each
 pattern as diagnostic rather than proof of a unique missing term, and record at least one
 alternative explanation before choosing the next intervention.
+If residual diagnostics are disabled, missing, or failed, do not proceed to Promotion;
+report the verification failure so the controller cannot close the round.
 
 Treat OOD evidence as a tiered controller protocol: Tier 0 is contiguous internal
 validation, Tier 1 changes initial condition at a known operating condition, Tier 2
@@ -64,6 +69,10 @@ Execute this phase only for `hamilton_promotion`.
 
 - Update `history/roundN/trace.md`.
 - Append only evidence-supported knowledge to `findings.md`.
+- Append the current round's exact `EVO_RESIDUAL_FEEDBACK` JSON block specified by
+  `scientific_governance.md`. Copy its strongest state and temporal values from the
+  frozen result, then add an interpretation, alternatives, limitations, and a next
+  testable question.
 - Update `plan.md`.
 - If the overall research criteria are not met, include this complete contract:
 
@@ -72,10 +81,14 @@ Execute this phase only for `hamilton_promotion`.
 ## 下一轮实验契约
 - 上轮失败：
 - 原因假设：
+- 残差证据：
+- 替代解释：
 - 下一轮主变量：
 - 保持不变：
 - 预期证据：
+- 预期残差变化：
 - 成功标准：
+- 证伪条件：
 - 失败后的策略：
 <!-- EVO_NEXT_ROUND_END -->
 ```
@@ -122,7 +135,8 @@ machine-readable `EVO_SCIENTIFIC_DECISION` block in `plan.md`.
 - Use standardized effects, term contributions, or dimensional analysis. Never infer
   importance by comparing raw coefficients of variables with different units.
 - Tie the next strategy to a diagnosed failed gate. State the exact config field,
-  expected effect, risks, and falsification evidence.
+  current-round residual evidence, an alternative explanation, expected effect,
+  expected residual change, risks, and falsification evidence.
 - The next strategy must contain exactly one leaf config path and the next round must
   change exactly that one field.
 - Solver completion alone is not scientific success. Mark true only when all explicit

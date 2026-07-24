@@ -29,14 +29,20 @@ NEXT_ROUND_END = "<!-- EVO_NEXT_ROUND_END -->"
 NEXT_ROUND_FIELDS = (
     "上轮失败",
     "原因假设",
+    "残差证据",
+    "替代解释",
     "下一轮主变量",
     "保持不变",
     "预期证据",
+    "预期残差变化",
     "成功标准",
+    "证伪条件",
     "失败后的策略",
 )
 SCIENTIFIC_DECISION_BEGIN = "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->"
 SCIENTIFIC_DECISION_END = "<!-- EVO_SCIENTIFIC_DECISION_END -->"
+RESIDUAL_FEEDBACK_BEGIN = "<!-- EVO_RESIDUAL_FEEDBACK_BEGIN -->"
+RESIDUAL_FEEDBACK_END = "<!-- EVO_RESIDUAL_FEEDBACK_END -->"
 INITIAL_PRIORS_BEGIN = "<!-- EVO_INITIAL_PRIORS_BEGIN -->"
 INITIAL_PRIORS_END = "<!-- EVO_INITIAL_PRIORS_END -->"
 ALLOWED_CLAIM_STRENGTHS = {"observation", "hypothesis", "supported", "confirmed"}
@@ -480,7 +486,14 @@ class PromotionExp(BaseExp):
         start = content.index(NEXT_ROUND_BEGIN)
         end = content.index(NEXT_ROUND_END, start)
         contract = content[start:end]
-        return all(field in contract for field in NEXT_ROUND_FIELDS)
+        return all(
+            re.search(
+                rf"(?m)^[ \t]*-[ \t]*{re.escape(field)}[ \t]*[：:][ \t]*\S.*$",
+                contract,
+            )
+            is not None
+            for field in NEXT_ROUND_FIELDS
+        )
 
     def _is_final_round(self) -> bool:
         experiment = getattr(getattr(self, "config", None), "experiment", {})
@@ -539,6 +552,168 @@ class PromotionExp(BaseExp):
         return (decision, None) if isinstance(decision, dict) else (None, "decision must be an object")
 
     @staticmethod
+    def _parse_last_json_block(
+        content: str,
+        begin_marker: str,
+        end_marker: str,
+        label: str,
+    ) -> tuple[dict | None, str | None]:
+        start_marker = content.rfind(begin_marker)
+        if start_marker < 0:
+            return None, f"{label} block missing"
+        start = start_marker + len(begin_marker)
+        end = content.find(end_marker, start)
+        if end < 0:
+            return None, f"{label} block is not terminated"
+        raw = content[start:end].strip()
+        if raw.startswith("```"):
+            lines = raw.splitlines()
+            raw = "\n".join(lines[1:-1]).strip()
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            return None, f"{label} JSON invalid: {exc}"
+        return (
+            (payload, None)
+            if isinstance(payload, dict)
+            else (None, f"{label} must be an object")
+        )
+
+    @staticmethod
+    def _same_optional_number(recorded: object, actual: object) -> bool:
+        if recorded is None or actual is None:
+            return recorded is None and actual is None
+        if isinstance(recorded, bool) or isinstance(actual, bool):
+            return False
+        try:
+            recorded_number = float(recorded)
+            actual_number = float(actual)
+        except (TypeError, ValueError):
+            return False
+        return (
+            math.isfinite(recorded_number)
+            and math.isfinite(actual_number)
+            and math.isclose(recorded_number, actual_number, rel_tol=1e-9, abs_tol=1e-12)
+        )
+
+    def _audit_residual_feedback(self) -> dict:
+        """Verify that findings.md faithfully promotes current-round residual evidence."""
+        audit = {"valid": False, "errors": [], "result_file": None}
+        if not self.run_dir:
+            audit["errors"].append("workspace unavailable")
+            return audit
+        findings_path = self.run_dir / "findings.md"
+        if not findings_path.is_file():
+            audit["errors"].append("findings.md missing")
+            return audit
+        feedback, parse_error = self._parse_last_json_block(
+            findings_path.read_text(encoding="utf-8"),
+            RESIDUAL_FEEDBACK_BEGIN,
+            RESIDUAL_FEEDBACK_END,
+            "residual feedback",
+        )
+        if parse_error:
+            audit["errors"].append(parse_error)
+            return audit
+
+        if feedback.get("round") != self.round_num:
+            audit["errors"].append("residual feedback does not belong to the current round")
+        result_file = self._normalize_result_path(feedback.get("result_file"))
+        audit["result_file"] = result_file
+        current_prefix = f"history/round{self.round_num}/results/"
+        current_results = {
+            self._normalize_result_path(path.relative_to(self.run_dir))
+            for path in (
+                self.run_dir / "history" / f"round{self.round_num}" / "results"
+            ).glob("*.json")
+            if path.is_file()
+        }
+        if not result_file.startswith(current_prefix) or result_file not in current_results:
+            audit["errors"].append("residual feedback must cite a current-round result")
+            return audit
+        promotion_input_path = self._promotion_input_path()
+        if promotion_input_path.is_file():
+            try:
+                promotion_input = json.loads(
+                    promotion_input_path.read_text(encoding="utf-8")
+                )
+                frozen_results = {
+                    self._normalize_result_path(item.get("path"))
+                    for item in promotion_input.get("results", [])
+                    if isinstance(item, dict)
+                }
+            except (OSError, json.JSONDecodeError, AttributeError):
+                frozen_results = set()
+            if result_file not in frozen_results:
+                audit["errors"].append(
+                    "residual feedback result is not frozen in promotion_input.json"
+                )
+                return audit
+        result = self._read_result_payload(result_file)
+        residual = result.get("verification", {}).get("residual_diagnostics", {})
+        if (
+            result.get("status") != "completed"
+            or residual.get("enabled") is not True
+            or residual.get("status") != "completed"
+        ):
+            audit["errors"].append(
+                "current result lacks enabled, completed residual diagnostics"
+            )
+            return audit
+
+        validation = residual.get("validation", {})
+        actual_state = (
+            validation.get("state_dependence", {})
+            .get("strongest_absolute_correlation", {})
+        )
+        recorded_state = feedback.get("strongest_state_dependence")
+        if not isinstance(recorded_state, dict) or (
+            recorded_state.get("signal") != actual_state.get("signal")
+            or not self._same_optional_number(
+                recorded_state.get("value"),
+                actual_state.get("value"),
+            )
+        ):
+            audit["errors"].append(
+                "findings residual state dependence does not match the result JSON"
+            )
+
+        actual_temporal = (
+            validation.get("temporal_structure", {})
+            .get("strongest_reported_autocorrelation", {})
+        )
+        recorded_temporal = feedback.get("strongest_temporal_dependence")
+        if not isinstance(recorded_temporal, dict) or (
+            recorded_temporal.get("lag") != actual_temporal.get("lag")
+            or not self._same_optional_number(
+                recorded_temporal.get("value"),
+                actual_temporal.get("value"),
+            )
+        ):
+            audit["errors"].append(
+                "findings residual temporal dependence does not match the result JSON"
+            )
+
+        for field in ("interpretation", "next_testable_question"):
+            if not isinstance(feedback.get(field), str) or not feedback[field].strip():
+                audit["errors"].append(f"residual feedback {field} is missing")
+        alternatives = feedback.get("alternative_explanations")
+        if not isinstance(alternatives, list) or not alternatives or not all(
+            isinstance(item, str) and item.strip() for item in alternatives
+        ):
+            audit["errors"].append(
+                "residual feedback needs at least one alternative explanation"
+            )
+        limitations = feedback.get("limitations")
+        if not isinstance(limitations, list) or not limitations or not all(
+            isinstance(item, str) and item.strip() for item in limitations
+        ):
+            audit["errors"].append("residual feedback needs explicit limitations")
+
+        audit["valid"] = not audit["errors"]
+        return audit
+
+    @staticmethod
     def _evidence_gates_valid(gates: object) -> bool:
         if not isinstance(gates, list) or not gates:
             return False
@@ -561,6 +736,7 @@ class PromotionExp(BaseExp):
             "incumbent_valid": False,
             "claims_valid": False,
             "scale_diagnostics_valid": False,
+            "residual_feedback_valid": False,
             "plan_quality_valid": False,
             "success_gates_valid": False,
         }
@@ -643,6 +819,11 @@ class PromotionExp(BaseExp):
         if not scale_valid:
             audit["errors"].append("scale diagnostics compare raw cross-unit coefficients")
 
+        residual_feedback = self._audit_residual_feedback()
+        audit["residual_feedback"] = residual_feedback
+        audit["residual_feedback_valid"] = residual_feedback["valid"]
+        audit["errors"].extend(residual_feedback["errors"])
+
         gates = decision.get("scientific_gates")
         scientific_incomplete = (
             not self._evidence_gates_valid(gates)
@@ -656,6 +837,8 @@ class PromotionExp(BaseExp):
                 "evidence",
                 "config_field",
                 "expected_effect",
+                "alternative_explanation",
+                "expected_residual_change",
                 "falsification",
             )
             strategy_valid = isinstance(strategy, dict) and all(
@@ -673,11 +856,34 @@ class PromotionExp(BaseExp):
                 )
                 is not None
             )
+            residual_evidence = (
+                strategy.get("residual_evidence")
+                if isinstance(strategy, dict)
+                else None
+            )
+            strategy_valid = (
+                strategy_valid
+                and isinstance(residual_evidence, dict)
+                and self._normalize_result_path(residual_evidence.get("result_file"))
+                == residual_feedback.get("result_file")
+                and residual_evidence.get("finding")
+                in {
+                    "state_dependence",
+                    "temporal_dependence",
+                    "both",
+                    "no_material_structure",
+                }
+                and isinstance(residual_evidence.get("observed"), str)
+                and bool(residual_evidence["observed"].strip())
+            )
         else:
             strategy_valid = True
         audit["plan_quality_valid"] = strategy_valid
         if not strategy_valid:
-            audit["errors"].append("next strategy lacks diagnosis, evidence, risk, or falsification")
+            audit["errors"].append(
+                "next strategy lacks linked residual evidence, alternative explanation, "
+                "expected residual change, risk, or falsification"
+            )
 
         gates_valid = self._evidence_gates_valid(gates)
         if task_completed == "true":
@@ -697,6 +903,7 @@ class PromotionExp(BaseExp):
                 "promotion_gates_valid",
                 "claims_valid",
                 "scale_diagnostics_valid",
+                "residual_feedback_valid",
                 "plan_quality_valid",
                 "success_gates_valid",
             )

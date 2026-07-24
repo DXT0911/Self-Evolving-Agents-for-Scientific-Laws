@@ -84,9 +84,15 @@
 - Candidate ranking weights must be non-negative and `max_candidates <= top_k`.
 - Residual diagnostics default to enabled. `feature_bins` must be 2-10, `phase_bins`
   4-36, `max_lag` positive, and `high_frequency_fraction` in `(0, 0.5]`.
+- Governed Hamilton rounds must explicitly keep residual diagnostics enabled. Promotion
+  closure rejects a round unless completed validation diagnostics are faithfully
+  promoted into `findings.md` and linked to the next strategy.
 - Residual reference scales and state-bin boundaries are fitted on the discovery block
   only. Validation reuses them and never changes the diagnostic reference.
 - Result and PySR run directories must stay inside the workspace.
+- Non-validation executions reserve `search.max_evals` in
+  `.hamilton_evaluation_ledger.json` before PySR starts. Reservations are never refunded
+  after failure, rejection, interruption, or replay; `--validate-only` does not reserve.
 
 ## Output
 

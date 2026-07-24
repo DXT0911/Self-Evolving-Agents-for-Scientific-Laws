@@ -67,7 +67,8 @@ use_skill(
   report and interpret `simplified_equation` as the physical law.
 - Enable `verification.candidate_ranking` for scientific runs. Treat its linear raw-feature
   fit as a pipeline diagnostic only, never as a discovered equation.
-- Keep `verification.residual_diagnostics` enabled for scientific runs. Interpret
+- Governed scientific rounds must keep `verification.residual_diagnostics` enabled;
+  Promotion closure rejects disabled, missing, or failed diagnostics. Interpret
   validation residual structure before changing the next search field:
   state/absolute-state dependence suggests unresolved state structure; autocorrelation,
   trend, or narrow spectral peaks suggest unresolved dynamics or correlated measurement
@@ -84,8 +85,10 @@ use_skill(
 - Calibrate causal language to the evidence and make every next strategy falsifiable.
 - If `status="failed"`, use `error.type`, `error.message`, and `error.stage` to change the next configuration.
 - Keep `search.random_state`, deterministic serial execution, config, result JSON, and Git revision together for reproducibility.
-- When `.hamilton_budget.json` exists, the runner rejects an experiment that would exceed
-  its cumulative `max_total_evals`.
+- The runner writes `.hamilton_evaluation_ledger.json` and reserves the configured
+  `search.max_evals` before entering PySR. Completed, failed, rejected, interrupted, and
+  replayed attempts all retain their reservation. When `.hamilton_budget.json` exists,
+  a new reservation that would exceed cumulative `max_total_evals` is rejected.
 
 Read [config_schema.md](references/config_schema.md) when creating or changing a configuration.
 For adaptive runs, also read [adaptive_rounds.md](references/adaptive_rounds.md).

@@ -41,8 +41,15 @@ decision block in `plan.md` after every experiment:
   "next_strategy": {
     "diagnosed_failure": "specific failed gate",
     "evidence": "result path plus metric",
+    "residual_evidence": {
+      "result_file": "history/round1/results/example.json",
+      "finding": "state_dependence",
+      "observed": "validation residual has its strongest state correlation with v at 0.31"
+    },
     "config_field": "search.max_evals",
     "expected_effect": "directional observable effect",
+    "alternative_explanation": "derivative estimation bias could create the same pattern",
+    "expected_residual_change": "absolute validation residual-v correlation decreases",
     "risks": ["confound or numerical risk"],
     "falsification": "observable result that rejects the hypothesis"
   }
@@ -97,6 +104,37 @@ Do not claim a specific missing algebraic term from one diagnostic. Connect the 
 single-field intervention to a failed gate, state an alternative explanation, and define
 what residual change would falsify the hypothesis. Residual diagnostics are not included
 in `scientific_score` unless a future scoring contract explicitly adds them.
+
+Every governed round must append this machine-readable block to `findings.md`; retain
+older blocks and append the current round as the last block:
+
+```text
+<!-- EVO_RESIDUAL_FEEDBACK_BEGIN -->
+{
+  "round": 1,
+  "result_file": "history/round1/results/example.json",
+  "strongest_state_dependence": {"signal": "v", "value": 0.31},
+  "strongest_temporal_dependence": {"lag": 5, "value": 0.42},
+  "interpretation": "specific evidence-supported diagnosis without claiming a unique term",
+  "alternative_explanations": ["at least one competing explanation"],
+  "limitations": ["what this diagnostic cannot establish"],
+  "next_testable_question": "question answered by one falsifiable next intervention"
+}
+<!-- EVO_RESIDUAL_FEEDBACK_END -->
+```
+
+The values must exactly reproduce the selected result's
+`verification.residual_diagnostics.validation.state_dependence.strongest_absolute_correlation`
+and `temporal_structure.strongest_reported_autocorrelation`. Closure rejects disabled or
+missing diagnostics, stale round numbers, mismatched values, missing alternatives, or
+missing limitations.
+
+When research continues, `next_strategy.residual_evidence.result_file` must point to the
+same current-round result. `finding` must be `state_dependence`, `temporal_dependence`,
+`both`, or `no_material_structure`; also provide `alternative_explanation` and an
+observable `expected_residual_change`. The human-readable `EVO_NEXT_ROUND` contract must
+repeat the residual evidence, alternative explanation, expected residual change, and
+falsification condition.
 
 ## Tiered OOD evidence
 

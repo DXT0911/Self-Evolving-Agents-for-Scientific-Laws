@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import math
@@ -13,9 +14,10 @@ import subprocess
 import sys
 import time
 import traceback
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 import numpy as np
 import pandas as pd
@@ -107,6 +109,200 @@ def consumed_search_evals(workspace: Path, exclude_result: Path | None = None) -
         except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
             continue
     return total
+
+
+def evaluation_budget_limit(workspace: Path) -> int | None:
+    budget_path = workspace / ".hamilton_budget.json"
+    if not budget_path.is_file():
+        return None
+    try:
+        budget = json.loads(budget_path.read_text(encoding="utf-8"))
+        return positive_int(budget.get("max_total_evals"), "budget.max_total_evals")
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"invalid .hamilton_budget.json: {exc}") from exc
+
+
+@contextmanager
+def evaluation_ledger_lock(workspace: Path) -> Iterator[None]:
+    """Serialize ledger updates; OS locks are released even if the runner crashes."""
+    lock_path = workspace / ".hamilton_evaluation_ledger.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+b") as handle:
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() == 0:
+            handle.write(b"\0")
+            handle.flush()
+        handle.seek(0)
+        if os.name == "nt":
+            import msvcrt
+
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def legacy_completed_attempts(workspace: Path) -> list[dict[str, Any]]:
+    attempts = []
+    for path in sorted((workspace / "history").glob("round*/results/*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            requested = int(payload["config"]["search"]["max_evals"])
+        except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+            continue
+        if payload.get("status") != "completed" or requested <= 0:
+            continue
+        relative = str(path.relative_to(workspace)).replace("\\", "/")
+        attempts.append(
+            {
+                "attempt_id": f"legacy-{sha256_file(path)[:24]}",
+                "experiment_id": payload.get("experiment_id"),
+                "result_file": relative,
+                "requested_evals": requested,
+                "status": "legacy_completed",
+                "reserved_at": payload.get("started_at"),
+                "finished_at": payload.get("completed_at"),
+                "result_sha256": sha256_file(path),
+            }
+        )
+    return attempts
+
+
+def read_evaluation_ledger(
+    workspace: Path,
+    *,
+    initialize: bool = False,
+) -> dict[str, Any]:
+    path = workspace / ".hamilton_evaluation_ledger.json"
+    limit = evaluation_budget_limit(workspace)
+    if path.is_file():
+        try:
+            ledger = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise ConfigError(f"invalid .hamilton_evaluation_ledger.json: {exc}") from exc
+        if ledger.get("schema_version") != 1 or not isinstance(ledger.get("attempts"), list):
+            raise ConfigError("invalid Hamilton evaluation ledger schema")
+        recorded_limit = ledger.get("max_total_evals")
+        if recorded_limit != limit:
+            raise ConfigError(
+                "evaluation budget limit changed after ledger creation: "
+                f"recorded={recorded_limit}, configured={limit}"
+            )
+        return ledger
+    return {
+        "schema_version": 1,
+        "max_total_evals": limit,
+        "created_at": utc_now(),
+        "attempts": legacy_completed_attempts(workspace) if initialize else [],
+    }
+
+
+def evaluation_ledger_total(ledger: dict[str, Any]) -> int:
+    total = 0
+    for attempt in ledger.get("attempts", []):
+        try:
+            requested = int(attempt["requested_evals"])
+        except (KeyError, TypeError, ValueError):
+            raise ConfigError("evaluation ledger contains an invalid requested_evals") from None
+        if requested <= 0:
+            raise ConfigError("evaluation ledger requested_evals must be positive")
+        total += requested
+    return total
+
+
+def write_evaluation_ledger(workspace: Path, ledger: dict[str, Any]) -> None:
+    path = workspace / ".hamilton_evaluation_ledger.json"
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(
+        json.dumps(ledger, ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    os.replace(temporary, path)
+
+
+def check_evaluation_budget(workspace: Path, requested: int) -> tuple[int, int | None]:
+    ledger_path = workspace / ".hamilton_evaluation_ledger.json"
+    if ledger_path.is_file():
+        consumed = evaluation_ledger_total(read_evaluation_ledger(workspace))
+    else:
+        consumed = consumed_search_evals(workspace)
+    limit = evaluation_budget_limit(workspace)
+    if limit is not None and consumed + requested > limit:
+        raise ConfigError(
+            f"total PySR evaluation budget exceeded: consumed={consumed}, "
+            f"requested={requested}, limit={limit}"
+        )
+    return consumed, limit
+
+
+def reserve_evaluations(
+    workspace: Path,
+    config: dict[str, Any],
+    result_path: Path,
+) -> dict[str, Any]:
+    requested = int(config["search"]["max_evals"])
+    with evaluation_ledger_lock(workspace):
+        ledger = read_evaluation_ledger(workspace, initialize=True)
+        consumed = evaluation_ledger_total(ledger)
+        limit = ledger.get("max_total_evals")
+        if limit is not None and consumed + requested > int(limit):
+            raise ConfigError(
+                f"total PySR evaluation budget exceeded: consumed={consumed}, "
+                f"requested={requested}, limit={limit}"
+            )
+        attempt = {
+            "attempt_id": str(uuid.uuid4()),
+            "experiment_id": config["experiment_id"],
+            "config_sha256": sha256_file(
+                resolve_inside(workspace, config["_config_file"], "config")
+            ),
+            "result_file": str(result_path.relative_to(workspace)).replace("\\", "/"),
+            "requested_evals": requested,
+            "status": "reserved",
+            "reserved_at": utc_now(),
+        }
+        ledger["attempts"].append(attempt)
+        write_evaluation_ledger(workspace, ledger)
+        return dict(attempt)
+
+
+def finish_evaluation_attempt(
+    workspace: Path,
+    attempt_id: str,
+    status: str,
+    result_path: Path | None = None,
+) -> None:
+    if status not in {"completed", "failed"}:
+        raise ValueError(f"invalid evaluation attempt status: {status}")
+    with evaluation_ledger_lock(workspace):
+        ledger = read_evaluation_ledger(workspace)
+        matches = [
+            attempt
+            for attempt in ledger["attempts"]
+            if attempt.get("attempt_id") == attempt_id
+        ]
+        if len(matches) != 1:
+            raise RuntimeError(f"evaluation ledger attempt not found: {attempt_id}")
+        attempt = matches[0]
+        if attempt.get("status") != "reserved":
+            raise RuntimeError(
+                f"evaluation ledger attempt already finalized: {attempt_id}"
+            )
+        attempt["status"] = status
+        attempt["finished_at"] = utc_now()
+        if result_path is not None and result_path.is_file():
+            attempt["result_sha256"] = sha256_file(result_path)
+        write_evaluation_ledger(workspace, ledger)
 
 
 def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any], dict[str, Path]]:
@@ -253,22 +449,10 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     if result_path.suffix.lower() != ".json":
         raise ConfigError("output.result_file must end in .json")
 
-    budget_path = workspace / ".hamilton_budget.json"
-    if budget_path.is_file():
-        try:
-            budget = json.loads(budget_path.read_text(encoding="utf-8"))
-            total_limit = positive_int(budget.get("max_total_evals"), "budget.max_total_evals")
-        except json.JSONDecodeError as exc:
-            raise ConfigError(f"invalid .hamilton_budget.json: {exc}") from exc
-        consumed = consumed_search_evals(workspace, exclude_result=result_path)
-        requested = int(search["max_evals"])
-        if consumed + requested > total_limit:
-            raise ConfigError(
-                f"total PySR evaluation budget exceeded: consumed={consumed}, "
-                f"requested={requested}, limit={total_limit}"
-            )
+    check_evaluation_budget(workspace, int(search["max_evals"]))
 
     normalized = json.loads(json.dumps(config))
+    normalized["_config_file"] = str(config_path.relative_to(workspace)).replace("\\", "/")
     normalized["data"]["max_rows"] = max_rows
     normalized["data"]["search_stride"] = search_stride
     normalized["data"]["standardize_search"] = standardize_search
@@ -1173,6 +1357,7 @@ def main() -> int:
     config_path: Path | None = None
     result_path: Path | None = None
     experiment_id: str | None = None
+    evaluation_attempt: dict[str, Any] | None = None
     stage = "configuration"
     try:
         config_path = resolve_inside(workspace, args.config, "config")
@@ -1194,8 +1379,24 @@ def main() -> int:
             return 0
 
         stage = "execution"
+        evaluation_attempt = reserve_evaluations(
+            workspace,
+            config,
+            result_path,
+        )
         result = run_experiment(config, paths, workspace)
+        result["evaluation_budget"] = {
+            "attempt_id": evaluation_attempt["attempt_id"],
+            "requested_evals": evaluation_attempt["requested_evals"],
+            "reservation_status": "reserved_before_pysr",
+        }
         write_result(result_path, result)
+        finish_evaluation_attempt(
+            workspace,
+            evaluation_attempt["attempt_id"],
+            "completed",
+            result_path,
+        )
         summary = compact_summary(result, result_path)
         print("===SR_EXPERIMENT_SUMMARY_BEGIN===")
         print(json.dumps(summary, ensure_ascii=False))
@@ -1213,11 +1414,30 @@ def main() -> int:
                 "stage": stage,
             },
         }
+        if evaluation_attempt is not None:
+            failure["evaluation_budget"] = {
+                "attempt_id": evaluation_attempt["attempt_id"],
+                "requested_evals": evaluation_attempt["requested_evals"],
+                "reservation_status": "consumed_by_failed_attempt",
+            }
         if result_path is not None:
             try:
                 write_result(result_path, failure)
             except Exception:
                 pass
+        if evaluation_attempt is not None:
+            try:
+                finish_evaluation_attempt(
+                    workspace,
+                    evaluation_attempt["attempt_id"],
+                    "failed",
+                    result_path,
+                )
+            except Exception as ledger_exc:
+                failure["evaluation_ledger_error"] = {
+                    "type": type(ledger_exc).__name__,
+                    "message": str(ledger_exc),
+                }
         print("===SR_EXPERIMENT_SUMMARY_BEGIN===")
         print(json.dumps(compact_summary(failure, result_path), ensure_ascii=False))
         print("===SR_EXPERIMENT_SUMMARY_END===")
