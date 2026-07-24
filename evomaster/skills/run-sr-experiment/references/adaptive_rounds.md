@@ -27,6 +27,11 @@ an observable expected effect. Do not count experiment IDs, seeds, or output pat
 primary adaptation. Use exactly one leaf path; comma-separated fields or multiple changed
 configuration leaves invalidate the round.
 
+The runner enforces this before PySR. For `history/roundN/experiment.json`, `N > 1`,
+it compares `data`, `search`, and `verification` with the single completed result in
+`roundN-1`. Validation fails unless exactly one normalized leaf differs, so a rollback
+plus a new intervention cannot consume evaluations unnoticed.
+
 After execution:
 
 - append a machine-readable `EVO_RESIDUAL_FEEDBACK` block with verified current-round

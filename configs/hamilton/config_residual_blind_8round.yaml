@@ -58,7 +58,7 @@ experiment:
     timeout_seconds: 600
   max_total_tokens: 8000000
   max_tokens_per_round: 1000000
-  max_total_evals: 96000
+  max_total_evals: 108000
   stall_rounds: 0
   promotion:
     max_tokens: 1000000

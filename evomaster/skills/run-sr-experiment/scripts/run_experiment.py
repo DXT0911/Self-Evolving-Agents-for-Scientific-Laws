@@ -10,6 +10,7 @@ import json
 import math
 import os
 import platform
+import re
 import subprocess
 import sys
 import time
@@ -194,10 +195,25 @@ def read_evaluation_ledger(
             raise ConfigError("invalid Hamilton evaluation ledger schema")
         recorded_limit = ledger.get("max_total_evals")
         if recorded_limit != limit:
-            raise ConfigError(
-                "evaluation budget limit changed after ledger creation: "
-                f"recorded={recorded_limit}, configured={limit}"
-            )
+            if (
+                isinstance(recorded_limit, int)
+                and isinstance(limit, int)
+                and limit > recorded_limit
+            ):
+                ledger.setdefault("budget_limit_history", []).append(
+                    {
+                        "previous_max_total_evals": recorded_limit,
+                        "new_max_total_evals": limit,
+                        "increased_at": utc_now(),
+                    }
+                )
+                ledger["max_total_evals"] = limit
+            else:
+                raise ConfigError(
+                    "evaluation budget limit cannot be removed or decreased after "
+                    "ledger creation: "
+                    f"recorded={recorded_limit}, configured={limit}"
+                )
         return ledger
     return {
         "schema_version": 1,
@@ -303,6 +319,87 @@ def finish_evaluation_attempt(
         if result_path is not None and result_path.is_file():
             attempt["result_sha256"] = sha256_file(result_path)
         write_evaluation_ledger(workspace, ledger)
+
+
+def meaningful_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Match Promotion's scientific config projection before PySR is entered."""
+    projected = json.loads(
+        json.dumps(
+            {
+                "data": config.get("data") or {},
+                "search": config.get("search") or {},
+                "verification": config.get("verification") or {},
+            }
+        )
+    )
+    if projected["data"].get("standardize_search") is False:
+        projected["data"].pop("standardize_search")
+    residual = projected["verification"].get("residual_diagnostics")
+    if isinstance(residual, dict) and residual.get("enabled") is False:
+        projected["verification"].pop("residual_diagnostics")
+    return projected
+
+
+def changed_config_fields(
+    previous: object,
+    current: object,
+    prefix: str = "",
+) -> list[str]:
+    if isinstance(previous, dict) and isinstance(current, dict):
+        fields: list[str] = []
+        for key in sorted(set(previous) | set(current)):
+            child = f"{prefix}.{key}" if prefix else str(key)
+            fields.extend(
+                changed_config_fields(previous.get(key), current.get(key), child)
+            )
+        return fields
+    return [] if previous == current else [prefix]
+
+
+def adaptive_round_number(config_path: Path, workspace: Path) -> int | None:
+    try:
+        relative = config_path.resolve().relative_to(workspace.resolve())
+    except ValueError:
+        return None
+    if len(relative.parts) < 2 or relative.parts[0] != "history":
+        return None
+    match = re.fullmatch(r"round([1-9][0-9]*)", relative.parts[1])
+    return int(match.group(1)) if match else None
+
+
+def audit_single_field_adaptation(
+    workspace: Path,
+    config_path: Path,
+    config: dict[str, Any],
+) -> list[str]:
+    """Reject multi-field adaptive rounds before evaluations can be reserved."""
+    round_number = adaptive_round_number(config_path, workspace)
+    if round_number is None or round_number <= 1:
+        return []
+    previous_results = []
+    results_dir = workspace / "history" / f"round{round_number - 1}" / "results"
+    for path in sorted(results_dir.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if payload.get("status") == "completed":
+            previous_results.append(payload)
+    if len(previous_results) != 1:
+        raise ConfigError(
+            "adaptive pre-search audit requires exactly one completed result in "
+            f"history/round{round_number - 1}/results; found {len(previous_results)}"
+        )
+    changed = changed_config_fields(
+        meaningful_config(previous_results[0].get("config", {})),
+        meaningful_config(config),
+    )
+    if len(changed) != 1:
+        raise ConfigError(
+            "adaptive round must change exactly one scientific config field before "
+            f"PySR; changed_fields={changed}"
+        )
+    return changed
 
 
 def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any], dict[str, Path]]:
@@ -449,8 +546,6 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     if result_path.suffix.lower() != ".json":
         raise ConfigError("output.result_file must end in .json")
 
-    check_evaluation_budget(workspace, int(search["max_evals"]))
-
     normalized = json.loads(json.dumps(config))
     normalized["_config_file"] = str(config_path.relative_to(workspace)).replace("\\", "/")
     normalized["data"]["max_rows"] = max_rows
@@ -459,6 +554,8 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["data"]["validation_fraction"] = float(validation_fraction)
     normalized["verification"]["candidate_ranking"] = ranking
     normalized["verification"]["residual_diagnostics"] = residual
+    audit_single_field_adaptation(workspace, config_path, normalized)
+    check_evaluation_budget(workspace, int(search["max_evals"]))
     return normalized, {
         "train": train_path,
         "result": result_path,

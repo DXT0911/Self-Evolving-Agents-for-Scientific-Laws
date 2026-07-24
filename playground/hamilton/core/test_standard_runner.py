@@ -294,6 +294,87 @@ class StandardRunnerContractTests(unittest.TestCase):
         self.assertEqual(ledger["attempts"][0]["status"], "legacy_completed")
         self.assertEqual(ledger["attempts"][1]["attempt_id"], attempt["attempt_id"])
 
+    def test_evaluation_ledger_allows_only_an_explicit_limit_increase(self) -> None:
+        budget_path = self.workspace / ".hamilton_budget.json"
+        budget_path.write_text(
+            json.dumps({"max_total_evals": 20}),
+            encoding="utf-8",
+        )
+        config, paths = RUNNER.load_and_validate(
+            self.write_config(valid_config()),
+            self.workspace,
+        )
+        RUNNER.reserve_evaluations(self.workspace, config, paths["result"])
+
+        budget_path.write_text(
+            json.dumps({"max_total_evals": 30}),
+            encoding="utf-8",
+        )
+        increased = RUNNER.read_evaluation_ledger(self.workspace)
+        self.assertEqual(increased["max_total_evals"], 30)
+        self.assertEqual(
+            increased["budget_limit_history"][-1]["previous_max_total_evals"],
+            20,
+        )
+        self.assertEqual(
+            increased["budget_limit_history"][-1]["new_max_total_evals"],
+            30,
+        )
+
+        budget_path.write_text(
+            json.dumps({"max_total_evals": 15}),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(
+            RUNNER.ConfigError,
+            "cannot be removed or decreased",
+        ):
+            RUNNER.read_evaluation_ledger(self.workspace)
+
+    def test_adaptive_pre_search_audit_requires_exactly_one_leaf_change(self) -> None:
+        previous_config, _ = RUNNER.load_and_validate(
+            self.write_config(valid_config()),
+            self.workspace,
+        )
+        previous_dir = self.workspace / "history" / "round1" / "results"
+        previous_dir.mkdir(parents=True)
+        (previous_dir / "previous.json").write_text(
+            json.dumps(
+                {
+                    "status": "completed",
+                    "config": previous_config,
+                }
+            ),
+            encoding="utf-8",
+        )
+        current_dir = self.workspace / "history" / "round2"
+        current_dir.mkdir(parents=True)
+
+        one_change = valid_config()
+        one_change["search"]["parsimony"] = 0.02
+        one_change["output"]["result_file"] = "history/round2/results/result.json"
+        one_change["output"]["run_directory"] = "history/round2/results/pysr-run"
+        one_change_path = current_dir / "experiment.json"
+        one_change_path.write_text(json.dumps(one_change), encoding="utf-8")
+        normalized, _ = RUNNER.load_and_validate(one_change_path, self.workspace)
+        self.assertEqual(
+            RUNNER.audit_single_field_adaptation(
+                self.workspace,
+                one_change_path,
+                normalized,
+            ),
+            ["search.parsimony"],
+        )
+
+        two_changes = copy.deepcopy(one_change)
+        two_changes["data"]["standardize_search"] = True
+        one_change_path.write_text(json.dumps(two_changes), encoding="utf-8")
+        with self.assertRaisesRegex(
+            RUNNER.ConfigError,
+            "change exactly one scientific config field",
+        ):
+            RUNNER.load_and_validate(one_change_path, self.workspace)
+
     def test_rejects_invalid_pysr_population_settings(self) -> None:
         config = valid_config()
         config["search"]["tournament_selection_n"] = 4

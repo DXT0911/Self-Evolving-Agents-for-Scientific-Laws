@@ -93,6 +93,11 @@
 - Non-validation executions reserve `search.max_evals` in
   `.hamilton_evaluation_ledger.json` before PySR starts. Reservations are never refunded
   after failure, rejection, interruption, or replay; `--validate-only` does not reserve.
+- After a ledger exists, its cumulative limit may only be increased by an explicit
+  controller configuration change. Each increase is recorded in
+  `budget_limit_history`; decreasing or removing the limit is rejected.
+- Adaptive `roundN` validation, for `N > 1`, rejects configurations that differ from
+  the single completed `roundN-1` result in zero or more than one scientific leaf field.
 
 ## Output
 

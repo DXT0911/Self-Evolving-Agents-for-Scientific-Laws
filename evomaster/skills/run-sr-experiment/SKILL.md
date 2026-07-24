@@ -89,6 +89,11 @@ use_skill(
   `search.max_evals` before entering PySR. Completed, failed, rejected, interrupted, and
   replayed attempts all retain their reservation. When `.hamilton_budget.json` exists,
   a new reservation that would exceed cumulative `max_total_evals` is rejected.
+- For `history/roundN/` with `N > 1`, validation compares the normalized scientific
+  configuration with the single completed result from round `N-1` and rejects anything
+  other than exactly one changed leaf field before evaluations are reserved. An explicit
+  controller-approved increase may raise, but never remove or decrease, an existing
+  evaluation-ledger limit; the increase is recorded in `budget_limit_history`.
 
 Read [config_schema.md](references/config_schema.md) when creating or changing a configuration.
 For adaptive runs, also read [adaptive_rounds.md](references/adaptive_rounds.md).
