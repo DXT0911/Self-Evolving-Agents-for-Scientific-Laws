@@ -114,6 +114,15 @@ class PromotionExp(BaseExp):
         closure_snapshot = self._snapshot_closure_artifacts()
 
         self.logger.info(f"[Round {self.round_num}] Running Promotion Agent phase...")
+        prior_closure_errors = [
+            str(error).strip()
+            for error in state.get("errors", [])
+            if str(error).strip()
+        ]
+        recovery_feedback = self._recovery_feedback(
+            attempts=attempts,
+            prior_closure_errors=prior_closure_errors,
+        )
         task = TaskInstance(
             task_id=f"{task_id}_round{self.round_num}_promotion",
             task_type="hamilton_promotion",
@@ -125,12 +134,15 @@ class PromotionExp(BaseExp):
                 "an explicit current-round recovery edit to all three files even when an "
                 "earlier partial attempt already wrote valid content; unchanged files fail "
                 "the closure audit."
+                f"{recovery_feedback}"
             ),
             input_data={
                 "round": self.round_num,
                 "promotion_input": str(
                     self._promotion_input_path().relative_to(self.run_dir)
                 ).replace("\\", "/"),
+                "promotion_attempt": attempts + 1,
+                "prior_closure_errors": prior_closure_errors,
             },
         )
         trajectory = self.agent.run(task)
@@ -181,6 +193,28 @@ class PromotionExp(BaseExp):
             ),
         })
         return result
+
+    @staticmethod
+    def _recovery_feedback(
+        attempts: int,
+        prior_closure_errors: list[str],
+    ) -> str:
+        if attempts <= 0:
+            return ""
+        if prior_closure_errors:
+            rendered_errors = "\n".join(
+                f"- {error}" for error in prior_closure_errors
+            )
+        else:
+            rendered_errors = "- prior closure was incomplete; re-audit every gate"
+        return (
+            "\n\nThis is a controller-approved Promotion recovery attempt. "
+            "The previous attempt failed closure for these exact reasons:\n"
+            f"{rendered_errors}\n"
+            "Correct each listed defect explicitly. Treat controller closure errors as "
+            "authoritative audit feedback; do not repeat the rejected claim strength or "
+            "structure."
+        )
 
     def _ensure_round_dirs(self):
         """确保本轮目录存在"""

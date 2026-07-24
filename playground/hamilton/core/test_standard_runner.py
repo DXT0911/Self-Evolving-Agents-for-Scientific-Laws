@@ -517,6 +517,26 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "does not match the frozen input"):
             exp.run("promote")
 
+    def test_promotion_recovery_feedback_includes_closure_errors(self) -> None:
+        feedback = PromotionExp._recovery_feedback(
+            attempts=2,
+            prior_closure_errors=[
+                "claims lack evidence or overstate confirmation",
+                "residual feedback is stale",
+            ],
+        )
+        self.assertIn("controller-approved Promotion recovery", feedback)
+        self.assertIn("claims lack evidence or overstate confirmation", feedback)
+        self.assertIn("residual feedback is stale", feedback)
+        self.assertIn("do not repeat the rejected claim strength", feedback)
+        self.assertEqual(
+            PromotionExp._recovery_feedback(
+                attempts=0,
+                prior_closure_errors=["ignored"],
+            ),
+            "",
+        )
+
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):
     def setUp(self) -> None:
