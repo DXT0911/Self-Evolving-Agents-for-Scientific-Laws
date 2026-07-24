@@ -17,7 +17,7 @@ import pandas as pd
 import sympy
 
 from playground.hamilton.core.exp import RoundExp
-from playground.hamilton.core.promotion_exp import PromotionExp
+from playground.hamilton.core.promotion_exp import NEXT_ROUND_FIELDS, PromotionExp
 from playground.hamilton.core.playground import HamiltonPlayground
 from playground.hamilton.core.ood_evaluator import (
     OODAccessLedger,
@@ -1020,6 +1020,15 @@ class RoundClosureContractTests(unittest.TestCase):
 - 证伪条件：score does not improve
 - 失败后的策略：test a different single field
 <!-- EVO_NEXT_ROUND_END -->"""
+        (self.workspace / "plan.md").write_text(contract, encoding="utf-8")
+        self.assertTrue(self.exp._continuation_contract_valid())
+
+    def test_next_round_contract_accepts_ascii_parenthesized_label_annotation(self) -> None:
+        contract = self.continuation_contract().replace(
+            NEXT_ROUND_FIELDS[0],
+            f"{NEXT_ROUND_FIELDS[0]}(Round 6)",
+            1,
+        )
         (self.workspace / "plan.md").write_text(contract, encoding="utf-8")
         self.assertTrue(self.exp._continuation_contract_valid())
 

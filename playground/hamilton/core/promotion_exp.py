@@ -520,6 +520,13 @@ class PromotionExp(BaseExp):
         start = content.index(NEXT_ROUND_BEGIN)
         end = content.index(NEXT_ROUND_END, start)
         contract = content[start:end]
+        for field in NEXT_ROUND_FIELDS:
+            contract = re.sub(
+                rf"(?m)^([ \t]*-[ \t]*{re.escape(field)})"
+                rf"[（(][^\r\n]*?[）)]",
+                r"\1",
+                contract,
+            )
         return all(
             re.search(
                 rf"(?m)^[ \t]*-[ \t]*{re.escape(field)}"
