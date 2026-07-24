@@ -1006,6 +1006,23 @@ class RoundClosureContractTests(unittest.TestCase):
         (self.workspace / "plan.md").write_text(contract, encoding="utf-8")
         self.assertFalse(self.exp._continuation_contract_valid())
 
+    def test_next_round_contract_accepts_utf8_chinese_field_labels(self) -> None:
+        contract = """<!-- EVO_NEXT_ROUND_BEGIN -->
+- 上轮失败：candidate failed
+- 原因假设：operator family is incomplete
+- 残差证据（来源：current frozen result）：lag correlation remains high
+- 替代解释：derivative noise may cause the pattern
+- 下一轮主变量：search.unary_operators
+- 保持不变：all other normalized leaves
+- 预期证据：candidate contains a new operator
+- 预期残差变化：lag correlation decreases
+- 成功标准：score improves
+- 证伪条件：score does not improve
+- 失败后的策略：test a different single field
+<!-- EVO_NEXT_ROUND_END -->"""
+        (self.workspace / "plan.md").write_text(contract, encoding="utf-8")
+        self.assertTrue(self.exp._continuation_contract_valid())
+
     def test_final_round_does_not_require_next_round_contract(self) -> None:
         self.exp.config = SimpleNamespace(experiment={"max_rounds": 1})
         before = self.exp._snapshot_closure_artifacts()

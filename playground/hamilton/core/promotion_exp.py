@@ -522,7 +522,8 @@ class PromotionExp(BaseExp):
         contract = content[start:end]
         return all(
             re.search(
-                rf"(?m)^[ \t]*-[ \t]*{re.escape(field)}[ \t]*[：:][ \t]*\S.*$",
+                rf"(?m)^[ \t]*-[ \t]*{re.escape(field)}"
+                rf"(?:（[^\r\n]*?）)?[ \t]*[：:][ \t]*\S.*$",
                 contract,
             )
             is not None
