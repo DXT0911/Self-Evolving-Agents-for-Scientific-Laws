@@ -62,7 +62,7 @@ experiment:
   stall_rounds: 0
   promotion:
     max_tokens: 1000000
-    max_attempts: 4
+    max_attempts: 8
 
 llm_output:
   show_in_console: false
