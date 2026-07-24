@@ -367,6 +367,47 @@ def adaptive_round_number(config_path: Path, workspace: Path) -> int | None:
     return int(match.group(1)) if match else None
 
 
+def expected_adaptive_config_patch(workspace: Path) -> dict[str, Any] | None:
+    """Read the governed next-round patch when a scientific decision is present."""
+    plan_path = workspace / "plan.md"
+    if not plan_path.is_file():
+        return None
+    content = plan_path.read_text(encoding="utf-8")
+    begin = "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->"
+    end = "<!-- EVO_SCIENTIFIC_DECISION_END -->"
+    start = content.find(begin)
+    if start < 0:
+        return None
+    stop = content.find(end, start + len(begin))
+    if stop < 0:
+        raise ConfigError("scientific decision block is not terminated")
+    try:
+        decision = json.loads(content[start + len(begin) : stop].strip())
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"scientific decision JSON invalid: {exc}") from exc
+    strategy = decision.get("next_strategy")
+    if not isinstance(strategy, dict):
+        return None
+    config_field = strategy.get("config_field")
+    config_patch = strategy.get("config_patch")
+    if not isinstance(config_field, str) or not config_field:
+        raise ConfigError("next_strategy.config_field must be a non-empty string")
+    if not isinstance(config_patch, dict) or list(config_patch) != [config_field]:
+        raise ConfigError(
+            "next_strategy.config_patch must contain exactly config_field"
+        )
+    return config_patch
+
+
+def value_at_leaf(config: dict[str, Any], field: str) -> Any:
+    value: Any = config
+    for part in field.split("."):
+        if not isinstance(value, dict) or part not in value:
+            raise ConfigError(f"adaptive config patch field is missing: {field}")
+        value = value[part]
+    return value
+
+
 def audit_single_field_adaptation(
     workspace: Path,
     config_path: Path,
@@ -399,6 +440,17 @@ def audit_single_field_adaptation(
             "adaptive round must change exactly one scientific config field before "
             f"PySR; changed_fields={changed}"
         )
+    expected_patch = expected_adaptive_config_patch(workspace)
+    if expected_patch is not None:
+        expected_field, expected_value = next(iter(expected_patch.items()))
+        actual_field = changed[0]
+        actual_value = value_at_leaf(meaningful_config(config), actual_field)
+        if actual_field != expected_field or actual_value != expected_value:
+            raise ConfigError(
+                "adaptive round must implement the governed next_strategy config_patch "
+                f"before PySR; expected_patch={expected_patch}, "
+                f"actual_change={{'{actual_field}': {actual_value!r}}}"
+            )
     return changed
 
 

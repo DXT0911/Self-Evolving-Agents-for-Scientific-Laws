@@ -375,6 +375,45 @@ class StandardRunnerContractTests(unittest.TestCase):
         ):
             RUNNER.load_and_validate(one_change_path, self.workspace)
 
+    def test_adaptive_pre_search_audit_enforces_governed_config_patch(self) -> None:
+        previous_config, _ = RUNNER.load_and_validate(
+            self.write_config(valid_config()),
+            self.workspace,
+        )
+        previous_dir = self.workspace / "history" / "round1" / "results"
+        previous_dir.mkdir(parents=True)
+        (previous_dir / "previous.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        (self.workspace / "plan.md").write_text(
+            "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->\n"
+            + json.dumps(
+                {
+                    "next_strategy": {
+                        "config_field": "search.populations",
+                        "config_patch": {"search.populations": 16},
+                    }
+                }
+            )
+            + "\n<!-- EVO_SCIENTIFIC_DECISION_END -->",
+            encoding="utf-8",
+        )
+        current_dir = self.workspace / "history" / "round2"
+        current_dir.mkdir(parents=True)
+        current = valid_config()
+        current["search"]["parsimony"] = 0.02
+        current["output"]["result_file"] = "history/round2/results/result.json"
+        current["output"]["run_directory"] = "history/round2/results/pysr-run"
+        current_path = current_dir / "experiment.json"
+        current_path.write_text(json.dumps(current), encoding="utf-8")
+
+        with self.assertRaisesRegex(
+            RUNNER.ConfigError,
+            "must implement the governed next_strategy config_patch",
+        ):
+            RUNNER.load_and_validate(current_path, self.workspace)
+
     def test_rejects_invalid_pysr_population_settings(self) -> None:
         config = valid_config()
         config["search"]["tournament_selection_n"] = 4
