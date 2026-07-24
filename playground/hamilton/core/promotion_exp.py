@@ -771,6 +771,7 @@ class PromotionExp(BaseExp):
             "claims_valid": False,
             "scale_diagnostics_valid": False,
             "residual_feedback_valid": False,
+            "protocol_evidence_valid": False,
             "plan_quality_valid": False,
             "success_gates_valid": False,
         }
@@ -841,6 +842,33 @@ class PromotionExp(BaseExp):
         if not claims_valid:
             audit["errors"].append("claims lack evidence or overstate confirmation")
 
+        protocol_evidence = decision.get("protocol_evidence")
+        expected_valid_results = {item["path"] for item in scored}
+        declared_valid_results = []
+        if isinstance(protocol_evidence, dict):
+            raw_declared = protocol_evidence.get("valid_result_files")
+            if isinstance(raw_declared, list):
+                declared_valid_results = [
+                    self._normalize_result_path(path)
+                    for path in raw_declared
+                    if isinstance(path, str) and path.strip()
+                ]
+        protocol_evidence_valid = (
+            isinstance(protocol_evidence, dict)
+            and protocol_evidence.get(
+                "invalid_attempts_used_as_scientific_evidence"
+            )
+            is False
+            and len(declared_valid_results) == len(set(declared_valid_results))
+            and set(declared_valid_results) == expected_valid_results
+        )
+        audit["protocol_evidence_valid"] = protocol_evidence_valid
+        if not protocol_evidence_valid:
+            audit["errors"].append(
+                "protocol evidence must enumerate exactly the completed valid-round "
+                "results and explicitly exclude invalid attempts from scientific evidence"
+            )
+
         scale = decision.get("scale_diagnostics")
         scale_valid = (
             isinstance(scale, dict)
@@ -890,6 +918,17 @@ class PromotionExp(BaseExp):
                 )
                 is not None
             )
+            config_patch = (
+                strategy.get("config_patch")
+                if isinstance(strategy, dict)
+                else None
+            )
+            strategy_valid = (
+                strategy_valid
+                and isinstance(config_patch, dict)
+                and len(config_patch) == 1
+                and next(iter(config_patch), None) == strategy.get("config_field")
+            )
             residual_evidence = (
                 strategy.get("residual_evidence")
                 if isinstance(strategy, dict)
@@ -938,6 +977,7 @@ class PromotionExp(BaseExp):
                 "claims_valid",
                 "scale_diagnostics_valid",
                 "residual_feedback_valid",
+                "protocol_evidence_valid",
                 "plan_quality_valid",
                 "success_gates_valid",
             )

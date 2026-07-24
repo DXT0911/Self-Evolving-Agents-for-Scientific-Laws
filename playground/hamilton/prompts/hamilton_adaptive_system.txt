@@ -126,6 +126,14 @@ For `hamilton_round`, finish after Verification with `task_completed="false"`. F
 
 Read `scientific_governance.md` from the experiment Skill. After every run, write its
 machine-readable `EVO_SCIENTIFIC_DECISION` block in `plan.md`.
+Its `protocol_evidence.valid_result_files` must enumerate exactly the completed,
+protocol-valid `history/roundN/results/*.json` files used as evidence, and
+`invalid_attempts_used_as_scientific_evidence` must be false. Quarantined or
+protocol-invalid attempts may be acknowledged only as budget/audit events, never as
+scientific findings, hypothesis counts, or cross-round convergence evidence.
+When continuing, `next_strategy.config_patch` must be a one-entry object whose dotted
+key exactly equals `next_strategy.config_field`; every other normalized configuration
+leaf remains invariant.
 
 - `scientific_score` is minimized. Retain the historical incumbent unless the new score
   is strictly lower and every promotion gate passes; do not call the latest equation

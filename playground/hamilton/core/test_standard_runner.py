@@ -1196,6 +1196,13 @@ class ScientificGovernanceTests(unittest.TestCase):
                     "alternatives_tested": alternatives_tested,
                 }
             ],
+            "protocol_evidence": {
+                "valid_result_files": [
+                    "history/round1/results/r1.json",
+                    "history/round2/results/r2.json",
+                ],
+                "invalid_attempts_used_as_scientific_evidence": False,
+            },
             "scale_diagnostics": {
                 "method": "standardized_feature_effect",
                 "raw_coefficient_comparison": False,
@@ -1225,6 +1232,7 @@ class ScientificGovernanceTests(unittest.TestCase):
                     "observed": "state correlation=0.27 and lag-5 autocorrelation=0.42",
                 },
                 "config_field": "search.max_evals",
+                "config_patch": {"search.max_evals": 30},
                 "expected_effect": "lower held-out scientific score",
                 "alternative_explanation": "derivative estimation bias may create the pattern",
                 "expected_residual_change": "state and temporal dependence decrease",
@@ -1301,6 +1309,43 @@ class ScientificGovernanceTests(unittest.TestCase):
         plan.write_text(content, encoding="utf-8")
         audit = self.exp._audit_scientific_decision("false")
         self.assertFalse(audit["plan_quality_valid"])
+
+    def test_rejects_next_strategy_patch_with_multiple_fields(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8")
+        content = content.replace(
+            '"config_patch": {"search.max_evals": 30}',
+            '"config_patch": {"search.max_evals": 30, "search.niterations": 20}',
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["plan_quality_valid"])
+
+    def test_rejects_protocol_evidence_that_includes_invalid_attempt(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8")
+        content = content.replace(
+            '"history/round2/results/r2.json"]',
+            '"history/round2/results/r2.json", '
+            '"history/protocol_invalid/round2_attempt/results/invalid.json"]',
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["protocol_evidence_valid"])
+        self.assertFalse(audit["valid"])
+
+    def test_rejects_protocol_evidence_without_explicit_exclusion(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8").replace(
+            '"invalid_attempts_used_as_scientific_evidence": false',
+            '"invalid_attempts_used_as_scientific_evidence": true',
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertFalse(audit["protocol_evidence_valid"])
 
     def test_rejects_missing_residual_feedback_block(self) -> None:
         (self.workspace / "findings.md").write_text("narrative only", encoding="utf-8")

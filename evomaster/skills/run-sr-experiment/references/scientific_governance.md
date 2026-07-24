@@ -18,6 +18,13 @@ decision block in `plan.md` after every experiment:
       "alternatives_tested": 0
     }
   ],
+  "protocol_evidence": {
+    "valid_result_files": [
+      "history/round1/results/...",
+      "history/round2/results/..."
+    ],
+    "invalid_attempts_used_as_scientific_evidence": false
+  },
   "scale_diagnostics": {
     "method": "standardized_feature_effect",
     "raw_coefficient_comparison": false,
@@ -47,6 +54,7 @@ decision block in `plan.md` after every experiment:
       "observed": "validation residual has its strongest state correlation with v at 0.31"
     },
     "config_field": "search.max_evals",
+    "config_patch": {"search.max_evals": 12000},
     "expected_effect": "directional observable effect",
     "alternative_explanation": "derivative estimation bias could create the same pattern",
     "expected_residual_change": "absolute validation residual-v correlation decreases",
