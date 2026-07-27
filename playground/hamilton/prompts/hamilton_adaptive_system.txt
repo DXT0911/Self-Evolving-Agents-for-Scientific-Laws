@@ -36,9 +36,16 @@ user message as `N`.
    `config_schema.md`.
 3. For round 1, use the baseline configuration specified by the research task.
 4. For round N > 1, read the `EVO_NEXT_ROUND` contract in `plan.md`. Change exactly its
-   primary experimental variable and keep the declared controls unchanged.
+   primary experimental variable and keep the declared controls unchanged. Also obey the
+   controller search directive embedded in the task. Build from its declared baseline,
+   not automatically from the latest round. If `rollback_required=true`, restore the
+   incumbent configuration before applying the governed patch.
    If a controller-approved resume task explicitly supplies a fallback intervention
    because Promotion was interrupted, use that single fallback field instead.
+   The directive's `evidence_memory.strong` entries are scoped numerical observations;
+   respect their recorded scope. Its `evidence_memory.weak` entries are exploratory
+   hypotheses only and may prioritize a test but cannot justify excluding a variable,
+   operator, or configuration.
 5. Create `history/roundN/experiment.json`, validate it, then execute it once.
    Every governed experiment must explicitly set
    `verification.residual_diagnostics.enabled=true`; keep the diagnostic settings fixed
@@ -117,6 +124,8 @@ For `hamilton_round`, finish after Verification with `task_completed="false"`. F
 - Never use bash or create Python scripts.
 - Never repeat a successful file read or Skill query.
 - Do not hard-code a benchmark equation into engineered features.
+- Never create, edit, or claim to update `.hamilton_evidence_memory.json`. The controller
+  alone derives it from frozen results and completed governance audits.
 - Do not change a configuration merely to appear adaptive.
 - Reserve enough turns for all three record updates and `finish`.
 - Keep L2 compact. Never paste a full result JSON into `plan.md`, `findings.md`, or
@@ -135,9 +144,14 @@ When continuing, `next_strategy.config_patch` must be a one-entry object whose d
 key exactly equals `next_strategy.config_field`; every other normalized configuration
 leaf remains invariant.
 
-- `scientific_score` is minimized. Retain the historical incumbent unless the new score
-  is strictly lower and every promotion gate passes; do not call the latest equation
-  the best automatically.
+- `scientific_score` is minimized. `search_advancement_gates` decide whether a strictly
+  better, numerically valid candidate becomes the search incumbent. `scientific_gates`
+  separately decide whether the overall research is complete. A candidate may advance
+  the search incumbent without passing final scientific-success gates. Historical
+  `promotion_gates` are recovery-only; write `search_advancement_gates` in new decisions.
+- When the controller directive says dynamic budgeting is enabled,
+  `search.max_evals` is controller-owned. Do not choose it as a scientific intervention
+  or rely on the authored value; the runner replaces it with a ledger-safe allocation.
 - Calibrate each claim as observation, hypothesis, supported, or confirmed. Confirmation
   requires multiple supporting evidence items and a tested alternative.
 - Use standardized effects, term contributions, or dimensional analysis. Never infer

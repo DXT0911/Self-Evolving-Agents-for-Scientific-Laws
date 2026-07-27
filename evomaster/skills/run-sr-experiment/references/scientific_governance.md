@@ -30,7 +30,7 @@ decision block in `plan.md` after every experiment:
     "raw_coefficient_comparison": false,
     "evidence": "diagnostics.linear_raw_features.scale_aware.standardized_effect"
   },
-  "promotion_gates": [
+  "search_advancement_gates": [
     {
       "name": "candidate validity gate",
       "passed": false,
@@ -53,8 +53,8 @@ decision block in `plan.md` after every experiment:
       "finding": "state_dependence",
       "observed": "validation residual has its strongest state correlation with v at 0.31"
     },
-    "config_field": "search.max_evals",
-    "config_patch": {"search.max_evals": 12000},
+    "config_field": "search.maxsize",
+    "config_patch": {"search.maxsize": 31},
     "expected_effect": "directional observable effect",
     "alternative_explanation": "derivative estimation bias could create the same pattern",
     "expected_residual_change": "absolute validation residual-v correlation decreases",
@@ -69,9 +69,38 @@ decision block in `plan.md` after every experiment:
 
 Scientific score is minimized. Compare the new selected score with every prior completed
 result. Use `initialize` in the first round, `promote` only for a strictly lower score
-whose `promotion_gates` all pass, and otherwise `retain` the earlier best result. A new
-equation is not automatically the incumbent. Promotion gates express minimum candidate
-validity; `scientific_gates` express the task's stricter final-success criteria.
+whose `search_advancement_gates` all pass, and otherwise `retain` the earlier best result.
+A new equation is not automatically the search incumbent.
+
+`search_advancement_gates` and `scientific_gates` have different authority:
+
+- search advancement gates express minimum candidate validity and decide whether an
+  incremental improvement becomes the new search anchor;
+- scientific gates express the task's stricter final-success criteria and alone govern
+  `task_completed=true`.
+
+A candidate may therefore become the search incumbent without satisfying final scientific
+success. Historical `promotion_gates` blocks remain readable for recovery compatibility,
+but new decisions must use `search_advancement_gates`.
+
+## Controller evidence memory
+
+After a governed round closes, the controller updates
+`.hamilton_evidence_memory.json`. The LLM must not edit this file.
+
+- Strong memory contains scoped numerical search outcomes, exact residual observations,
+  and incumbent initialization/promotion history. A retained challenger is recorded only
+  as the strong observation that it failed to advance under the tested controls, not as
+  proof that its changed field is universally harmful.
+- Weak memory contains untested causal hypotheses and non-advancing near-miss candidates.
+  It may prioritize exploration but cannot directly exclude variables/operators, alter
+  the incumbent, or override trust-region and numerical gates.
+- Every entry cites a frozen result path and SHA-256. Replaying the same closed round
+  updates rather than duplicates its records. Protocol-invalid or failed-governance
+  attempts are rejected before memory writing.
+
+The controller injects a compact read-only view of this memory into the next-round
+directive. Original result JSON remains the source of truth.
 
 ## Claim strength
 
@@ -165,6 +194,12 @@ start another adaptive round.
 Tie the next configuration field to a failed gate and state its expected effect, risks,
 and falsification result. Adding division or other unstable operators must mention
 singularity/domain risks.
+
+When dynamic budgeting is enabled, `search.max_evals` is controller-owned. Do not select
+it as `next_strategy.config_field`; the runner allocates it from the cumulative ledger.
+Build the next configuration from the controller-declared trust-region baseline. If the
+directive requires rollback, use the stored incumbent configuration rather than the
+latest failed configuration.
 
 Solver completion alone is not scientific success. A success decision requires every
 task-specific gate to pass with quantitative evidence and `solver_completion_only=false`.

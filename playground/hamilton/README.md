@@ -222,3 +222,25 @@ Agent 负责提出假设和解释证据；控制器负责 workspace 隔离、预
 - 每轮脚本保存到 `history/round{N}/scripts/`
 - L2 文件记录完整实验演化过程
 - L2 post-check 提前发现 Agent 跳过 Promotion 的问题
+## Governed search control
+
+When `experiment.search_control` is configured, Hamilton adds three deterministic
+controls around the LLM planner:
+
+- `search_advancement_gates` update the numerical search incumbent independently of
+  the stricter `scientific_gates` used for final research success.
+- `.hamilton_search_state.json` stores the incumbent result and normalized search
+  configuration. Each new plan is checked against a trust-region baseline and the
+  incumbent anchor. After the configured number of stale rounds, the next baseline is
+  rolled back automatically to the incumbent configuration.
+- `search.max_evals` becomes controller-owned. The runner allocates an effective value
+  from search-space size, recent stagnation, the cumulative evaluation ledger, and a
+  reserved minimum for future rounds. The authored value and effective allocation are
+  both recorded in the result and ledger.
+- `.hamilton_evidence_memory.json` is a controller-owned cross-round evidence index.
+  Strong entries contain scoped, frozen numerical observations and incumbent history;
+  weak entries contain untested causal hypotheses and near-miss candidates. A compact
+  read-only view is included in the next-round directive, while `findings.md` remains
+  the human-readable research narrative.
+
+Historical workspaces without `experiment.search_control` keep their legacy behavior.

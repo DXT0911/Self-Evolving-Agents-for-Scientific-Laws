@@ -22,6 +22,10 @@ Verification already completed successfully.
    a diagnosed failure, evidence, one `config_field`, expected effect, risks, and
    falsification, a linked `residual_evidence` object, an alternative explanation, and
    an observable expected residual change.
+   For new decisions, name the incremental validity block
+   `search_advancement_gates`; keep `scientific_gates` exclusively for final research
+   success. A strictly better valid search incumbent need not already satisfy the final
+   scientific gates.
 7. Call `finish(task_completed="false")`. The message must summarize Discovery,
    Verification, Promotion, and Limitations.
 

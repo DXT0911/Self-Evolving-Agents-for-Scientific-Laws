@@ -11,7 +11,6 @@
 - plan.md: L2 战略计划，Agent 全权维护（含 Current Best）
 """
 
-import copy
 import hashlib
 import json
 import logging
@@ -22,6 +21,11 @@ from pathlib import Path
 from evomaster.core.exp import BaseExp
 from evomaster.agent import BaseAgent
 from evomaster.utils.types import TaskInstance
+from .search_control import (
+    meaningful_config as project_meaningful_config,
+    read_control,
+    read_state,
+)
 
 
 NEXT_ROUND_BEGIN = "<!-- EVO_NEXT_ROUND_BEGIN -->"
@@ -440,22 +444,19 @@ class PromotionExp(BaseExp):
 
     @staticmethod
     def _meaningful_config(config: dict) -> dict:
+        """Legacy-compatible scientific projection without workspace policy."""
+        return project_meaningful_config(config)
+
+    def _controlled_meaningful_config(self, config: dict) -> dict:
         """Exclude identity/output fields so a renamed repeat is not treated as adaptation."""
-        if not isinstance(config, dict):
-            return {}
-        meaningful = copy.deepcopy({
-            "data": config.get("data") or {},
-            "search": config.get("search") or {},
-            "verification": config.get("verification") or {},
-        })
-        # Legacy results predate these schema fields. Explicitly disabled modern
-        # diagnostics are semantically equivalent to the legacy absence.
-        if meaningful["data"].get("standardize_search") is False:
-            meaningful["data"].pop("standardize_search")
-        residual = meaningful["verification"].get("residual_diagnostics")
-        if isinstance(residual, dict) and residual.get("enabled") is False:
-            meaningful["verification"].pop("residual_diagnostics")
-        return meaningful
+        control = read_control(self.run_dir) if self.run_dir else None
+        return project_meaningful_config(
+            config,
+            controller_owns_budget=bool(
+                control
+                and control.get("dynamic_budget", {}).get("enabled")
+            ),
+        )
 
     @staticmethod
     def _changed_config_fields(previous: object, current: object, prefix: str = "") -> list[str]:
@@ -472,6 +473,16 @@ class PromotionExp(BaseExp):
     def _previous_completed_configs(self) -> list[dict]:
         if not self.run_dir or self.round_num <= 1:
             return []
+        state = read_state(self.run_dir)
+        baseline = state.get("next_round", {}).get("baseline_result_file")
+        if isinstance(baseline, str) and baseline:
+            payload = self._read_result_payload(baseline)
+            if payload.get("status") == "completed":
+                return [
+                    self._controlled_meaningful_config(
+                        payload.get("config", {})
+                    )
+                ]
         results_dir = self.run_dir / "history" / f"round{self.round_num - 1}" / "results"
         configs = []
         for path in sorted(results_dir.glob("*.json")):
@@ -480,7 +491,11 @@ class PromotionExp(BaseExp):
             except Exception:
                 continue
             if isinstance(payload, dict) and payload.get("status") == "completed":
-                configs.append(self._meaningful_config(payload.get("config", {})))
+                configs.append(
+                    self._controlled_meaningful_config(
+                        payload.get("config", {})
+                    )
+                )
         return configs
 
     def _meaningful_config_changed(self, completed_results: list[str]) -> bool | None:
@@ -490,7 +505,9 @@ class PromotionExp(BaseExp):
         if not previous:
             return False
         current = [
-            self._meaningful_config(self._read_result_payload(path).get("config", {}))
+            self._controlled_meaningful_config(
+                self._read_result_payload(path).get("config", {})
+            )
             for path in completed_results
         ]
         return any(config and config not in previous for config in current)
@@ -500,13 +517,21 @@ class PromotionExp(BaseExp):
             return None, []
         previous = self._previous_completed_configs()
         current = [
-            self._meaningful_config(self._read_result_payload(path).get("config", {}))
+            self._controlled_meaningful_config(
+                self._read_result_payload(path).get("config", {})
+            )
             for path in completed_results
         ]
         if not previous or len(current) != 1:
             return False, []
         changed = self._changed_config_fields(previous[-1], current[0])
-        return len(changed) == 1, changed
+        control = read_control(self.run_dir) if self.run_dir else None
+        max_step_changes = int(
+            (control or {}).get("trust_region", {}).get(
+                "max_step_changes", 1
+            )
+        )
+        return 1 <= len(changed) <= max_step_changes, changed
 
     def _continuation_contract_valid(self) -> bool:
         if not self.run_dir:
@@ -786,11 +811,22 @@ class PromotionExp(BaseExp):
         if decision is None:
             return audit
 
-        promotion_gates = decision.get("promotion_gates")
-        promotion_gates_valid = self._evidence_gates_valid(promotion_gates)
-        audit["promotion_gates_valid"] = promotion_gates_valid
-        if not promotion_gates_valid:
-            audit["errors"].append("incumbent promotion gates are missing or unsupported")
+        search_advancement_gates = decision.get("search_advancement_gates")
+        legacy_promotion_gates = decision.get("promotion_gates")
+        if search_advancement_gates is None:
+            search_advancement_gates = legacy_promotion_gates
+        search_advancement_gates_valid = self._evidence_gates_valid(
+            search_advancement_gates
+        )
+        audit["search_advancement_gates_valid"] = (
+            search_advancement_gates_valid
+        )
+        # Compatibility alias for completed historical workspaces and callers.
+        audit["promotion_gates_valid"] = search_advancement_gates_valid
+        if not search_advancement_gates_valid:
+            audit["errors"].append(
+                "search advancement gates are missing or unsupported"
+            )
 
         scored = self._all_scored_results()
         if not scored:
@@ -801,15 +837,22 @@ class PromotionExp(BaseExp):
             prior = [item for item in scored if not item["path"].startswith(current_prefix)]
             current_best = min(current, key=lambda item: item["score"]) if current else None
             prior_best = min(prior, key=lambda item: item["score"]) if prior else None
-            current_passes = promotion_gates_valid and all(
-                gate["passed"] for gate in promotion_gates
+            current_passes = search_advancement_gates_valid and all(
+                gate["passed"] for gate in search_advancement_gates
+            )
+            control = read_control(self.run_dir) if self.run_dir else None
+            min_improvement = float(
+                (control or {})
+                .get("search_advancement", {})
+                .get("min_score_improvement", 0.0)
             )
             if prior_best is None:
                 best = current_best
                 expected_action = "initialize"
             elif (
                 current_best is not None
-                and current_best["score"] < prior_best["score"]
+                and current_best["score"]
+                < prior_best["score"] - min_improvement
                 and current_passes
             ):
                 best = current_best
@@ -981,7 +1024,7 @@ class PromotionExp(BaseExp):
             audit[key]
             for key in (
                 "incumbent_valid",
-                "promotion_gates_valid",
+                "search_advancement_gates_valid",
                 "claims_valid",
                 "scale_diagnostics_valid",
                 "residual_feedback_valid",

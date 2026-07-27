@@ -78,20 +78,29 @@ use_skill(
   feature or equation template. State at least one alternative explanation and make the
   next intervention falsifiable.
 - Treat `status="completed"` as execution success, not scientific success. Inspect metrics and verification results.
-- Minimize `scientific_score`; retain the earlier incumbent unless a new result is strictly
-  better and passes the applicable scientific gates.
+- Minimize `scientific_score`; advance the search incumbent when a new result is strictly
+  better and passes the search-advancement gates. Keep final scientific-success gates
+  separate.
 - Compare standardized effects or term contributions across variables, never raw
   coefficients with different units.
 - Calibrate causal language to the evidence and make every next strategy falsifiable.
+- Treat the controller-provided strong/weak evidence memory as read-only. Strong entries
+  are scoped numerical observations; weak entries are exploration hints only. Never edit
+  `.hamilton_evidence_memory.json` or use weak memory to override numerical gates.
 - If `status="failed"`, use `error.type`, `error.message`, and `error.stage` to change the next configuration.
 - Keep `search.random_state`, deterministic serial execution, config, result JSON, and Git revision together for reproducibility.
-- The runner writes `.hamilton_evaluation_ledger.json` and reserves the configured
-  `search.max_evals` before entering PySR. Completed, failed, rejected, interrupted, and
+- The runner writes `.hamilton_evaluation_ledger.json` and reserves the effective
+  `search.max_evals` before entering PySR. When dynamic budgeting is enabled this field is
+  controller-owned: the runner sizes it from search-space weight, recent stagnation, the
+  remaining cumulative budget, and a minimum reserve for future rounds. Completed,
+  failed, rejected, interrupted, and
   replayed attempts all retain their reservation. When `.hamilton_budget.json` exists,
   a new reservation that would exceed cumulative `max_total_evals` is rejected.
 - For `history/roundN/` with `N > 1`, validation compares the normalized scientific
-  configuration with the single completed result from round `N-1` and rejects anything
-  other than exactly one changed leaf field before evaluations are reserved. An explicit
+  configuration with the controller-declared trust-region baseline. It enforces the
+  configured step size and maximum distance from the stored incumbent anchor before
+  evaluations are reserved. After repeated non-improving rounds the controller changes
+  the baseline to the incumbent configuration and requires rollback. An explicit
   controller-approved increase may raise, but never remove or decrease, an existing
   evaluation-ledger limit; the increase is recorded in `budget_limit_history`.
 

@@ -81,8 +81,9 @@ Scientific governance:
 
 - Read `scientific_governance.md` from `run-sr-experiment` and maintain its
   `EVO_SCIENTIFIC_DECISION` block in `plan.md`.
-- Minimize scientific score and retain the historical incumbent unless the new result
-  is strictly better and passes every promotion gate.
+- Minimize scientific score. Use `search_advancement_gates` to advance a strictly better,
+  numerically valid search incumbent, and use separate `scientific_gates` only for final
+  research success. The search incumbent may advance before final success.
 - Use calibrated claim strength, scale-aware and residual evidence, an alternative
   explanation, an expected residual change, and a falsifiable next strategy with risks.
   Solver completion alone cannot satisfy the research task.

@@ -1,7 +1,9 @@
 # Adaptive rounds
 
 For round N > 1, change one primary factor supported by `config_schema.md`. Keep controls
-unchanged and write outputs under `history/roundN/`.
+unchanged relative to the controller-declared trust-region baseline and write outputs
+under `history/roundN/`. The baseline can be the prior round or the stored incumbent
+configuration after an automatic rollback.
 
 When continuing, maintain this block in `plan.md`:
 
@@ -28,9 +30,11 @@ primary adaptation. Use exactly one leaf path; comma-separated fields or multipl
 configuration leaves invalidate the round.
 
 The runner enforces this before PySR. For `history/roundN/experiment.json`, `N > 1`,
-it compares `data`, `search`, and `verification` with the single completed result in
-`roundN-1`. Validation fails unless exactly one normalized leaf differs, so a rollback
-plus a new intervention cannot consume evaluations unnoticed.
+it compares `data`, `search`, and `verification` with the baseline named in
+`.hamilton_search_state.json`, and separately checks the distance from the incumbent
+anchor. Validation fails outside the configured trust region. When dynamic budgeting is
+enabled, `search.max_evals` is excluded from this scientific comparison and assigned by
+the controller from the cumulative ledger.
 
 After execution:
 

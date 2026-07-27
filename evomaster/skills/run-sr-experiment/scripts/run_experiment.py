@@ -246,6 +246,140 @@ def write_evaluation_ledger(workspace: Path, ledger: dict[str, Any]) -> None:
     os.replace(temporary, path)
 
 
+def read_search_control(workspace: Path) -> dict[str, Any] | None:
+    path = workspace / ".hamilton_search_control.json"
+    if not path.is_file():
+        return None
+    try:
+        control = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"invalid Hamilton search-control JSON: {exc}") from exc
+    if control.get("schema_version") != 1:
+        raise ConfigError("invalid Hamilton search-control schema")
+    return control
+
+
+def read_search_state(workspace: Path) -> dict[str, Any]:
+    path = workspace / ".hamilton_search_state.json"
+    if not path.is_file():
+        return {}
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"invalid Hamilton search-state JSON: {exc}") from exc
+    if state.get("schema_version") != 1:
+        raise ConfigError("invalid Hamilton search-state schema")
+    return state
+
+
+def controller_owns_budget(workspace: Path) -> bool:
+    control = read_search_control(workspace)
+    return bool(
+        control
+        and control.get("dynamic_budget", {}).get("enabled")
+    )
+
+
+def search_space_weight(config: dict[str, Any]) -> float:
+    search = config.get("search") or {}
+    data = config.get("data") or {}
+    operator_count = len(search.get("binary_operators") or []) + len(
+        search.get("unary_operators") or []
+    )
+    feature_count = len(data.get("feature_columns") or [])
+    maxsize = max(1, int(search.get("maxsize", 1) or 1))
+    return float(max(1, operator_count) * max(1, feature_count) * maxsize)
+
+
+def allocate_dynamic_evaluations(
+    workspace: Path,
+    config: dict[str, Any],
+    round_number: int | None,
+) -> dict[str, Any] | None:
+    """Assign an effective per-round budget without exceeding the total ledger."""
+    control = read_search_control(workspace)
+    budget = (control or {}).get("dynamic_budget", {})
+    if not budget.get("enabled"):
+        return None
+    if round_number is None:
+        return None
+    base_evals = positive_int(budget.get("base_evals"), "dynamic_budget.base_evals")
+    min_evals = positive_int(budget.get("min_evals"), "dynamic_budget.min_evals")
+    max_evals = positive_int(budget.get("max_evals"), "dynamic_budget.max_evals")
+    quantum = positive_int(
+        budget.get("rounding_quantum"), "dynamic_budget.rounding_quantum"
+    )
+    if not min_evals <= base_evals <= max_evals:
+        raise ConfigError(
+            "dynamic budget requires min_evals <= base_evals <= max_evals"
+        )
+
+    state = read_search_state(workspace)
+    anchor_config = state.get("incumbent", {}).get("config")
+    current_weight = search_space_weight(config)
+    anchor_weight = (
+        search_space_weight(anchor_config)
+        if isinstance(anchor_config, dict) and anchor_config
+        else current_weight
+    )
+    space_factor = math.sqrt(current_weight / max(anchor_weight, 1.0))
+    space_factor = min(1.75, max(0.75, space_factor))
+    stale_rounds = max(0, int(state.get("stale_rounds", 0) or 0))
+    difficulty_factor = 1.0 + 0.15 * min(stale_rounds, 2)
+    target = int(round(base_evals * space_factor * difficulty_factor))
+    target = min(max_evals, max(min_evals, target))
+
+    ledger_path = workspace / ".hamilton_evaluation_ledger.json"
+    consumed = (
+        evaluation_ledger_total(read_evaluation_ledger(workspace))
+        if ledger_path.is_file()
+        else consumed_search_evals(workspace)
+    )
+    limit = evaluation_budget_limit(workspace)
+    remaining = None if limit is None else int(limit) - consumed
+    max_rounds = positive_int(
+        (control or {}).get("max_rounds"), "search_control.max_rounds"
+    )
+    future_rounds = max(0, max_rounds - round_number)
+    if remaining is not None:
+        future_reserve = min_evals * future_rounds
+        affordable = remaining - future_reserve
+        if affordable < min_evals:
+            raise ConfigError(
+                "insufficient cumulative PySR budget for the current dynamic "
+                f"allocation and future minimum reserve: remaining={remaining}, "
+                f"current_min={min_evals}, future_reserve={future_reserve}"
+            )
+        target = min(target, affordable)
+
+    allocated = max(min_evals, (target // quantum) * quantum)
+    if allocated > target:
+        allocated = target
+    if allocated <= 0:
+        raise ConfigError("dynamic evaluation allocation produced no usable budget")
+    proposed = int(config["search"]["max_evals"])
+    config["search"]["max_evals"] = int(allocated)
+    allocation = {
+        "mode": "dynamic_cumulative_ledger",
+        "round": round_number,
+        "proposed_evals_ignored": proposed,
+        "allocated_evals": int(allocated),
+        "consumed_before": int(consumed),
+        "total_limit": limit,
+        "remaining_before": remaining,
+        "future_minimum_reserve": (
+            None if remaining is None else min_evals * future_rounds
+        ),
+        "space_factor": float(space_factor),
+        "stale_rounds": stale_rounds,
+        "difficulty_factor": float(difficulty_factor),
+        "anchor_weight": float(anchor_weight),
+        "current_weight": float(current_weight),
+    }
+    config.setdefault("_controller", {})["budget_allocation"] = allocation
+    return allocation
+
+
 def check_evaluation_budget(workspace: Path, requested: int) -> tuple[int, int | None]:
     ledger_path = workspace / ".hamilton_evaluation_ledger.json"
     if ledger_path.is_file():
@@ -287,6 +421,11 @@ def reserve_evaluations(
             "status": "reserved",
             "reserved_at": utc_now(),
         }
+        allocation = (config.get("_controller") or {}).get(
+            "budget_allocation"
+        )
+        if isinstance(allocation, dict):
+            attempt["budget_allocation"] = allocation
         ledger["attempts"].append(attempt)
         write_evaluation_ledger(workspace, ledger)
         return dict(attempt)
@@ -321,7 +460,11 @@ def finish_evaluation_attempt(
         write_evaluation_ledger(workspace, ledger)
 
 
-def meaningful_config(config: dict[str, Any]) -> dict[str, Any]:
+def meaningful_config(
+    config: dict[str, Any],
+    *,
+    controller_owned_budget: bool = False,
+) -> dict[str, Any]:
     """Match Promotion's scientific config projection before PySR is entered."""
     projected = json.loads(
         json.dumps(
@@ -337,6 +480,8 @@ def meaningful_config(config: dict[str, Any]) -> dict[str, Any]:
     residual = projected["verification"].get("residual_diagnostics")
     if isinstance(residual, dict) and residual.get("enabled") is False:
         projected["verification"].pop("residual_diagnostics")
+    if controller_owned_budget:
+        projected["search"].pop("max_evals", None)
     return projected
 
 
@@ -417,34 +562,84 @@ def audit_single_field_adaptation(
     round_number = adaptive_round_number(config_path, workspace)
     if round_number is None or round_number <= 1:
         return []
+    control = read_search_control(workspace)
+    state = read_search_state(workspace)
+    controller_budget = controller_owns_budget(workspace)
+    baseline_path = state.get("next_round", {}).get("baseline_result_file")
     previous_results = []
-    results_dir = workspace / "history" / f"round{round_number - 1}" / "results"
-    for path in sorted(results_dir.glob("*.json")):
+    if isinstance(baseline_path, str) and baseline_path:
+        candidate = resolve_inside(
+            workspace, baseline_path, "search_state.baseline_result_file"
+        )
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if payload.get("status") == "completed":
-            previous_results.append(payload)
+            payload = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ConfigError(
+                f"trust-region baseline result is unreadable: {baseline_path}"
+            ) from exc
+        if payload.get("status") != "completed":
+            raise ConfigError("trust-region baseline result is not completed")
+        previous_results.append(payload)
+    else:
+        results_dir = workspace / "history" / f"round{round_number - 1}" / "results"
+        for path in sorted(results_dir.glob("*.json")):
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if payload.get("status") == "completed":
+                previous_results.append(payload)
     if len(previous_results) != 1:
         raise ConfigError(
-            "adaptive pre-search audit requires exactly one completed result in "
-            f"history/round{round_number - 1}/results; found {len(previous_results)}"
+            "adaptive pre-search audit requires exactly one trust-region baseline; "
+            f"found {len(previous_results)}"
         )
-    changed = changed_config_fields(
-        meaningful_config(previous_results[0].get("config", {})),
-        meaningful_config(config),
+    previous_config = meaningful_config(
+        previous_results[0].get("config", {}),
+        controller_owned_budget=controller_budget,
     )
-    if len(changed) != 1:
+    current_config = meaningful_config(
+        config,
+        controller_owned_budget=controller_budget,
+    )
+    changed = changed_config_fields(
+        previous_config,
+        current_config,
+    )
+    max_step_changes = int(
+        (control or {})
+        .get("trust_region", {})
+        .get("max_step_changes", 1)
+    )
+    if not 1 <= len(changed) <= max_step_changes:
         raise ConfigError(
-            "adaptive round must change exactly one scientific config field before "
-            f"PySR; changed_fields={changed}"
+            "adaptive round must change exactly one scientific config field "
+            "within the trust-region step before PySR; "
+            f"allowed_changes=1..{max_step_changes}, changed_fields={changed}"
         )
+    anchor = state.get("incumbent", {}).get("config")
+    if isinstance(anchor, dict) and anchor:
+        anchor_distance = changed_config_fields(anchor, current_config)
+        max_anchor_distance = int(
+            (control or {})
+            .get("trust_region", {})
+            .get("max_anchor_distance", 2)
+        )
+        if len(anchor_distance) > max_anchor_distance:
+            raise ConfigError(
+                "adaptive round exceeds the incumbent trust region before PySR; "
+                f"max_anchor_distance={max_anchor_distance}, "
+                f"anchor_changed_fields={anchor_distance}"
+            )
     expected_patch = expected_adaptive_config_patch(workspace)
     if expected_patch is not None:
         expected_field, expected_value = next(iter(expected_patch.items()))
+        if controller_budget and expected_field == "search.max_evals":
+            raise ConfigError(
+                "search.max_evals is controller-owned while dynamic budgeting is enabled"
+            )
         actual_field = changed[0]
-        actual_value = value_at_leaf(meaningful_config(config), actual_field)
+        actual_value = value_at_leaf(current_config, actual_field)
         if actual_field != expected_field or actual_value != expected_value:
             raise ConfigError(
                 "adaptive round must implement the governed next_strategy config_patch "
@@ -607,7 +802,15 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["verification"]["candidate_ranking"] = ranking
     normalized["verification"]["residual_diagnostics"] = residual
     audit_single_field_adaptation(workspace, config_path, normalized)
-    check_evaluation_budget(workspace, int(search["max_evals"]))
+    allocate_dynamic_evaluations(
+        workspace,
+        normalized,
+        adaptive_round_number(config_path, workspace),
+    )
+    check_evaluation_budget(
+        workspace,
+        int(normalized["search"]["max_evals"]),
+    )
     return normalized, {
         "train": train_path,
         "result": result_path,

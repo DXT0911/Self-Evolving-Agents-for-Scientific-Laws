@@ -19,6 +19,14 @@ import sympy
 from playground.hamilton.core.exp import RoundExp
 from playground.hamilton.core.promotion_exp import NEXT_ROUND_FIELDS, PromotionExp
 from playground.hamilton.core.playground import HamiltonPlayground
+from playground.hamilton.core.search_control import (
+    initialize_control,
+    meaningful_config as search_meaningful_config,
+    read_evidence_memory,
+    round_directive,
+    update_evidence_memory,
+    update_state,
+)
 from playground.hamilton.core.ood_evaluator import (
     OODAccessLedger,
     OODProtocolError,
@@ -331,6 +339,60 @@ class StandardRunnerContractTests(unittest.TestCase):
         ):
             RUNNER.read_evaluation_ledger(self.workspace)
 
+    def test_dynamic_budget_uses_ledger_and_reserves_future_round_minimums(self) -> None:
+        (self.workspace / ".hamilton_budget.json").write_text(
+            json.dumps({"max_total_evals": 20000}),
+            encoding="utf-8",
+        )
+        (self.workspace / ".hamilton_search_control.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "search_advancement": {"min_score_improvement": 0.0},
+                    "trust_region": {
+                        "enabled": True,
+                        "max_anchor_distance": 2,
+                        "max_step_changes": 1,
+                        "rollback_after_stale_rounds": 2,
+                    },
+                    "dynamic_budget": {
+                        "enabled": True,
+                        "base_evals": 15000,
+                        "min_evals": 4000,
+                        "max_evals": 16000,
+                        "rounding_quantum": 500,
+                    },
+                    "max_rounds": 3,
+                }
+            ),
+            encoding="utf-8",
+        )
+        round_dir = self.workspace / "history" / "round1"
+        round_dir.mkdir(parents=True)
+        config = valid_config()
+        config["search"]["max_evals"] = 7
+        config["output"]["result_file"] = "history/round1/results/result.json"
+        config["output"]["run_directory"] = "history/round1/results/pysr-run"
+        config_path = round_dir / "experiment.json"
+        config_path.write_text(json.dumps(config), encoding="utf-8")
+
+        normalized, paths = RUNNER.load_and_validate(config_path, self.workspace)
+
+        self.assertEqual(normalized["search"]["max_evals"], 12000)
+        allocation = normalized["_controller"]["budget_allocation"]
+        self.assertEqual(allocation["proposed_evals_ignored"], 7)
+        self.assertEqual(allocation["future_minimum_reserve"], 8000)
+        attempt = RUNNER.reserve_evaluations(
+            self.workspace,
+            normalized,
+            paths["result"],
+        )
+        self.assertEqual(attempt["requested_evals"], 12000)
+        self.assertEqual(
+            attempt["budget_allocation"]["mode"],
+            "dynamic_cumulative_ledger",
+        )
+
     def test_adaptive_pre_search_audit_requires_exactly_one_leaf_change(self) -> None:
         previous_config, _ = RUNNER.load_and_validate(
             self.write_config(valid_config()),
@@ -543,6 +605,298 @@ class StandardRunnerContractTests(unittest.TestCase):
             "coefficient_times_train_std_over_target_std",
         )
         self.assertEqual(set(diagnostic["scale_aware"]["standardized_effect"]), {"x", "v"})
+
+
+class HamiltonSearchControlTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.workspace = Path(self.temporary.name).resolve()
+        (self.workspace / "input").mkdir()
+        pd.DataFrame(
+            {
+                "t": range(10),
+                "x": range(10),
+                "v": range(10),
+                "a": range(10),
+            }
+        ).to_csv(self.workspace / "input" / "train.csv", index=False)
+        self.experiment = {
+            "max_rounds": 5,
+            "max_total_evals": 50000,
+            "search_control": {
+                "trust_region": {
+                    "rollback_after_stale_rounds": 2,
+                    "max_anchor_distance": 2,
+                    "max_step_changes": 1,
+                },
+                "dynamic_budget": {"enabled": False},
+            },
+        }
+        initialize_control(self.workspace, self.experiment)
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    @staticmethod
+    def config(parsimony: float = 0.01) -> dict:
+        config = valid_config()
+        config["search"]["parsimony"] = parsimony
+        return config
+
+    def test_incumbent_config_is_saved_and_two_stale_rounds_trigger_rollback(self) -> None:
+        incumbent_config = self.config()
+        state1 = update_state(
+            self.workspace,
+            round_num=1,
+            current_result_file="history/round1/results/r1.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="initialize",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=incumbent_config,
+        )
+        self.assertEqual(state1["stale_rounds"], 0)
+        self.assertFalse(state1["rollback_required"])
+        self.assertEqual(
+            state1["incumbent"]["config"],
+            search_meaningful_config(incumbent_config),
+        )
+
+        state2 = update_state(
+            self.workspace,
+            round_num=2,
+            current_result_file="history/round2/results/r2.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="retain",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=incumbent_config,
+        )
+        self.assertEqual(
+            state2["next_round"]["baseline_result_file"],
+            "history/round2/results/r2.json",
+        )
+        state3 = update_state(
+            self.workspace,
+            round_num=3,
+            current_result_file="history/round3/results/r3.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="retain",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=incumbent_config,
+        )
+        self.assertTrue(state3["rollback_required"])
+        self.assertEqual(
+            state3["next_round"]["baseline_result_file"],
+            "history/round1/results/r1.json",
+        )
+        directive = round_directive(self.workspace, 4)
+        self.assertTrue(directive["rollback_required"])
+        self.assertEqual(directive["baseline_mode"], "rollback_to_incumbent")
+
+    def test_runner_enforces_rollback_baseline_instead_of_latest_failed_config(self) -> None:
+        baseline_path = self.workspace / "baseline.json"
+        baseline_path.write_text(
+            json.dumps(self.config()),
+            encoding="utf-8",
+        )
+        incumbent_config, _ = RUNNER.load_and_validate(
+            baseline_path,
+            self.workspace,
+        )
+        result_dir = self.workspace / "history" / "round1" / "results"
+        result_dir.mkdir(parents=True)
+        (result_dir / "r1.json").write_text(
+            json.dumps(
+                {"status": "completed", "config": incumbent_config}
+            ),
+            encoding="utf-8",
+        )
+        update_state(
+            self.workspace,
+            round_num=3,
+            current_result_file="history/round3/results/r3.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="retain",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=incumbent_config,
+        )
+        # A second retained update crosses the rollback threshold.
+        update_state(
+            self.workspace,
+            round_num=4,
+            current_result_file="history/round4/results/r4.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="retain",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=incumbent_config,
+        )
+        (self.workspace / "plan.md").write_text(
+            "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->\n"
+            + json.dumps(
+                {
+                    "next_strategy": {
+                        "config_field": "search.parsimony",
+                        "config_patch": {"search.parsimony": 0.02},
+                    }
+                }
+            )
+            + "\n<!-- EVO_SCIENTIFIC_DECISION_END -->",
+            encoding="utf-8",
+        )
+        round_dir = self.workspace / "history" / "round5"
+        round_dir.mkdir(parents=True)
+        current = self.config(parsimony=0.02)
+        current["output"]["result_file"] = "history/round5/results/r5.json"
+        current["output"]["run_directory"] = "history/round5/results/pysr-run"
+        config_path = round_dir / "experiment.json"
+        config_path.write_text(json.dumps(current), encoding="utf-8")
+
+        normalized, _ = RUNNER.load_and_validate(config_path, self.workspace)
+        self.assertEqual(
+            RUNNER.audit_single_field_adaptation(
+                self.workspace,
+                config_path,
+                normalized,
+            ),
+            ["search.parsimony"],
+        )
+
+    def test_controller_builds_deduplicated_strong_and_weak_evidence_memory(self) -> None:
+        result_dir = self.workspace / "history" / "round1" / "results"
+        result_dir.mkdir(parents=True)
+        result_file = "history/round1/results/r1.json"
+        result_path = self.workspace / result_file
+        result_path.write_text(
+            json.dumps(
+                {
+                    "status": "completed",
+                    "config": self.config(),
+                    "selected": {
+                        "scientific_score": 0.8,
+                        "simplified_equation": "x",
+                    },
+                    "verification": {
+                        "residual_diagnostics": {
+                            "validation": {
+                                "state_dependence": {
+                                    "strongest_absolute_correlation": {
+                                        "signal": "v",
+                                        "value": 0.2,
+                                    }
+                                },
+                                "temporal_structure": {
+                                    "strongest_reported_autocorrelation": {
+                                        "lag": 5,
+                                        "value": 0.4,
+                                    }
+                                },
+                            }
+                        }
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        (self.workspace / "plan.md").write_text(
+            "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->\n"
+            + json.dumps(
+                {
+                    "search_advancement_gates": [
+                        {
+                            "name": "candidate validity",
+                            "passed": True,
+                            "evidence": "finite validation predictions",
+                        }
+                    ],
+                    "next_strategy": {
+                        "diagnosed_failure": "residual autocorrelation remains",
+                        "config_field": "search.maxsize",
+                        "config_patch": {"search.maxsize": 7},
+                        "alternative_explanation": "derivative noise",
+                        "expected_effect": "lower score",
+                        "expected_residual_change": "lag-5 decreases",
+                        "falsification": "score does not improve",
+                    },
+                }
+            )
+            + "\n<!-- EVO_SCIENTIFIC_DECISION_END -->",
+            encoding="utf-8",
+        )
+        audit = {
+            "incumbent_valid": True,
+            "search_advancement_gates_valid": True,
+            "protocol_evidence_valid": True,
+            "residual_feedback_valid": True,
+        }
+
+        for _ in range(2):
+            update_evidence_memory(
+                self.workspace,
+                round_num=1,
+                current_result_file=result_file,
+                incumbent_result_file=result_file,
+                incumbent_action="initialize",
+                incumbent_score=0.8,
+                changed_fields=[],
+                governance_audit=audit,
+            )
+
+        memory = read_evidence_memory(self.workspace)
+        self.assertEqual(len(memory["strong"]["search_outcomes"]), 1)
+        self.assertEqual(len(memory["strong"]["residual_observations"]), 1)
+        self.assertEqual(len(memory["strong"]["incumbent_history"]), 1)
+        self.assertEqual(len(memory["weak"]["causal_hypotheses"]), 1)
+        self.assertEqual(len(memory["weak"]["near_miss_candidates"]), 0)
+        self.assertEqual(
+            memory["strong"]["residual_observations"][0][
+                "temporal_dependence"
+            ]["value"],
+            0.4,
+        )
+
+        update_state(
+            self.workspace,
+            round_num=1,
+            current_result_file=result_file,
+            incumbent_result_file=result_file,
+            incumbent_action="initialize",
+            incumbent_score=0.8,
+            incumbent_equation="x",
+            incumbent_config=self.config(),
+        )
+        directive = round_directive(self.workspace, 2)
+        self.assertEqual(
+            directive["evidence_memory"]["updated_after_round"],
+            1,
+        )
+
+    def test_evidence_memory_rejects_failed_governance_audit(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError,
+            "requires valid incumbent",
+        ):
+            update_evidence_memory(
+                self.workspace,
+                round_num=1,
+                current_result_file="history/round1/results/invalid.json",
+                incumbent_result_file="history/round1/results/invalid.json",
+                incumbent_action="retain",
+                incumbent_score=1.0,
+                changed_fields=[],
+                governance_audit={
+                    "incumbent_valid": False,
+                    "search_advancement_gates_valid": True,
+                    "protocol_evidence_valid": True,
+                    "residual_feedback_valid": True,
+                },
+            )
+        self.assertFalse(
+            (self.workspace / ".hamilton_evidence_memory.json").exists()
+        )
 
 
 class RoundAndPromotionPhaseTests(unittest.TestCase):
@@ -1273,7 +1627,7 @@ class ScientificGovernanceTests(unittest.TestCase):
                 "raw_coefficient_comparison": False,
                 "evidence": "diagnostics.linear_raw_features.scale_aware.standardized_effect",
             },
-            "promotion_gates": [
+            "search_advancement_gates": [
                 {
                     "name": "candidate validity",
                     "passed": promotion_gate_passed,
@@ -1348,6 +1702,19 @@ class ScientificGovernanceTests(unittest.TestCase):
         )
         promoted = self.exp._audit_scientific_decision("false")
         self.assertTrue(promoted["incumbent_valid"])
+
+    def test_legacy_promotion_gate_name_remains_recoverable(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        plan.write_text(
+            plan.read_text(encoding="utf-8").replace(
+                '"search_advancement_gates"',
+                '"promotion_gates"',
+            ),
+            encoding="utf-8",
+        )
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertTrue(audit["search_advancement_gates_valid"])
 
     def test_rejects_confirmation_without_alternative_test(self) -> None:
         self.write_decision(

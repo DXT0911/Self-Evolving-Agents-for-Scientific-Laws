@@ -70,6 +70,21 @@ experiment:
   max_rounds: 3
   scientific_governance: true
   require_literature_grounding: true
+  max_total_evals: 36000
+  search_control:
+    search_advancement:
+      min_score_improvement: 0.0
+    trust_region:
+      enabled: true
+      max_anchor_distance: 2
+      max_step_changes: 1
+      rollback_after_stale_rounds: 2
+    dynamic_budget:
+      enabled: true
+      base_evals: 12000
+      min_evals: 4000
+      max_evals: 20000
+      rounding_quantum: 500
   pysr_preflight:
     enabled: true
     timeout_seconds: 180

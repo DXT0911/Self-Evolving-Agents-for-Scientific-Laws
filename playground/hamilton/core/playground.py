@@ -29,6 +29,12 @@ from .constants import CURRENT_BEST_BEGIN, CURRENT_BEST_END, STRATEGY_QUEUE_BEGI
 from .exp import RoundExp
 from .promotion_exp import PromotionExp
 from .pysr_preflight import PySRPreflightError, run_preflight
+from .search_control import (
+    initialize_control,
+    round_directive,
+    update_evidence_memory,
+    update_state,
+)
 
 
 @register_playground("hamilton")
@@ -99,6 +105,12 @@ class HamiltonPlayground(BasePlayground):
                 ),
                 encoding="utf-8",
             )
+        if (
+            isinstance(experiment_cfg, dict)
+            and experiment_cfg.get("scientific_governance")
+            and isinstance(experiment_cfg.get("search_control"), dict)
+        ):
+            initialize_control(workspace, experiment_cfg)
 
         template_workspace = self._project_root / "playground" / "hamilton" / "workspace"
         task_template_raw = (
@@ -289,9 +301,27 @@ class HamiltonPlayground(BasePlayground):
                     elif per_round_tokens:
                         self.agent.config.max_total_tokens = per_round_tokens
 
+                    controller_directive = round_directive(
+                        self.workspace_dir,
+                        round_num,
+                    )
+                    governed_task = task_description
+                    if controller_directive is not None:
+                        governed_task += (
+                            "\n\nController search directive (authoritative):\n"
+                            + json.dumps(
+                                controller_directive,
+                                ensure_ascii=False,
+                                indent=2,
+                            )
+                            + "\nBuild the round configuration from the declared "
+                            "baseline. If rollback_required=true, do not inherit the "
+                            "previous failed configuration. The controller, not the "
+                            "LLM, owns search.max_evals."
+                        )
                     round_exp = RoundExp(self.agent, self.config, round_num)
                     round_exp.set_run_dir(self.workspace_dir)
-                    discovery_result = round_exp.run(task_description)
+                    discovery_result = round_exp.run(governed_task)
                     discovery_tokens = self._trajectory_token_usage(
                         discovery_result.get("trajectory")
                     )
@@ -351,6 +381,54 @@ class HamiltonPlayground(BasePlayground):
                 decision = signal.get("closure", {}).get("scientific_decision", {})
                 expected = decision.get("incumbent_expected") or {}
                 score = expected.get("score")
+                expected_path = expected.get("path")
+                if (
+                    isinstance(score, (int, float))
+                    and isinstance(expected_path, str)
+                    and expected_path
+                ):
+                    incumbent_payload = json.loads(
+                        (self.workspace_dir / expected_path).read_text(
+                            encoding="utf-8"
+                        )
+                    )
+                    residual_result_path = (
+                        decision.get("residual_feedback", {}).get(
+                            "result_file"
+                        )
+                    )
+                    current_paths = result_files or []
+                    current_result_path = str(
+                        residual_result_path
+                        or (current_paths[0] if current_paths else expected_path)
+                    ).replace("\\", "/")
+                    incumbent_action = str(
+                        decision.get("incumbent_action_expected") or "retain"
+                    )
+                    update_state(
+                        self.workspace_dir,
+                        round_num=round_num,
+                        current_result_file=current_result_path,
+                        incumbent_result_file=expected_path,
+                        incumbent_action=incumbent_action,
+                        incumbent_score=float(score),
+                        incumbent_equation=expected.get("equation"),
+                        incumbent_config=incumbent_payload.get("config", {}),
+                    )
+                    update_evidence_memory(
+                        self.workspace_dir,
+                        round_num=round_num,
+                        current_result_file=current_result_path,
+                        incumbent_result_file=expected_path,
+                        incumbent_action=incumbent_action,
+                        incumbent_score=float(score),
+                        changed_fields=list(
+                            signal.get("closure", {}).get(
+                                "changed_config_fields", []
+                            )
+                        ),
+                        governance_audit=decision,
+                    )
                 if isinstance(score, (int, float)):
                     if incumbent_score is None or score < incumbent_score - 1e-12:
                         incumbent_score = float(score)

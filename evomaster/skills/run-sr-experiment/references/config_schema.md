@@ -93,11 +93,17 @@
 - Non-validation executions reserve `search.max_evals` in
   `.hamilton_evaluation_ledger.json` before PySR starts. Reservations are never refunded
   after failure, rejection, interruption, or replay; `--validate-only` does not reserve.
+- When `.hamilton_search_control.json` enables dynamic budgeting, `search.max_evals` in
+  the authored JSON is only a proposal. The runner records and executes a deterministic
+  effective allocation based on search-space size, recent stagnation, remaining
+  cumulative budget, and the minimum reserve for future rounds.
 - After a ledger exists, its cumulative limit may only be increased by an explicit
   controller configuration change. Each increase is recorded in
   `budget_limit_history`; decreasing or removing the limit is rejected.
-- Adaptive `roundN` validation, for `N > 1`, rejects configurations that differ from
-  the single completed `roundN-1` result in zero or more than one scientific leaf field.
+- Adaptive `roundN` validation, for `N > 1`, uses the baseline named in
+  `.hamilton_search_state.json`, enforces the configured trust-region step and maximum
+  distance from the incumbent anchor, and excludes controller-owned `search.max_evals`
+  from scientific configuration differences.
 
 ## Output
 
