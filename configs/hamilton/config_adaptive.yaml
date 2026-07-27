@@ -1,3 +1,5 @@
+# FROZEN HISTORICAL CONFIG — do not use as a new experiment entry.
+# See configs/hamilton/README.md.
 llm:
   openai:
     provider: "openai"

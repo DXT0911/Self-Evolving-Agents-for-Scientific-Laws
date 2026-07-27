@@ -16,6 +16,7 @@ This fork is the canonical working repository for DXT0911's SR Agent research.
 | Path | Purpose |
 |---|---|
 | `playground/hamilton/` | Hamilton SR Agent implementation |
+| `playground/hamilton/DEVELOPMENT.md` | Collaborator guide and directory ownership |
 | `playground/hamilton/core/` | Multi-round orchestration and experiment execution |
 | `playground/hamilton/prompts/` | Agent prompts |
 | `playground/hamilton/workspace/task.md` | Current VIV equation-family task |
@@ -24,6 +25,7 @@ This fork is the canonical working repository for DXT0911's SR Agent research.
 | `evomaster/skills/pysr/` | PySR knowledge and execution guidance |
 | `configs/hamilton/` | Hamilton runtime configuration |
 | `docs/sragent/RESEARCH_PROTOCOL.md` | Research scope, data split, experiment and reporting rules |
+| `docs/sragent/README.md` | Current contracts versus historical experiment documents |
 | `playground/hamilton/TODO.md` | Required implementation progress log |
 
 ## Upstream framework paths

@@ -10,34 +10,38 @@ reserves the Promotion allowance before starting `RoundExp`.
 
 All provider credentials must come from `${HAMILTON_API_KEY}`. Never commit a literal key.
 
-## Reusable development configurations
+## Supported entries
 
 | File | Purpose | Status |
 |---|---|---|
 | `config.yaml` | Current integrated Hamilton development entry | Canonical development config |
 | `config_no_pysr.yaml` | Prompt/closure debugging without PySR | Diagnostic only; not a benchmark |
-| `config_low_budget.yaml` | One-round low-budget smoke workflow | Historical smoke config |
-| `config_adaptive.yaml` | Early adaptive three-round workflow | Superseded by stricter governance |
 
-## Historical run and recovery configurations
+`config_no_pysr.yaml` creates only labelled protocol-debug artifacts. It cannot establish
+a candidate equation, benchmark performance, or scientific success.
 
-The following files preserve the settings used while developing the multi-round and
-Promotion recovery paths. They depend on artifacts inside a particular run workspace and
-must not be launched from a clean template workspace:
+## Frozen historical configurations
 
+The following files preserve earlier smoke, adaptive, controlled-run, or recovery
+settings. They are retained so dated research records remain interpretable:
+
+- `config_low_budget.yaml`;
+- `config_adaptive.yaml`;
 - `config_multiround_test.yaml`;
 - `config_controlled_long.yaml`;
-- `config_promotion_resume.yaml`.
+- `config_promotion_resume.yaml`;
+- `config_residual_blind_8round.yaml`.
 
-Their relative `resume_completed_result` or `start_round` settings are evidence of the
-original workflow, not a portable resume contract. A future formal configuration must use
-an explicit validated run workspace and a frozen budget.
+Do not start a new experiment from these files. Some include relative
+`resume_completed_result` or `start_round` settings tied to a particular workspace; the
+others predate the current search-control contract. A formal experiment must use a new
+descriptive configuration, an explicit validated workspace, and a frozen cumulative
+budget.
 
 ## Prompt locations
 
-Runtime prompt paths are resolved from `configs/hamilton/` into
-`playground/hamilton/prompts/`. Copies under `configs/hamilton/prompts/` are retained for
-the repository's existing layout and must remain byte-equivalent to their runtime copies.
+Runtime prompt paths are resolved into `playground/hamilton/prompts/`. That directory is
+the single source of truth. Do not create prompt copies under `configs/hamilton/`.
 
 ## Experiment JSON examples
 
@@ -45,3 +49,6 @@ the repository's existing layout and must remain byte-equivalent to their runtim
 lives outside the workspace template so it cannot seed an Agent run with a search template.
 To reproduce that smoke workflow manually, copy it into a disposable run workspace before
 invoking the standard runner. It is not evidence of scientific success.
+
+See `playground/hamilton/DEVELOPMENT.md` for ownership boundaries, test commands, and the
+workflow for adding a formal experiment.

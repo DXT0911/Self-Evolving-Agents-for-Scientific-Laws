@@ -16,6 +16,7 @@
 | 路径 | 用途 |
 |---|---|
 | `playground/hamilton/` | Hamilton SR Agent 的实现 |
+| `playground/hamilton/DEVELOPMENT.md` | 协作开发指南与目录职责 |
 | `playground/hamilton/core/` | 多轮智能体编排与实验执行 |
 | `playground/hamilton/prompts/` | 智能体提示词 |
 | `playground/hamilton/workspace/task.md` | 当前的 VIV 方程族发现任务 |
@@ -24,6 +25,7 @@
 | `evomaster/skills/pysr/` | PySR 相关知识与执行指南 |
 | `configs/hamilton/` | Hamilton 运行配置 |
 | `docs/sragent/RESEARCH_PROTOCOL.md` | 研究范围、数据划分、实验与报告规范 |
+| `docs/sragent/README.md` | 当前规范与历史实验文档索引 |
 | `playground/hamilton/TODO.md` | 必须维护的实现进度记录 |
 
 ## 上游框架目录

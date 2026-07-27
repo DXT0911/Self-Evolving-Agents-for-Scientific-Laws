@@ -1,3 +1,5 @@
+# FROZEN HISTORICAL CONFIG — contains workspace-relative Promotion state.
+# See configs/hamilton/README.md.
 llm:
   openai:
     provider: "openai"

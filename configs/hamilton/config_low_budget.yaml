@@ -1,4 +1,6 @@
 # Hamilton 低预算端到端冒烟测试配置
+# FROZEN HISTORICAL CONFIG — do not use as a new experiment entry.
+# See configs/hamilton/README.md.
 #
 # 使用前请在仓库根目录的 .env 中设置：
 # HAMILTON_API_KEY="..."

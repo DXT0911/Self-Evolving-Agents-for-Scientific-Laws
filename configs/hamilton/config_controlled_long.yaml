@@ -1,3 +1,5 @@
+# FROZEN HISTORICAL CONFIG — tied to an earlier controlled-run workflow.
+# See configs/hamilton/README.md.
 llm:
   openai:
     provider: "openai"

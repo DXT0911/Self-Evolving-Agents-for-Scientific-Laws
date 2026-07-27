@@ -184,6 +184,8 @@ python run.py --agent hamilton --task "task" --run-dir runs/my_experiment
 
 默认研究入口是 `configs/hamilton/config.yaml`。历史 smoke、恢复和长跑配置的用途与
 可复现限制见 `configs/hamilton/README.md`；它们不是可直接复用的正式 benchmark 配置。
+协作开发前请阅读 `playground/hamilton/DEVELOPMENT.md`，其中定义了目录职责、提示词唯一
+来源、配置生命周期和离线测试命令。
 
 关键配置示例：
 

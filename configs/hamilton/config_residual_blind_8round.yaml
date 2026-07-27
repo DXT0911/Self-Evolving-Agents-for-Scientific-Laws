@@ -1,3 +1,5 @@
+# FROZEN HISTORICAL CONFIG — preserves the blind R1'-R8' protocol.
+# See configs/hamilton/README.md.
 llm:
   openai:
     provider: "openai"
