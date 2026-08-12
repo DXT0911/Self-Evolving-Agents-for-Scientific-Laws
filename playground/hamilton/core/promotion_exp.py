@@ -335,6 +335,9 @@ class PromotionExp(BaseExp):
                     "short_ode": (
                         payload.get("verification", {}).get("short_ode")
                     ),
+                    "long_horizon_dynamics": (
+                        payload.get("verification", {}).get("long_horizon_dynamics")
+                    ),
                     "residual_diagnostics": self._compact_residual_diagnostics(
                         payload
                     ),

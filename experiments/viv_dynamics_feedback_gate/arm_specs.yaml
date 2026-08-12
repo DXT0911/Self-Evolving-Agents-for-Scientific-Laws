@@ -1,0 +1,129 @@
+schema_version: 1
+experiment_id: viv-dynamics-feedback-public-gate-v1
+executable_configs_materialized: false
+
+common_search:
+  engine: pysr
+  binary_operators: ["+", "-", "*", "/"]
+  unary_operators: [sin, cos, exp]
+  niterations: 1000
+  populations: 8
+  population_size: 32
+  tournament_selection_n: 12
+  maxsize: 31
+  parsimony: 0.001
+  top_k: 10
+  search_stride: 5
+  standardize_search: false
+  validation_fraction: 0.2
+
+common_controller:
+  candidate_pool_size: 10
+  failure_penalty: 100.0
+  residual_diagnostics:
+    enabled: true
+    max_lag: 50
+    feature_bins: 4
+    phase_bins: 8
+    high_frequency_fraction: 0.25
+  trust_region:
+    max_step_changes: 1
+    max_anchor_distance: 2
+    rollback_after_stale_rounds: 2
+  controller_owned:
+    - paths
+    - seeds
+    - requested_evaluation_budget
+    - evidence_release
+    - incumbent
+    - promotion
+    - rollback
+    - closure
+    - memory
+
+common_final_evaluator:
+  pointwise_public_validation: true
+  short_ode:
+    enabled: true
+    duration: 10.0
+    points: 1000
+    state_limit: 1000000.0
+  long_horizon_dynamics:
+    enabled: true
+    duration: 60.0
+    points: 3000
+    steady_state_fraction: 0.4
+    min_steady_cycles: 3.0
+    state_limit: 1000000.0
+    rtol: 1.0e-8
+    atol: 1.0e-10
+    large_initial_scale: 2.0
+    stationary_amplitude_fraction: 0.001
+    zero_initial_policy: report_only
+    amplitude_relative_tolerance: 0.20
+    frequency_relative_tolerance: 0.10
+    stationarity_relative_tolerance: 0.15
+    attractor_relative_tolerance: 0.20
+
+arms:
+  direct_pysr:
+    llm_enabled: false
+    schedule: one_continuous_search
+    requested_evaluations: 12000
+    seed: 2101
+    adaptive_search_config: false
+    search_time_feedback: none
+    endpoint_evaluation: common_final_evaluator
+
+  fit_only_hamilton:
+    llm_enabled: true
+    schedule: three_governed_rounds
+    cumulative_requested_evaluations: 12000
+    round_seeds: [2101, 2102, 2103]
+    adaptive_search_config: true
+    search_time_ranking_weights:
+      validation_nrmse: 1.0
+      trajectory_nrmse: 0.0
+      complexity: 0.05
+      long_horizon_penalty: 0.0
+    evidence_released_to_llm:
+      - pointwise_train_and_validation_metrics
+      - pointwise_residual_state_structure
+      - pointwise_residual_temporal_structure
+      - complexity_and_variable_dependence
+    evidence_withheld_until_endpoint_freeze:
+      - short_ode_trajectory
+      - long_horizon_dynamics
+    endpoint_evaluation: common_final_evaluator
+
+  dynamics_aware_hamilton:
+    llm_enabled: true
+    schedule: three_governed_rounds
+    cumulative_requested_evaluations: 12000
+    round_seeds: [2101, 2102, 2103]
+    adaptive_search_config: true
+    search_time_ranking_weights:
+      validation_nrmse: 1.0
+      trajectory_nrmse: 1.0
+      complexity: 0.05
+      long_horizon_penalty: 1.0
+    evidence_released_to_llm:
+      - pointwise_train_and_validation_metrics
+      - pointwise_residual_state_structure
+      - pointwise_residual_temporal_structure
+      - complexity_and_variable_dependence
+      - short_ode_trajectory_summary
+      - long_horizon_controller_summary
+    endpoint_evaluation: common_final_evaluator
+
+confirmatory_primary_outcomes:
+  - endpoint_public_validation_nrmse
+  - endpoint_long_horizon_penalty
+  - endpoint_long_horizon_overall_pass
+  - structured_run_success
+
+not_confirmatory:
+  - requested_evaluation_boundary_anytime_auc
+  - cross_repeat_variance
+  - private_or_ood_generalization
+  - general_hamilton_superiority

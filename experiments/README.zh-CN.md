@@ -11,6 +11,7 @@
 | 实验 | 状态 | 主要报告 |
 |---|---|---|
 | [`hamilton_vs_pysr_governed_search/`](hamilton_vs_pysr_governed_search/) | 公开 9-arm 运行门完成；正式多重复研究未运行 | [`OPERATIONAL_GATE_STATUS_2026-07-28.md`](hamilton_vs_pysr_governed_search/OPERATIONAL_GATE_STATUS_2026-07-28.md) |
+| [`viv_dynamics_feedback_gate/`](viv_dynamics_feedback_gate/) | 不可执行准备态；等待独立授权 | [`PROTOCOL.md`](viv_dynamics_feedback_gate/PROTOCOL.md) |
 
 已完成的运行门使用三个公开任务、一个重复，且没有访问 private/OOD。它只是先导信号，
 不是普遍优越性的证据。冻结设计、事后离线诊断和剩余局限见实验 README。

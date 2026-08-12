@@ -40,13 +40,33 @@
       "points": 500,
       "state_limit": 1000000
     },
+    "long_horizon_dynamics": {
+      "enabled": false,
+      "position_column": "x",
+      "velocity_column": "v",
+      "duration": 60.0,
+      "points": 3000,
+      "steady_state_fraction": 0.4,
+      "min_steady_cycles": 3.0,
+      "state_limit": 1000000,
+      "rtol": 1e-8,
+      "atol": 1e-10,
+      "large_initial_scale": 2.0,
+      "stationary_amplitude_fraction": 0.001,
+      "zero_initial_policy": "report_only",
+      "amplitude_relative_tolerance": 0.2,
+      "frequency_relative_tolerance": 0.1,
+      "stationarity_relative_tolerance": 0.15,
+      "attractor_relative_tolerance": 0.2
+    },
     "candidate_ranking": {
       "enabled": true,
       "max_candidates": 10,
       "weights": {
         "validation_nrmse": 1.0,
         "trajectory_nrmse": 1.0,
-        "complexity": 0.05
+        "complexity": 0.05,
+        "long_horizon_penalty": 0.0
       },
       "failure_penalty": 100.0
     },
@@ -82,6 +102,22 @@
 - `tournament_selection_n` must be smaller than `population_size`.
 - PySR runs with `deterministic=true` and `parallelism="serial"`.
 - Candidate ranking weights must be non-negative and `max_candidates <= top_k`.
+- Long-horizon dynamics is optional and disabled for historical configurations. When enabled,
+  it requires exactly position and velocity features, at least 64 integration points, an
+  explicitly frozen steady-state fraction in `[0.1, 0.5]`, integration tolerances, initial-state
+  scale, and all scientific tolerances. The deterministic controller evaluates the public
+  contiguous validation reference plus observed, exact-zero, and discovery-scale large initial
+  conditions. `zero_initial_policy` must explicitly choose whether the exact-zero rollout is
+  diagnostic-only (appropriate when zero is an invariant equilibrium) or must converge to the
+  same attractor. `stationary_amplitude_fraction` defines the equilibrium-amplitude threshold
+  relative to the discovery-block robust position scale, so decayed equilibria are not judged
+  against machine epsilon alone. The evaluator emits no pointwise rollout arrays.
+- `long_horizon_penalty` defaults to zero, preserving existing scientific scores. A future
+  confirmatory configuration must freeze a non-zero value before results are observed if the
+  long-horizon verdict is intended to affect candidate selection. Successful integrations use
+  the mean of continuous reference, stationarity, and attractor-error components; the configured
+  failure penalty is reserved for catastrophic integration failure. This preserves a useful
+  search gradient among scientifically incomplete but numerically stable candidates.
 - Residual diagnostics default to enabled. `feature_bins` must be 2-10, `phase_bins`
   4-36, `max_lag` positive, and `high_frequency_fraction` in `(0, 0.5]`.
 - Governed Hamilton rounds must explicitly keep residual diagnostics enabled. Promotion
@@ -122,6 +158,9 @@ The result JSON contains:
   Durbin-Watson statistic, trend, frequency concentration, and—when position/velocity
   are configured—standardized-radius and phase bins;
 - the selected search-space and original-unit equations, scientific score, and selection method;
+- optional public Tier-0 long-horizon summaries: robust steady amplitude, detrended-window FFT
+  frequency, zero/large-initial-condition behavior, stationarity, attractor consistency,
+  structured failure classes, and the ranking penalty;
 - runtime and environment versions;
 - structured error information on failure.
 

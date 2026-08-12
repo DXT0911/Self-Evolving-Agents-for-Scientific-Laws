@@ -56,6 +56,16 @@ def meaningful_config(
     residual = projected["verification"].get("residual_diagnostics")
     if isinstance(residual, dict) and residual.get("enabled") is False:
         projected["verification"].pop("residual_diagnostics")
+    long_horizon = projected["verification"].get("long_horizon_dynamics")
+    if isinstance(long_horizon, dict) and long_horizon.get("enabled") is False:
+        projected["verification"].pop("long_horizon_dynamics")
+    weights = (
+        projected["verification"]
+        .get("candidate_ranking", {})
+        .get("weights")
+    )
+    if isinstance(weights, dict) and weights.get("long_horizon_penalty") == 0.0:
+        weights.pop("long_horizon_penalty")
     if controller_owns_budget:
         projected["search"].pop("max_evals", None)
     # Seeds are frozen by the controller for reproducibility and paired replay.

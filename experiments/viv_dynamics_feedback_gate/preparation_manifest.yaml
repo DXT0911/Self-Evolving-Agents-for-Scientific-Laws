@@ -1,0 +1,91 @@
+schema_version: 1
+experiment_id: viv-dynamics-feedback-public-gate-v1
+status: authorized_waiting_environment
+launch_blocked: true
+execution_permitted: false
+private_ood_permitted: false
+
+permissions:
+  deepseek: true
+  pysr_julia: true
+  private_ood: false
+
+authorization:
+  recorded_date: 2026-08-12
+  source: user_message_all_authorized
+  deepseek_maximum_all_hamilton_arms: 1200000
+  pysr_requested_evaluations_maximum_all_arms: 36000
+  executable_config_materialization: true
+  local_review_commit: true
+  push: false
+
+scope:
+  public_only: true
+  task_ids: [viv_u248]
+  repeats: [repeat_1]
+  arm_ids: [direct_pysr, fit_only_hamilton, dynamics_aware_hamilton]
+  total_arm_runs: 3
+
+public_data:
+  input: playground/hamilton/workspace/input/U248_train.csv
+  sha256: c6d99ed7ee5d7f177195767f232990968c3b9a64e0fbd902fd0dc59feeb52635
+  split: contiguous_first_80_percent_discovery_final_20_percent_validation
+  feature_columns: [x, v]
+  target_column: a
+  time_column: t
+
+seed_plan:
+  repeat_id: repeat_1
+  primary_seed: 2101
+  hamilton_round_seeds: [2101, 2102, 2103]
+
+requested_evaluation_budget:
+  authorization_state: authorized
+  maximum_per_arm: 12000
+  maximum_all_arms: 36000
+  hamilton_round_count: 3
+  hamilton_dynamic_bounds:
+    base_evals: 4000
+    min_evals: 2000
+    max_evals: 6000
+    rounding_quantum: 500
+
+proposed_llm_token_budget:
+  authorization_state: authorized
+  hamilton_arm_count: 2
+  maximum_per_hamilton_arm: 600000
+  maximum_all_hamilton_arms: 1200000
+  discovery_max_per_round: 160000
+  promotion_max_per_round: 160000
+  promotion_max_attempts: 3
+  direct_pysr_tokens: 0
+
+frozen_inputs:
+  protocol:
+    path: experiments/viv_dynamics_feedback_gate/PROTOCOL.md
+    sha256: afbebbab17bc2069c56b44904345b36db96675c5af743f6a2751b499339f05fe
+  arm_specs:
+    path: experiments/viv_dynamics_feedback_gate/arm_specs.yaml
+    sha256: e356a817cec919e689a47161c0ff41cbd4480e492a7aed9ceef94a095c6fff4a
+  calibration_report:
+    path: experiments/hamilton_vs_pysr_governed_search/VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md
+    sha256: 72a3ff4bb10ccb65cda2b6fccf7bd748912cacf24045c8762ffcc92898607809
+  verifier_source:
+    path: evomaster/skills/run-sr-experiment/scripts/run_experiment.py
+    sha256: eb702236a5e96135a74bc39a6719a231443d736704d283a2126f63b742984924
+
+readiness_blockers:
+  - juliapkg_lock_holder_unresolved
+  - pysr_preflight_180_seconds_not_passing
+  - materialize_three_independent_executable_configs
+  - materialize_and_hash_a_new_launch_bundle
+  - capture_environment_and_package_versions
+  - freeze_persistent_background_logging_command
+  - pass_launch_mode_safety_validation
+
+forbidden:
+  - reuse_2026_07_28_authorization
+  - reuse_old_pilot_manifest_as_launch_permission
+  - private_or_ood_access
+  - candidate_or_memory_transfer_between_arms
+  - automatic_launch

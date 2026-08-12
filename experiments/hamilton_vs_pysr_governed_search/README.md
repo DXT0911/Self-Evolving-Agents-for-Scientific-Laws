@@ -48,6 +48,10 @@ The comparison is not an old-Hamilton ablation. Its primary question is:
   equivalence against the controller-only registry.
 - `collect_ground_truth_equivalence.py`: applies the controller-only equivalence checks to
   every completed public result boundary in the launch bundle.
+- `viv_long_horizon_replay.py`: replays the completed public U248 candidates through the
+  deterministic Tier-0 long-horizon verifier without importing PySR or calling an LLM.
+- `VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md`: compact synthetic and historical-candidate
+  calibration report; it is not preregistered evidence or launch authorization.
 - `test_build_launch_bundle.py`, `test_prepare_public_data.py`,
   `test_validate_manifest.py`, `test_evaluation_curves.py`, and
   `test_ground_truth_equivalence.py`: offline contract tests.

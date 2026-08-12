@@ -43,6 +43,10 @@ pilot，不是完整的正式多重复 benchmark，也不能证明普遍优越�
   绝不能进入 Agent workspace。
 - `ground_truth_equivalence.py`：对 controller-only 注册表进行代数、数值和变量选择等价检查。
 - `collect_ground_truth_equivalence.py`：对 launch bundle 中每个已完成公开结果边界应用等价检查。
+- `viv_long_horizon_replay.py`：对公开 U248 历史候选执行事后 Tier 0 长期动力学回放；
+  不导入 PySR，也不调用 LLM。
+- `VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md`：合成系统与历史候选的紧凑校准报告；
+  不属于预注册证据，也不提供运行授权。
 - `test_*.py`：离线契约测试。
 
 ## 离线评价工具

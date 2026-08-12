@@ -518,6 +518,16 @@ def meaningful_config(
     residual = projected["verification"].get("residual_diagnostics")
     if isinstance(residual, dict) and residual.get("enabled") is False:
         projected["verification"].pop("residual_diagnostics")
+    long_horizon = projected["verification"].get("long_horizon_dynamics")
+    if isinstance(long_horizon, dict) and long_horizon.get("enabled") is False:
+        projected["verification"].pop("long_horizon_dynamics")
+    weights = (
+        projected["verification"]
+        .get("candidate_ranking", {})
+        .get("weights")
+    )
+    if isinstance(weights, dict) and weights.get("long_horizon_penalty") == 0.0:
+        weights.pop("long_horizon_penalty")
     if controller_owned_budget:
         projected["search"].pop("max_evals", None)
     # The controller's frozen repeat plan owns seeds. A planned seed change between
@@ -770,6 +780,71 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
             raise ConfigError("verification.short_ode.points must be at least 2")
         positive_float(short_ode.get("state_limit", 1e6), "verification.short_ode.state_limit")
 
+    long_horizon = require_dict(
+        verification.get("long_horizon_dynamics", {"enabled": False}),
+        "verification.long_horizon_dynamics",
+    )
+    if not isinstance(long_horizon.get("enabled"), bool):
+        raise ConfigError("verification.long_horizon_dynamics.enabled must be boolean")
+    if long_horizon["enabled"]:
+        position = long_horizon.get("position_column")
+        velocity = long_horizon.get("velocity_column")
+        if position not in features or velocity not in features or position == velocity:
+            raise ConfigError(
+                "long-horizon position/velocity columns must be distinct feature columns"
+            )
+        if len(features) != 2 or set(features) != {position, velocity}:
+            raise ConfigError(
+                "long-horizon dynamics currently requires exactly position and velocity features"
+            )
+        positive_float(long_horizon.get("duration"), "verification.long_horizon_dynamics.duration")
+        if positive_int(
+            long_horizon.get("points"), "verification.long_horizon_dynamics.points"
+        ) < 64:
+            raise ConfigError("verification.long_horizon_dynamics.points must be at least 64")
+        for name in (
+            "state_limit",
+            "rtol",
+            "atol",
+            "large_initial_scale",
+            "stationary_amplitude_fraction",
+            "amplitude_relative_tolerance",
+            "frequency_relative_tolerance",
+            "stationarity_relative_tolerance",
+            "attractor_relative_tolerance",
+        ):
+            positive_float(
+                long_horizon.get(name),
+                f"verification.long_horizon_dynamics.{name}",
+            )
+        if float(long_horizon["large_initial_scale"]) <= 1.0:
+            raise ConfigError(
+                "verification.long_horizon_dynamics.large_initial_scale must be greater than 1"
+            )
+        steady_fraction = long_horizon.get("steady_state_fraction")
+        if (
+            isinstance(steady_fraction, bool)
+            or not isinstance(steady_fraction, (int, float))
+            or not math.isfinite(steady_fraction)
+            or not 0.1 <= float(steady_fraction) <= 0.5
+        ):
+            raise ConfigError(
+                "verification.long_horizon_dynamics.steady_state_fraction "
+                "must be between 0.1 and 0.5"
+            )
+        positive_float(
+            long_horizon.get("min_steady_cycles"),
+            "verification.long_horizon_dynamics.min_steady_cycles",
+        )
+        if long_horizon.get("zero_initial_policy") not in {
+            "report_only",
+            "require_same_attractor",
+        }:
+            raise ConfigError(
+                "verification.long_horizon_dynamics.zero_initial_policy must be "
+                "'report_only' or 'require_same_attractor'"
+            )
+
     ranking = require_dict(verification.get("candidate_ranking", {"enabled": False}), "verification.candidate_ranking")
     if not isinstance(ranking.get("enabled"), bool):
         raise ConfigError("verification.candidate_ranking.enabled must be boolean")
@@ -790,6 +865,18 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
                 or value < 0
             ):
                 raise ConfigError(f"verification.candidate_ranking.weights.{name} must be non-negative")
+        long_weight = weights.get("long_horizon_penalty", 0.0)
+        if (
+            isinstance(long_weight, bool)
+            or not isinstance(long_weight, (int, float))
+            or not math.isfinite(long_weight)
+            or long_weight < 0
+        ):
+            raise ConfigError(
+                "verification.candidate_ranking.weights.long_horizon_penalty "
+                "must be non-negative"
+            )
+        weights["long_horizon_penalty"] = float(long_weight)
         positive_float(ranking.get("failure_penalty", 100.0), "verification.candidate_ranking.failure_penalty")
 
     residual = require_dict(
@@ -842,6 +929,7 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["data"]["validation_fraction"] = float(validation_fraction)
     normalized["verification"]["candidate_ranking"] = ranking
     normalized["verification"]["residual_diagnostics"] = residual
+    normalized["verification"]["long_horizon_dynamics"] = long_horizon
     apply_controller_seed(
         workspace,
         normalized,
@@ -1416,6 +1504,485 @@ def run_short_ode(
     return record
 
 
+def _relative_error(value: float, reference: float) -> float:
+    scale = max(abs(float(reference)), np.finfo(float).eps)
+    return abs(float(value) - float(reference)) / scale
+
+
+def _steady_state_summary(
+    times: np.ndarray,
+    positions: np.ndarray,
+    steady_fraction: float,
+    min_cycles: float,
+    stationarity_tolerance: float,
+    stationary_scale: float | None = None,
+    stationary_amplitude_fraction: float = 0.0,
+) -> dict[str, Any]:
+    """Summarize a frozen tail window without returning pointwise trajectory data."""
+    count = len(times)
+    tail_count = max(32, int(math.ceil(count * steady_fraction)))
+    if count < 64 or tail_count > count:
+        return {
+            "status": "failed",
+            "failure_class": "insufficient_samples",
+            "reason": "at least 64 total samples and 32 steady-window samples are required",
+        }
+    tail_times = np.asarray(times[-tail_count:], dtype=float)
+    tail_positions = np.asarray(positions[-tail_count:], dtype=float)
+    if not np.isfinite(tail_times).all() or not np.isfinite(tail_positions).all():
+        return {
+            "status": "failed",
+            "failure_class": "non_finite_trajectory",
+            "reason": "steady-state window contains non-finite values",
+        }
+    deltas = np.diff(tail_times)
+    if len(deltas) == 0 or np.any(deltas <= 0):
+        return {
+            "status": "failed",
+            "failure_class": "invalid_time_grid",
+            "reason": "steady-state time grid must be strictly increasing",
+        }
+    dt = float(np.median(deltas))
+    if not np.allclose(deltas, dt, rtol=1e-4, atol=max(1e-12, abs(dt) * 1e-7)):
+        uniform_times = np.linspace(float(tail_times[0]), float(tail_times[-1]), tail_count)
+        tail_positions = np.interp(uniform_times, tail_times, tail_positions)
+        tail_times = uniform_times
+        dt = float(tail_times[1] - tail_times[0])
+
+    quantile_low, quantile_high = np.quantile(tail_positions, [0.05, 0.95])
+    amplitude = 0.5 * float(quantile_high - quantile_low)
+    centered = tail_positions - np.mean(tail_positions)
+    time_centered = tail_times - np.mean(tail_times)
+    slope = float(np.polyfit(time_centered, centered, 1)[0])
+    detrended = centered - slope * time_centered
+    signal_scale = max(float(np.std(tail_positions)), np.finfo(float).eps)
+    stationary_threshold = max(
+        32.0 * np.finfo(float).eps * max(1.0, float(np.max(np.abs(tail_positions)))),
+        float(stationary_amplitude_fraction) * float(stationary_scale or 0.0),
+    )
+    stationary_signal = amplitude <= stationary_threshold
+
+    dominant_frequency: float | None = None
+    observed_cycles: float | None = None
+    frequency_status = "stationary"
+    if not stationary_signal:
+        windowed = detrended * np.hanning(tail_count)
+        powers = np.abs(np.fft.rfft(windowed)) ** 2
+        frequencies = np.fft.rfftfreq(tail_count, d=dt)
+        if len(powers) > 1 and float(np.sum(powers[1:])) > np.finfo(float).eps:
+            dominant_index = int(np.argmax(powers[1:]) + 1)
+            dominant_frequency = float(frequencies[dominant_index])
+            observed_cycles = dominant_frequency * float(tail_times[-1] - tail_times[0])
+            frequency_status = (
+                "completed" if observed_cycles >= min_cycles else "insufficient_cycles"
+            )
+        else:
+            frequency_status = "not_identifiable"
+
+    half = tail_count // 2
+    first_window = tail_positions[:half]
+    second_window = tail_positions[half:]
+    if frequency_status == "completed" and dominant_frequency:
+        cycle_samples = max(4, int(round(1.0 / (dominant_frequency * dt))))
+        complete_cycles = tail_count // cycle_samples
+        if complete_cycles >= 2:
+            cycle_start = tail_count - complete_cycles * cycle_samples
+            first_window = tail_positions[cycle_start : cycle_start + cycle_samples]
+            second_window = tail_positions[-cycle_samples:]
+    first_amplitude = 0.5 * float(
+        np.quantile(first_window, 0.95) - np.quantile(first_window, 0.05)
+    )
+    second_amplitude = 0.5 * float(
+        np.quantile(second_window, 0.95) - np.quantile(second_window, 0.05)
+    )
+    amplitude_drift = abs(second_amplitude - first_amplitude) / max(
+        amplitude, np.finfo(float).eps
+    )
+    first_center = 0.5 * float(
+        np.quantile(first_window, 0.95) + np.quantile(first_window, 0.05)
+    )
+    second_center = 0.5 * float(
+        np.quantile(second_window, 0.95) + np.quantile(second_window, 0.05)
+    )
+    center_drift = abs(second_center - first_center) / max(
+        amplitude, signal_scale, np.finfo(float).eps
+    )
+    stationarity_pass = bool(
+        stationary_signal
+        or (
+            amplitude_drift <= stationarity_tolerance
+            and center_drift <= stationarity_tolerance
+            and frequency_status == "completed"
+        )
+    )
+    return {
+        "status": "completed",
+        "window": {
+            "start_time": float(tail_times[0]),
+            "end_time": float(tail_times[-1]),
+            "samples": tail_count,
+            "fraction": float(steady_fraction),
+        },
+        "amplitude": {
+            "method": "half_5_to_95_percentile_span",
+            "value": amplitude,
+        },
+        "dominant_frequency_hz": dominant_frequency,
+        "frequency_status": frequency_status,
+        "observed_cycles": observed_cycles,
+        "stationarity": {
+            "amplitude_relative_drift": amplitude_drift,
+            "center_relative_drift": center_drift,
+            "tolerance": float(stationarity_tolerance),
+            "passed": bool(stationarity_pass),
+        },
+        "qualitative_behavior": "stationary" if stationary_signal else "oscillatory",
+        "stationary_amplitude_threshold": stationary_threshold,
+    }
+
+
+def run_long_horizon_dynamics(
+    expression: Any,
+    config: dict[str, Any],
+    train: pd.DataFrame,
+    validation: pd.DataFrame,
+) -> dict[str, Any]:
+    """Evaluate public Tier-0 long-horizon dynamics from deterministic initial states."""
+    dynamics_cfg = config["verification"]["long_horizon_dynamics"]
+    if not dynamics_cfg["enabled"]:
+        return {"enabled": False, "status": "skipped", "ranking_penalty": 0.0}
+
+    from scipy.integrate import solve_ivp
+    import sympy
+
+    features = config["data"]["feature_columns"]
+    position = dynamics_cfg["position_column"]
+    velocity = dynamics_cfg["velocity_column"]
+    time_column = config["data"]["time_column"]
+    symbols = [sympy.Symbol(name) for name in features]
+    acceleration = sympy.lambdify(symbols, expression, modules="numpy")
+    order = {name: index for index, name in enumerate(features)}
+    state_limit = float(dynamics_cfg["state_limit"])
+    duration = float(dynamics_cfg["duration"])
+    points = int(dynamics_cfg["points"])
+    steady_fraction = float(dynamics_cfg["steady_state_fraction"])
+    min_cycles = float(dynamics_cfg["min_steady_cycles"])
+    stationarity_tolerance = float(dynamics_cfg["stationarity_relative_tolerance"])
+
+    discovery_scales = {
+        name: max(
+            float(np.quantile(np.abs(train[name].to_numpy(dtype=float)), 0.95)),
+            float(np.std(train[name].to_numpy(dtype=float))),
+            np.finfo(float).eps,
+        )
+        for name in (position, velocity)
+    }
+
+    reference = _steady_state_summary(
+        validation[time_column].to_numpy(dtype=float),
+        validation[position].to_numpy(dtype=float),
+        steady_fraction,
+        min_cycles,
+        stationarity_tolerance,
+        discovery_scales[position],
+        float(dynamics_cfg["stationary_amplitude_fraction"]),
+    )
+    if reference.get("status") != "completed":
+        return {
+            "enabled": True,
+            "status": "failed",
+            "failure_class": "reference_unavailable",
+            "reason": reference.get("reason"),
+            "reference": reference,
+            "ranking_penalty": float(
+                config["verification"]["candidate_ranking"].get("failure_penalty", 100.0)
+            ),
+        }
+
+    initial_states = {
+        "observed_validation": [
+            float(validation.iloc[0][position]),
+            float(validation.iloc[0][velocity]),
+        ],
+        "zero": [0.0, 0.0],
+        "large": [
+            float(dynamics_cfg["large_initial_scale"]) * discovery_scales[position],
+            float(dynamics_cfg["large_initial_scale"]) * discovery_scales[velocity],
+        ],
+    }
+    t_eval = np.linspace(0.0, duration, points)
+
+    def rhs(_time: float, state: np.ndarray) -> list[float]:
+        if not np.isfinite(state).all():
+            raise FloatingPointError("candidate state became non-finite")
+        if np.max(np.abs(state)) > state_limit:
+            raise OverflowError(f"candidate state exceeded state_limit={state_limit}")
+        feature_values = [0.0] * len(features)
+        feature_values[order[position]] = float(state[0])
+        feature_values[order[velocity]] = float(state[1])
+        value = float(acceleration(*feature_values))
+        if not math.isfinite(value):
+            raise FloatingPointError("candidate acceleration became non-finite")
+        if abs(value) > state_limit**2:
+            raise OverflowError("candidate acceleration exceeded the deterministic limit")
+        return [float(state[1]), value]
+
+    rollouts: dict[str, Any] = {}
+    for label, initial_state in initial_states.items():
+        try:
+            solution = solve_ivp(
+                rhs,
+                (0.0, duration),
+                initial_state,
+                method="DOP853",
+                t_eval=t_eval,
+                rtol=float(dynamics_cfg["rtol"]),
+                atol=float(dynamics_cfg["atol"]),
+                max_step=duration / max(points - 1, 1),
+            )
+            if not solution.success or len(solution.t) != points:
+                rollouts[label] = {
+                    "status": "failed",
+                    "failure_class": "solver_failed",
+                    "reason": str(solution.message),
+                    "initial_state": {position: initial_state[0], velocity: initial_state[1]},
+                }
+                continue
+            summary = _steady_state_summary(
+                solution.t,
+                solution.y[0],
+                steady_fraction,
+                min_cycles,
+                stationarity_tolerance,
+                discovery_scales[position],
+                float(dynamics_cfg["stationary_amplitude_fraction"]),
+            )
+            summary["initial_state"] = {
+                position: initial_state[0],
+                velocity: initial_state[1],
+            }
+            summary["final_state"] = {
+                position: float(solution.y[0, -1]),
+                velocity: float(solution.y[1, -1]),
+            }
+            rollouts[label] = summary
+        except OverflowError as exc:
+            rollouts[label] = {
+                "status": "failed",
+                "failure_class": "state_limit_exceeded",
+                "reason": str(exc),
+                "initial_state": {position: initial_state[0], velocity: initial_state[1]},
+            }
+        except (FloatingPointError, ValueError, TypeError) as exc:
+            rollouts[label] = {
+                "status": "failed",
+                "failure_class": "non_finite_rhs",
+                "reason": str(exc),
+                "initial_state": {position: initial_state[0], velocity: initial_state[1]},
+            }
+
+    completed = [item for item in rollouts.values() if item.get("status") == "completed"]
+    integration_pass = len(completed) == len(initial_states)
+    observed = rollouts.get("observed_validation", {})
+    reference_amplitude = float(reference["amplitude"]["value"])
+    observed_amplitude = (
+        float(observed["amplitude"]["value"])
+        if observed.get("status") == "completed"
+        else None
+    )
+    if (
+        reference.get("qualitative_behavior") == "stationary"
+        and observed.get("qualitative_behavior") == "stationary"
+    ):
+        amplitude_error = 0.0
+    else:
+        amplitude_error = (
+            _relative_error(observed_amplitude, reference_amplitude)
+            if observed_amplitude is not None
+            else None
+        )
+    reference_frequency = reference.get("dominant_frequency_hz")
+    observed_frequency = observed.get("dominant_frequency_hz")
+    if (
+        reference.get("qualitative_behavior") == "stationary"
+        and observed.get("qualitative_behavior") == "stationary"
+    ):
+        frequency_error = 0.0
+        frequency_comparison = "both_stationary"
+    elif observed_frequency is not None and reference_frequency is not None:
+        frequency_error = _relative_error(
+            float(observed_frequency),
+            float(reference_frequency),
+        )
+        frequency_comparison = "dominant_frequency"
+    else:
+        frequency_error = None
+        frequency_comparison = "not_comparable"
+    reference_match = {
+        "amplitude_relative_error": amplitude_error,
+        "frequency_relative_error": frequency_error,
+        "frequency_comparison": frequency_comparison,
+        "amplitude_tolerance": float(dynamics_cfg["amplitude_relative_tolerance"]),
+        "frequency_tolerance": float(dynamics_cfg["frequency_relative_tolerance"]),
+        "passed": bool(
+            amplitude_error is not None
+            and frequency_error is not None
+            and amplitude_error <= float(dynamics_cfg["amplitude_relative_tolerance"])
+            and frequency_error <= float(dynamics_cfg["frequency_relative_tolerance"])
+        ),
+    }
+
+    pairwise: list[dict[str, Any]] = []
+    labels = ["observed_validation", "large"]
+    if dynamics_cfg["zero_initial_policy"] == "require_same_attractor":
+        labels.append("zero")
+    for left_index, left_label in enumerate(labels):
+        for right_label in labels[left_index + 1 :]:
+            left = rollouts[left_label]
+            right = rollouts[right_label]
+            amplitude_difference = None
+            frequency_difference = None
+            if left.get("status") == "completed" and right.get("status") == "completed":
+                if (
+                    left.get("qualitative_behavior") == "stationary"
+                    and right.get("qualitative_behavior") == "stationary"
+                ):
+                    amplitude_difference = 0.0
+                    frequency_difference = 0.0
+                else:
+                    amplitude_difference = _relative_error(
+                        float(left["amplitude"]["value"]),
+                        float(right["amplitude"]["value"]),
+                    )
+                if frequency_difference is None and (
+                    left.get("dominant_frequency_hz") is not None
+                    and right.get("dominant_frequency_hz") is not None
+                ):
+                    frequency_difference = _relative_error(
+                        float(left["dominant_frequency_hz"]),
+                        float(right["dominant_frequency_hz"]),
+                    )
+            tolerance = float(dynamics_cfg["attractor_relative_tolerance"])
+            pairwise.append(
+                {
+                    "initial_conditions": [left_label, right_label],
+                    "amplitude_relative_difference": amplitude_difference,
+                    "frequency_relative_difference": frequency_difference,
+                    "passed": bool(
+                        amplitude_difference is not None
+                        and frequency_difference is not None
+                        and amplitude_difference <= tolerance
+                        and frequency_difference <= tolerance
+                    ),
+                }
+            )
+    attractor_consistency = {
+        "tolerance": float(dynamics_cfg["attractor_relative_tolerance"]),
+        "pairwise": pairwise,
+        "passed": bool(pairwise and all(item["passed"] for item in pairwise)),
+    }
+    stationarity_pass = bool(
+        completed and len(completed) == len(initial_states)
+        and all(item["stationarity"]["passed"] for item in completed)
+    )
+    overall_pass = bool(
+        integration_pass
+        and stationarity_pass
+        and reference_match["passed"]
+        and attractor_consistency["passed"]
+    )
+    failure_classes = sorted(
+        {
+            item.get("failure_class")
+            for item in rollouts.values()
+            if item.get("status") != "completed" and item.get("failure_class")
+        }
+    )
+    if not stationarity_pass:
+        failure_classes.append("nonstationary_or_unresolved_tail")
+    if not reference_match["passed"]:
+        failure_classes.append("reference_mismatch")
+    if not attractor_consistency["passed"]:
+        failure_classes.append("attractor_mismatch")
+
+    failure_penalty = float(
+        config["verification"]["candidate_ranking"].get("failure_penalty", 100.0)
+    )
+    score_components: dict[str, float] = {}
+
+    def score_value(name: str, value: float | None) -> None:
+        score_components[name] = (
+            min(float(value), failure_penalty)
+            if value is not None and math.isfinite(value)
+            else 1.0
+        )
+
+    score_value("reference_amplitude_relative_error", amplitude_error)
+    score_value("reference_frequency_relative_error", frequency_error)
+    required_stationarity = ["observed_validation", "large"]
+    if dynamics_cfg["zero_initial_policy"] == "require_same_attractor":
+        required_stationarity.append("zero")
+    for label in required_stationarity:
+        item = rollouts[label]
+        stationarity = item.get("stationarity", {})
+        if item.get("status") != "completed":
+            score_components[f"stationarity_{label}"] = failure_penalty
+        elif stationarity.get("passed"):
+            score_components[f"stationarity_{label}"] = 0.0
+        else:
+            amplitude_excess = float(
+                stationarity.get("amplitude_relative_drift", failure_penalty)
+            ) / stationarity_tolerance
+            center_excess = float(
+                stationarity.get("center_relative_drift", failure_penalty)
+            ) / stationarity_tolerance
+            score_components[f"stationarity_{label}"] = min(
+                max(1.0, amplitude_excess, center_excess),
+                failure_penalty,
+            )
+    for item in pairwise:
+        label = "_vs_".join(item["initial_conditions"])
+        score_value(
+            f"attractor_amplitude_{label}",
+            item["amplitude_relative_difference"],
+        )
+        score_value(
+            f"attractor_frequency_{label}",
+            item["frequency_relative_difference"],
+        )
+    ranking_penalty = (
+        failure_penalty
+        if not integration_pass
+        else float(np.mean(list(score_components.values())))
+    )
+    return {
+        "enabled": True,
+        "status": "completed",
+        "tier": "public_tier0",
+        "definition": "deterministic_long_horizon_candidate_dynamics",
+        "reference": reference,
+        "initial_condition_policy": {
+            "observed_validation": "first state of the public contiguous validation block",
+            "zero": "exact zero position and velocity",
+            "large": "positive discovery-block 95th-absolute scale times large_initial_scale",
+            "zero_initial_policy": dynamics_cfg["zero_initial_policy"],
+            "discovery_scales": discovery_scales,
+        },
+        "rollouts": rollouts,
+        "gates": {
+            "integration": integration_pass,
+            "stationarity": stationarity_pass,
+            "reference_match": reference_match,
+            "attractor_consistency": attractor_consistency,
+            "overall_pass": overall_pass,
+        },
+        "failure_classes": sorted(set(failure_classes)),
+        "ranking_penalty": ranking_penalty,
+        "ranking_penalty_definition": "mean_continuous_long_horizon_error_components",
+        "ranking_penalty_components": score_components,
+    }
+
+
 def finite_predictions(expression: Any, features: list[str], frame: pd.DataFrame) -> np.ndarray:
     import sympy
 
@@ -1526,7 +2093,25 @@ def evaluate_candidates(
                 ode = run_short_ode(expression, config, validation)
             except Exception as exc:
                 ode = {"enabled": True, "status": "failed", "reason": str(exc)}
-            record["verification"] = {"short_ode": ode}
+            try:
+                long_horizon = run_long_horizon_dynamics(
+                    expression,
+                    config,
+                    train,
+                    validation,
+                )
+            except Exception as exc:
+                long_horizon = {
+                    "enabled": True,
+                    "status": "failed",
+                    "failure_class": "evaluator_error",
+                    "reason": str(exc),
+                    "ranking_penalty": float(ranking.get("failure_penalty", 100.0)),
+                }
+            record["verification"] = {
+                "short_ode": ode,
+                "long_horizon_dynamics": long_horizon,
+            }
 
             validation_nrmse = validation_metrics["rmse"] / validation_scale
             trajectory_nrmse = (
@@ -1537,17 +2122,25 @@ def evaluate_candidates(
             complexity_normalized = record["complexity"] / search["maxsize"]
             weights = ranking.get(
                 "weights",
-                {"validation_nrmse": 1.0, "trajectory_nrmse": 0.0, "complexity": 0.0},
+                {
+                    "validation_nrmse": 1.0,
+                    "trajectory_nrmse": 0.0,
+                    "complexity": 0.0,
+                    "long_horizon_penalty": 0.0,
+                },
             )
+            long_horizon_penalty = float(long_horizon.get("ranking_penalty", 0.0))
             scientific_score = (
                 float(weights["validation_nrmse"]) * validation_nrmse
                 + float(weights["trajectory_nrmse"]) * trajectory_nrmse
                 + float(weights["complexity"]) * complexity_normalized
+                + float(weights.get("long_horizon_penalty", 0.0)) * long_horizon_penalty
             )
             record["ranking"] = {
                 "validation_nrmse": validation_nrmse,
                 "trajectory_nrmse": trajectory_nrmse,
                 "complexity_normalized": complexity_normalized,
+                "long_horizon_penalty": long_horizon_penalty,
                 "scientific_score": scientific_score,
             }
         except Exception as exc:
@@ -1726,6 +2319,13 @@ def compact_summary(result: dict[str, Any], result_path: Path | None) -> dict[st
                 "validation_mse": result["metrics"]["validation"]["mse"],
                 "validation_r2": result["metrics"]["validation"]["r2"],
                 "ode_status": result["verification"]["short_ode"]["status"],
+                "long_horizon_status": result["verification"]
+                .get("long_horizon_dynamics", {})
+                .get("status", "skipped"),
+                "long_horizon_pass": result["verification"]
+                .get("long_horizon_dynamics", {})
+                .get("gates", {})
+                .get("overall_pass"),
                 "residual_diagnostics_status": result["verification"][
                     "residual_diagnostics"
                 ]["status"],

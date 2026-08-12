@@ -11,6 +11,7 @@ Generated inputs, launch bundles, checkpoints, and complete run workspaces remai
 | Experiment | Status | Primary report |
 |---|---|---|
 | [`hamilton_vs_pysr_governed_search/`](hamilton_vs_pysr_governed_search/) | Public 9-arm operational gate completed; formal multi-repeat study not run | [`OPERATIONAL_GATE_STATUS_2026-07-28.md`](hamilton_vs_pysr_governed_search/OPERATIONAL_GATE_STATUS_2026-07-28.md) |
+| [`viv_dynamics_feedback_gate/`](viv_dynamics_feedback_gate/) | Non-executable preparation state; awaiting separate authorization | [`PROTOCOL.md`](viv_dynamics_feedback_gate/PROTOCOL.md) |
 
 The completed gate used three public tasks, one repeat, and no private/OOD access. It is a
 pilot signal, not evidence of general superiority. See the experiment README for the

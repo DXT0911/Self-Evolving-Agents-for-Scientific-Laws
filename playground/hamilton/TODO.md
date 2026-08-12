@@ -101,7 +101,10 @@ workspace/
   对照实验；准备态清单禁止调用 LLM、PySR/Julia 和 private/OOD
 - [x] P1：完成三个公开任务、每个任务一个重复的 9-arm 运行门；结果为混合正信号，
   不是正式多重复 benchmark 结论
-- [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
+- [x] P1：扩展公开 Tier 0 长期 VIV 动力学验证器（稳态振幅、频率、零/大初值、
+  吸引子一致性、结构化稳定性失败和可选 scientific-score penalty）
+- [x] P1：用合成稳定平衡、极限环、发散、漂移、周期不足和非均匀网格校准长期验证器，
+  并对公开 U248 运行门的七个历史候选完成事后敏感性回放
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收
 - [x] P2：增加 controller-only ground truth 注册表、代数/挑战网格等价验证和

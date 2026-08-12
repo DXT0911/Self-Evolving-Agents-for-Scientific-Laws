@@ -541,6 +541,226 @@ class StandardRunnerContractTests(unittest.TestCase):
         with self.assertRaisesRegex(RUNNER.ConfigError, "feature_bins must be between"):
             RUNNER.load_and_validate(self.write_config(config), self.workspace)
 
+    def test_long_horizon_contract_requires_explicit_frozen_fields(self) -> None:
+        config = valid_config()
+        config["verification"]["long_horizon_dynamics"] = {
+            "enabled": True,
+            "position_column": "x",
+            "velocity_column": "v",
+            "duration": 20.0,
+            "points": 100,
+        }
+        with self.assertRaisesRegex(RUNNER.ConfigError, "state_limit"):
+            RUNNER.load_and_validate(self.write_config(config), self.workspace)
+
+    def test_steady_state_summary_extracts_robust_amplitude_and_frequency(self) -> None:
+        times = np.linspace(0.0, 40.0, 4001)
+        positions = 2.0 * np.sin(2.0 * np.pi * 0.5 * times)
+        result = RUNNER._steady_state_summary(
+            times,
+            positions,
+            steady_fraction=0.5,
+            min_cycles=3.0,
+            stationarity_tolerance=0.1,
+        )
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["frequency_status"], "completed")
+        self.assertAlmostEqual(result["dominant_frequency_hz"], 0.5, delta=0.01)
+        self.assertAlmostEqual(result["amplitude"]["value"], 2.0, delta=0.05)
+        self.assertTrue(result["stationarity"]["passed"])
+
+    def test_long_horizon_reports_zero_and_large_initial_condition_mismatch(self) -> None:
+        times = np.linspace(0.0, 50.0, 5001)
+        frame = pd.DataFrame(
+            {
+                "t": times,
+                "x": np.sin(times),
+                "v": np.cos(times),
+                "a": -np.sin(times),
+            }
+        )
+        config = valid_config()
+        config["verification"]["candidate_ranking"] = {
+            "enabled": True,
+            "max_candidates": 1,
+            "weights": {
+                "validation_nrmse": 1.0,
+                "trajectory_nrmse": 0.0,
+                "complexity": 0.0,
+                "long_horizon_penalty": 1.0,
+            },
+            "failure_penalty": 77.0,
+        }
+        config["verification"]["long_horizon_dynamics"] = {
+            "enabled": True,
+            "position_column": "x",
+            "velocity_column": "v",
+            "duration": 50.0,
+            "points": 2500,
+            "steady_state_fraction": 0.4,
+            "min_steady_cycles": 3.0,
+            "state_limit": 100.0,
+            "rtol": 1e-8,
+            "atol": 1e-10,
+            "large_initial_scale": 2.0,
+            "stationary_amplitude_fraction": 0.001,
+            "zero_initial_policy": "report_only",
+            "amplitude_relative_tolerance": 0.1,
+            "frequency_relative_tolerance": 0.1,
+            "stationarity_relative_tolerance": 0.1,
+            "attractor_relative_tolerance": 0.1,
+        }
+
+        result = RUNNER.run_long_horizon_dynamics(
+            -sympy.Symbol("x"),
+            config,
+            frame.iloc[:4000].copy(),
+            frame.iloc[4000:].copy(),
+        )
+
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(
+            result["rollouts"]["zero"]["qualitative_behavior"],
+            "stationary",
+        )
+        self.assertFalse(result["gates"]["attractor_consistency"]["passed"])
+        self.assertFalse(result["gates"]["overall_pass"])
+        self.assertIn("attractor_mismatch", result["failure_classes"])
+        self.assertGreater(result["ranking_penalty"], 0.0)
+        self.assertLess(result["ranking_penalty"], 77.0)
+        self.assertIn(
+            "attractor_amplitude_observed_validation_vs_large",
+            result["ranking_penalty_components"],
+        )
+        self.assertNotIn("positions", result["rollouts"]["observed_validation"])
+
+    @staticmethod
+    def long_horizon_config(*, zero_policy: str = "report_only") -> dict:
+        config = valid_config()
+        config["verification"]["candidate_ranking"] = {
+            "enabled": True,
+            "max_candidates": 1,
+            "weights": {
+                "validation_nrmse": 1.0,
+                "trajectory_nrmse": 0.0,
+                "complexity": 0.0,
+                "long_horizon_penalty": 1.0,
+            },
+            "failure_penalty": 91.0,
+        }
+        config["verification"]["long_horizon_dynamics"] = {
+            "enabled": True,
+            "position_column": "x",
+            "velocity_column": "v",
+            "duration": 60.0,
+            "points": 2400,
+            "steady_state_fraction": 0.4,
+            "min_steady_cycles": 3.0,
+            "state_limit": 100.0,
+            "rtol": 1e-8,
+            "atol": 1e-10,
+            "large_initial_scale": 2.0,
+            "stationary_amplitude_fraction": 0.001,
+            "zero_initial_policy": zero_policy,
+            "amplitude_relative_tolerance": 0.15,
+            "frequency_relative_tolerance": 0.05,
+            "stationarity_relative_tolerance": 0.1,
+            "attractor_relative_tolerance": 0.15,
+        }
+        return config
+
+    def test_long_horizon_accepts_damped_equilibrium_from_multiple_initial_states(self) -> None:
+        times = np.linspace(0.0, 100.0, 5001)
+        decay = np.exp(-0.2 * times)
+        frame = pd.DataFrame(
+            {
+                "t": times,
+                "x": decay * np.cos(times),
+                "v": decay * (-0.2 * np.cos(times) - np.sin(times)),
+            }
+        )
+        frame["a"] = -0.4 * frame["v"] - 1.04 * frame["x"]
+        result = RUNNER.run_long_horizon_dynamics(
+            -0.4 * sympy.Symbol("v") - 1.04 * sympy.Symbol("x"),
+            self.long_horizon_config(),
+            frame.iloc[:4000].copy(),
+            frame.iloc[4000:].copy(),
+        )
+        self.assertTrue(result["gates"]["overall_pass"])
+        self.assertEqual(
+            result["gates"]["reference_match"]["frequency_comparison"],
+            "both_stationary",
+        )
+        self.assertTrue(result["gates"]["attractor_consistency"]["passed"])
+
+    def test_long_horizon_accepts_van_der_pol_limit_cycle_for_nonzero_states(self) -> None:
+        from scipy.integrate import solve_ivp
+
+        times = np.linspace(0.0, 100.0, 5001)
+
+        def rhs(_time, state):
+            return [state[1], (1.0 - state[0] ** 2) * state[1] - state[0]]
+
+        solution = solve_ivp(
+            rhs,
+            (0.0, 100.0),
+            [0.1, 0.0],
+            t_eval=times,
+            method="DOP853",
+            rtol=1e-10,
+            atol=1e-12,
+        )
+        frame = pd.DataFrame(
+            {"t": times, "x": solution.y[0], "v": solution.y[1]}
+        )
+        frame["a"] = (1.0 - frame["x"] ** 2) * frame["v"] - frame["x"]
+        x, v = sympy.symbols("x v")
+        result = RUNNER.run_long_horizon_dynamics(
+            (1 - x**2) * v - x,
+            self.long_horizon_config(),
+            frame.iloc[:2000].copy(),
+            frame.iloc[2000:].copy(),
+        )
+        self.assertTrue(result["gates"]["overall_pass"])
+        self.assertEqual(result["rollouts"]["zero"]["qualitative_behavior"], "stationary")
+
+    def test_long_horizon_classifies_unstable_candidate(self) -> None:
+        times = np.linspace(0.0, 80.0, 4001)
+        frame = pd.DataFrame(
+            {"t": times, "x": np.sin(times), "v": np.cos(times), "a": -np.sin(times)}
+        )
+        config = self.long_horizon_config()
+        config["verification"]["long_horizon_dynamics"]["state_limit"] = 10.0
+        result = RUNNER.run_long_horizon_dynamics(
+            sympy.Symbol("v") - sympy.Symbol("x"),
+            config,
+            frame.iloc[:3200].copy(),
+            frame.iloc[3200:].copy(),
+        )
+        self.assertFalse(result["gates"]["overall_pass"])
+        self.assertTrue(
+            {"state_limit_exceeded", "solver_failed"}.intersection(result["failure_classes"])
+        )
+
+    def test_steady_state_summary_rejects_drift_and_insufficient_cycles(self) -> None:
+        times = np.linspace(0.0, 40.0, 4001)
+        drift = np.sin(2.0 * np.pi * 0.5 * times) + 0.08 * times
+        drifting = RUNNER._steady_state_summary(times, drift, 0.5, 3.0, 0.1)
+        self.assertFalse(drifting["stationarity"]["passed"])
+
+        slow = np.sin(2.0 * np.pi * 0.02 * times)
+        unresolved = RUNNER._steady_state_summary(times, slow, 0.5, 3.0, 0.1)
+        self.assertEqual(unresolved["frequency_status"], "insufficient_cycles")
+        self.assertFalse(unresolved["stationarity"]["passed"])
+
+    def test_steady_state_summary_handles_nonuniform_time_grid(self) -> None:
+        increments = 0.01 * (1.0 + 0.1 * np.sin(np.arange(4000)))
+        times = np.concatenate([[0.0], np.cumsum(increments)])
+        positions = 1.5 * np.sin(2.0 * np.pi * 0.4 * times)
+        result = RUNNER._steady_state_summary(times, positions, 0.5, 3.0, 0.15)
+        self.assertEqual(result["frequency_status"], "completed")
+        self.assertAlmostEqual(result["dominant_frequency_hz"], 0.4, delta=0.02)
+
     def test_structured_residual_diagnostics_find_state_and_time_patterns(self) -> None:
         config = valid_config()
         config["verification"]["residual_diagnostics"] = {
