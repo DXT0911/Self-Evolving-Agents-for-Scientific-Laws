@@ -84,7 +84,7 @@ workspace/
 - [x] token/evaluation 预算与 Julia/PySR controller preflight
 - [x] Promotion 从 RoundExp 拆为 EvoMaster 原生 `PromotionExp(BaseExp)` 阶段
 - [x] Promotion 结果冻结、SHA-256 恢复检查、独立 token 预算和尝试上限
-- [x] 53 项 runner、phase orchestration、closure、governance、安全、OOD 和 preflight 合约测试
+- [x] runner、phase orchestration、closure、governance、安全、OOD 和 preflight 合约测试
 - [x] README.md 重写（单 Agent + HCC 架构）
 - [x] L1 trace.md 移入 round 目录（不再覆写根目录 execution_trace.md）
 
@@ -99,10 +99,13 @@ workspace/
 - [x] P0：按物理尝试预扣并累计 accepted/rejected/failed/replayed PySR evaluation 预算
 - [x] P1：预注册 governed Hamilton、ordinary PySR 与 matched-restart PySR 的公开数据
   对照实验；准备态清单禁止调用 LLM、PySR/Julia 和 private/OOD
+- [x] P1：完成三个公开任务、每个任务一个重复的 9-arm 运行门；结果为混合正信号，
+  不是正式多重复 benchmark 结论
 - [ ] P1：扩展长期 VIV 动力学验证器（稳态振幅、频率、零/大初值和吸引子一致性）
 - [ ] P1：冻结 direct PySR、fit-only Hamilton、dynamics-aware Hamilton 的可比配置
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收
-- [ ] P2：增加已知 ground truth 且无答案泄露的合成方程 benchmark
+- [x] P2：增加 controller-only ground truth 注册表、代数/挑战网格等价验证和
+  不向 Agent 泄露答案的公开静态/动力学任务基础设施
 
 R1--R8 受控实验已完成。当前 incumbent 为 `1.1619 - 1.8606x³`，scientific score 为
 `0.954`，但速度依赖、验证 R² 和 scientific score 成功门槛均未通过。该结果证明严格多轮闭环

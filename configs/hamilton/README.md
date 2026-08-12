@@ -1,5 +1,7 @@
 # Hamilton configuration catalog
 
+Chinese translation: [`README.zh-CN.md`](README.zh-CN.md).
+
 `config.yaml` is the canonical development entry point. It enables benchmark isolation,
 literature grounding, the standard SR runner, scientific governance, and controller-side
 PySR preflight. It is not yet a frozen formal-experiment configuration.
@@ -42,6 +44,10 @@ Do not start a new experiment from these files. Some include relative
 others predate the current search-control contract. A formal experiment must use a new
 descriptive configuration, an explicit validated workspace, and a frozen cumulative
 budget.
+
+Keep these filenames and locations stable: dated reports and local evidence may refer to
+them directly. Organize them through this catalog rather than moving them into a new
+directory without a separately reviewed compatibility migration.
 
 ## Prompt locations
 

@@ -1,17 +1,24 @@
 # Governed Hamilton versus fixed PySR
 
+Chinese translation: [`README.zh-CN.md`](README.zh-CN.md).
+
 This directory contains the preregistration and offline preparation for a controlled
 comparison of the current governed Hamilton search controller with fixed PySR search.
 
 ## Current status
 
-`frozen_waiting_authorization`
+`public_operational_gate_completed`
 
-The task specs, initial numerical search configuration, seed plan, Hamilton dynamic-budget
-bounds, and cumulative ceiling are frozen. Hamilton runs first. Only after its evaluation
-ledger is frozen are the paired ordinary- and fixed-schedule-PySR configurations
-materialized with exactly the same realized budget. Execution remains hard-disabled until
-the user gives separate DeepSeek and PySR/Julia authorizations.
+The three-task, one-repeat public operational gate completed all nine arms. Hamilton ran
+first, and the two baselines received its frozen realized budget trace. No private/OOD
+asset was accessed. The result is a runtime pilot with mixed positive signals, not a
+completed formal multi-repeat benchmark or proof of general superiority.
+
+Read [`OPERATIONAL_GATE_STATUS_2026-07-28.md`](OPERATIONAL_GATE_STATUS_2026-07-28.md) for
+the compact Chinese report. The `frozen_waiting_authorization` value preserved in
+`arm_contracts.yaml` describes the pre-execution frozen contract; it is historical contract
+metadata, not the current experiment status. The operational-gate authorization is spent
+and does not authorize any further DeepSeek or PySR/Julia execution.
 
 The comparison is not an old-Hamilton ablation. Its primary question is:
 
@@ -41,6 +48,9 @@ The comparison is not an old-Hamilton ablation. Its primary question is:
   equivalence against the controller-only registry.
 - `collect_ground_truth_equivalence.py`: applies the controller-only equivalence checks to
   every completed public result boundary in the launch bundle.
+- `test_build_launch_bundle.py`, `test_prepare_public_data.py`,
+  `test_validate_manifest.py`, `test_evaluation_curves.py`, and
+  `test_ground_truth_equivalence.py`: offline contract tests.
 
 ## Offline evaluation utilities
 
@@ -64,8 +74,6 @@ not applicable because it has no unique registered ground-truth equation.
 For the already completed pilot these definitions are post-hoc exploratory diagnostics:
 the interpolation rule, challenge grid, and tolerances were added after outcomes existed.
 They must be frozen before any later repeat if they are to support confirmatory claims.
-- `test_build_launch_bundle.py`, `test_prepare_public_data.py`,
-  `test_validate_manifest.py`: offline contract tests.
 
 ## Offline validation
 
@@ -100,18 +108,21 @@ python -m experiments.hamilton_vs_pysr_governed_search.prepare_public_data `
   experiments/hamilton_vs_pysr_governed_search/pilot_manifest.yaml
 ```
 
-## Required decisions before any run
+## Required decisions before any further run
 
-The remaining launch gates are:
+Any new repeat or expanded task set is a new execution decision. Before it starts:
 
-1. Authorize the frozen cumulative PySR evaluation budget together with PySR/Julia use.
-2. Separately authorize DeepSeek use under the frozen Hamilton token ceilings.
-3. After both approvals, run the 9-job public operational gate before the remaining pilot.
+1. Freeze the intended task/repeat scope and a new cumulative PySR evaluation budget.
+2. Freeze the post-hoc AUC and equivalence definitions before observing new outcomes if
+   they will be used as confirmatory metrics.
+3. Separately authorize DeepSeek and PySR/Julia for that new scope.
+4. Continue to prohibit private/OOD access unless a later Tier decision is independently
+   authorized.
 
-Within each task/repeat, execution order is Hamilton → freeze allowances and seeds →
-ordinary PySR plus fixed-schedule PySR. Hamilton has a 12,000 ceiling with dynamic bounds
-`min=2,000`, `base=4,000`, and `max=6,000`; both baselines receive only its realized
-evaluations.
+The preserved pairing rule remains Hamilton → freeze allowances and seeds → ordinary PySR
+plus fixed-schedule PySR. The completed operational gate used a 12,000 ceiling per task and
+the dynamic bounds recorded in the frozen manifest. Those spent allowances must not be
+silently reused as authorization for future runs.
 
 The ten external pilot inputs have been selected, downloaded at a pinned PMLB revision,
 and fingerprinted in `pilot_manifest.yaml`. Their bytes remain in the Git-ignored

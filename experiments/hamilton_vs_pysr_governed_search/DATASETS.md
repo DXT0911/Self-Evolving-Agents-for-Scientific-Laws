@@ -1,5 +1,7 @@
 # Dataset selection and acquisition plan
 
+Chinese translation: [`DATASETS.zh-CN.md`](DATASETS.zh-CN.md).
+
 ## Selection principles
 
 The benchmark must separate search-control ability from VIV-specific identifiability.

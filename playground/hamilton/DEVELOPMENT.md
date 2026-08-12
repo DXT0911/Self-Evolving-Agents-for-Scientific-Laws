@@ -1,5 +1,7 @@
 # Hamilton collaborative development guide
 
+Chinese translation: [`DEVELOPMENT.zh-CN.md`](DEVELOPMENT.zh-CN.md).
+
 This document defines the supported entry points and ownership boundaries for Hamilton.
 Read it before changing orchestration, prompts, experiment governance, or runner schemas.
 

@@ -2,6 +2,12 @@
 
 Hamilton 是基于 EvoMaster 框架的符号回归（Symbolic Regression）Agent，专门用于在**过完备变量**环境下发现数学方程。
 
+协作修改前阅读 [`DEVELOPMENT.zh-CN.md`](DEVELOPMENT.zh-CN.md)（英文原文：
+[`DEVELOPMENT.md`](DEVELOPMENT.md)）；科学与数据隔离规则以
+[`../../docs/sragent/RESEARCH_PROTOCOL.zh-CN.md`](../../docs/sragent/RESEARCH_PROTOCOL.zh-CN.md)
+为准；当前配置和历史配置的状态见
+[`../../configs/hamilton/README.zh-CN.md`](../../configs/hamilton/README.zh-CN.md)。
+
 ## Benchmark 隔离
 
 - Agent 只读取运行 workspace 中的公开 `task.md`、`plan.md` 和 `findings.md`。
@@ -89,14 +95,16 @@ playground/hamilton/
 │   ├── promotion_exp.py   # PromotionExp: 恢复、L2、Finish 与治理审计
 │   └── constants.py       # Signal markers、字段定义
 ├── prompts/
-│   ├── hamilton_system.txt # Agent 系统提示（四阶段协议 + HCC 规范）
-│   └── hamilton_user.txt   # Agent 用户提示（任务注入）
+│   ├── hamilton_system.txt          # 当前开发系统提示
+│   ├── hamilton_user.txt            # 当前开发用户提示
+│   └── hamilton_*_system/user.txt   # 诊断、历史或实验专用提示
 ├── benchmarks/
 │   └── viv/private/       # controller 私有 test/OOD/答案资产（Git ignored）
 ├── workspace/             # 模板目录（自动 seed 到 run workspace）
 │   ├── task.md            # 任务描述（含数据路径和评估标准）
 │   └── input/             # 仅公开训练 CSV
 ├── README.md
+├── DEVELOPMENT.md           # 协作开发入口与目录职责
 └── TODO.md
 ```
 
@@ -173,18 +181,19 @@ cp your_data.csv playground/hamilton/workspace/input/
 # 编写任务描述
 vim playground/hamilton/workspace/task.md
 
-# 运行
-python run.py --agent hamilton --task "发现数据中的方程"
+# 使用权威开发配置运行
+python run.py --agent hamilton --config configs/hamilton/config.yaml --task "发现数据中的方程"
 
 # 指定 run 目录
-python run.py --agent hamilton --task "task" --run-dir runs/my_experiment
+python run.py --agent hamilton --config configs/hamilton/config.yaml `
+  --task "task" --run-dir runs/my_experiment
 ```
 
 ### 配置
 
 默认研究入口是 `configs/hamilton/config.yaml`。历史 smoke、恢复和长跑配置的用途与
-可复现限制见 `configs/hamilton/README.md`；它们不是可直接复用的正式 benchmark 配置。
-协作开发前请阅读 `playground/hamilton/DEVELOPMENT.md`，其中定义了目录职责、提示词唯一
+可复现限制见 `configs/hamilton/README.zh-CN.md`；它们不是可直接复用的正式 benchmark 配置。
+协作开发前请阅读 `playground/hamilton/DEVELOPMENT.zh-CN.md`，其中定义了目录职责、提示词唯一
 来源、配置生命周期和离线测试命令。
 
 关键配置示例：
@@ -224,25 +233,20 @@ Agent 负责提出假设和解释证据；控制器负责 workspace 隔离、预
 - 每轮脚本保存到 `history/round{N}/scripts/`
 - L2 文件记录完整实验演化过程
 - L2 post-check 提前发现 Agent 跳过 Promotion 的问题
-## Governed search control
+## 治理式搜索控制
 
-When `experiment.search_control` is configured, Hamilton adds three deterministic
-controls around the LLM planner:
+配置 `experiment.search_control` 后，Hamilton 会在 LLM planner 外增加以下确定性控制：
 
-- `search_advancement_gates` update the numerical search incumbent independently of
-  the stricter `scientific_gates` used for final research success.
-- `.hamilton_search_state.json` stores the incumbent result and normalized search
-  configuration. Each new plan is checked against a trust-region baseline and the
-  incumbent anchor. After the configured number of stale rounds, the next baseline is
-  rolled back automatically to the incumbent configuration.
-- `search.max_evals` becomes controller-owned. The runner allocates an effective value
-  from search-space size, recent stagnation, the cumulative evaluation ledger, and a
-  reserved minimum for future rounds. The authored value and effective allocation are
-  both recorded in the result and ledger.
-- `.hamilton_evidence_memory.json` is a controller-owned cross-round evidence index.
-  Strong entries contain scoped, frozen numerical observations and incumbent history;
-  weak entries contain untested causal hypotheses and near-miss candidates. A compact
-  read-only view is included in the next-round directive, while `findings.md` remains
-  the human-readable research narrative.
+- `search_advancement_gates` 独立更新数值搜索 incumbent，不与最终研究成功所用的更严格
+  `scientific_gates` 混用。
+- `.hamilton_search_state.json` 保存 incumbent 结果和标准化搜索配置。每个新计划都会相对
+  trust-region 基线和 incumbent 锚点检查；达到配置的 stale 轮数后，下一轮基线自动回滚
+  到 incumbent 配置。
+- `search.max_evals` 归 controller 所有。runner 根据搜索空间大小、近期停滞、累计
+  evaluation 账本和后续轮次最低预留量分配实际额度，并在结果和账本中同时记录提议值与
+  实际分配值。
+- `.hamilton_evidence_memory.json` 是 controller 管理的跨轮证据索引。强证据保存作用域明确、
+  已冻结的数值观察和 incumbent 历史；弱证据保存未经检验的因果假设与近失候选。下一轮
+  指令只包含紧凑只读视图，而 `findings.md` 继续承担人类可读研究叙事。
 
-Historical workspaces without `experiment.search_control` keep their legacy behavior.
+没有配置 `experiment.search_control` 的历史 workspace 保持原有行为。

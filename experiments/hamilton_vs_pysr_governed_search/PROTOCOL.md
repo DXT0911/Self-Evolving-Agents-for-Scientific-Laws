@@ -1,5 +1,7 @@
 # Preregistered comparison protocol
 
+Chinese translation: [`PROTOCOL.zh-CN.md`](PROTOCOL.zh-CN.md).
+
 ## 1. Research question
 
 Under matched public data, initial PySR search space, cumulative evaluations, candidate
