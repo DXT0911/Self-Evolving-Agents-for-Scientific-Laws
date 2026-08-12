@@ -24,6 +24,7 @@ This fork is the canonical working repository for DXT0911's SR Agent research.
 | `playground/hamilton/benchmarks/*/private/` | Ignored controller-only test/OOD assets; never commit |
 | `evomaster/skills/pysr/` | PySR knowledge and execution guidance |
 | `configs/hamilton/` | Hamilton runtime configuration |
+| `experiments/hamilton_vs_pysr_governed_search/` | Preregistered governed-Hamilton versus fixed-PySR comparison |
 | `docs/sragent/RESEARCH_PROTOCOL.md` | Research scope, data split, experiment and reporting rules |
 | `docs/sragent/README.md` | Current contracts versus historical experiment documents |
 | `playground/hamilton/TODO.md` | Required implementation progress log |

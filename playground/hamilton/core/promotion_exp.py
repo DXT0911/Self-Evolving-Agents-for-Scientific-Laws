@@ -86,6 +86,7 @@ class PromotionExp(BaseExp):
 
         self._ensure_round_dirs()
         promotion_input = self._load_or_create_promotion_input()
+        promotion_evidence = self._write_promotion_evidence(promotion_input)
         state = self._load_promotion_state()
         state_input_sha256 = state.get("input_sha256")
         current_input_sha256 = self._file_digest(self._promotion_input_path())
@@ -127,14 +128,28 @@ class PromotionExp(BaseExp):
             attempts=attempts,
             prior_closure_errors=prior_closure_errors,
         )
+        # If the deterministic scientific audit found no errors, a recovery only
+        # needs fresh L2 touches plus the finish handshake. Enter this bounded path
+        # on the first recovery instead of spending several full Promotion attempts.
+        fast_finish_recovery = attempts >= 1 and not prior_closure_errors
+        if fast_finish_recovery:
+            recovery_feedback += self._fast_finish_feedback(
+                round_num=self.round_num,
+                attempt_num=attempts + 1,
+            )
         task = TaskInstance(
             task_id=f"{task_id}_round{self.round_num}_promotion",
             task_type="hamilton_promotion",
             description=(
                 f"{task_description}\n\n"
                 "Execute Promotion and Finish only. Do not run or configure PySR. "
-                "Read the frozen promotion input named in input_data, update trace.md, "
-                "findings.md and plan.md, then call finish. On a recovery attempt, make "
+                "Use the compact controller-generated promotion_evidence named in "
+                "input_data; do not read task.md or the full result JSON unless the "
+                "packet explicitly reports missing evidence. In the first response, "
+                "read promotion_evidence, trace.md, findings.md, and plan.md in parallel "
+                "and load scientific_governance.md once. In the next response, issue "
+                "all three file edits in parallel. Then call finish. On a recovery "
+                "attempt, make "
                 "an explicit current-round recovery edit to all three files even when an "
                 "earlier partial attempt already wrote valid content; unchanged files fail "
                 "the closure audit."
@@ -145,8 +160,15 @@ class PromotionExp(BaseExp):
                 "promotion_input": str(
                     self._promotion_input_path().relative_to(self.run_dir)
                 ).replace("\\", "/"),
+                "promotion_evidence": str(
+                    self._promotion_evidence_path().relative_to(self.run_dir)
+                ).replace("\\", "/"),
+                "promotion_evidence_sha256": self._file_digest(
+                    self._promotion_evidence_path()
+                ),
                 "promotion_attempt": attempts + 1,
                 "prior_closure_errors": prior_closure_errors,
+                "fast_finish_recovery": fast_finish_recovery,
             },
         )
         trajectory = self.agent.run(task)
@@ -220,6 +242,24 @@ class PromotionExp(BaseExp):
             "structure."
         )
 
+    @staticmethod
+    def _fast_finish_feedback(round_num: int, attempt_num: int) -> str:
+        marker = f"<!-- EVO_FAST_FINISH_RECOVERY_ATTEMPT_{attempt_num} -->"
+        trace_header = f"# Round {round_num} 工作记录"
+        return (
+            "\n\nFAST-FINISH RECOVERY (authoritative): the scientific artifacts "
+            "already passed deterministic audit and only the finish handshake is "
+            "missing. Do not read any file or Skill. In your first response, issue "
+            "exactly these four tool calls, with finish last: "
+            f"(1) replace '{trace_header}' with '{trace_header}\\n{marker}' in "
+            f"history/round{round_num}/trace.md; "
+            f"(2) replace '# 研究发现' with '# 研究发现\\n{marker}' in findings.md; "
+            f"(3) replace '# 研究计划' with '# 研究计划\\n{marker}' in plan.md; "
+            "(4) call finish(task_completed='false') and state that the governed "
+            "public round closed while final scientific success remains unclaimed. "
+            "Do nothing else."
+        )
+
     def _ensure_round_dirs(self):
         """确保本轮目录存在"""
         if not self.run_dir:
@@ -237,6 +277,83 @@ class PromotionExp(BaseExp):
         if not self.run_dir:
             raise RuntimeError("Promotion requires a run workspace")
         return self.run_dir / "history" / f"round{self.round_num}" / "promotion_state.json"
+
+    def _promotion_evidence_path(self) -> Path:
+        if not self.run_dir:
+            raise RuntimeError("Promotion requires a run workspace")
+        return (
+            self.run_dir
+            / "history"
+            / f"round{self.round_num}"
+            / "promotion_evidence.json"
+        )
+
+    @staticmethod
+    def _compact_residual_diagnostics(payload: dict) -> dict:
+        residual = (
+            payload.get("verification", {})
+            .get("residual_diagnostics", {})
+        )
+        validation = residual.get("validation", {})
+        state = validation.get("state_dependence", {})
+        temporal = validation.get("temporal_structure", {})
+        return {
+            "enabled": residual.get("enabled"),
+            "status": residual.get("status"),
+            "strongest_state_dependence": state.get(
+                "strongest_absolute_correlation"
+            ),
+            "state_correlations": state.get("correlations"),
+            "strongest_temporal_dependence": temporal.get(
+                "strongest_reported_autocorrelation"
+            ),
+            "durbin_watson": temporal.get("durbin_watson"),
+            "trend_correlation": temporal.get("trend_correlation"),
+            "spectrum": temporal.get("spectrum"),
+        }
+
+    def _write_promotion_evidence(self, promotion_input: dict) -> dict:
+        """Write a compact, controller-derived view of immutable result evidence."""
+        compact_results = []
+        for item in promotion_input["results"]:
+            result_path = self.run_dir / item["path"]
+            payload = json.loads(result_path.read_text(encoding="utf-8"))
+            compact_results.append(
+                {
+                    "path": item["path"],
+                    "sha256": item["sha256"],
+                    "experiment_id": payload.get("experiment_id"),
+                    "status": payload.get("status"),
+                    "config": project_meaningful_config(payload.get("config", {})),
+                    "selected": payload.get("selected"),
+                    "metrics": payload.get("metrics"),
+                    "scale_diagnostics": (
+                        payload.get("diagnostics", {})
+                        .get("linear_raw_features", {})
+                        .get("scale_aware")
+                    ),
+                    "short_ode": (
+                        payload.get("verification", {}).get("short_ode")
+                    ),
+                    "residual_diagnostics": self._compact_residual_diagnostics(
+                        payload
+                    ),
+                    "evaluation_budget": payload.get("evaluation_budget"),
+                }
+            )
+        evidence = {
+            "schema_version": 1,
+            "round": self.round_num,
+            "source": "deterministic_controller_projection_of_frozen_results",
+            "full_result_read_required": False,
+            "results": compact_results,
+            "all_scored_results": self._all_scored_results(),
+            "required_protocol_valid_result_files": [
+                item["path"] for item in self._all_scored_results()
+            ],
+        }
+        self._write_json_atomic(self._promotion_evidence_path(), evidence)
+        return evidence
 
     def _load_or_create_promotion_input(self) -> dict:
         """Freeze completed result paths and hashes for deterministic recovery."""

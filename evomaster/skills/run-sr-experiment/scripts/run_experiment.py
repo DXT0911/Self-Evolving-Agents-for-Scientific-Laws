@@ -280,6 +280,44 @@ def controller_owns_budget(workspace: Path) -> bool:
     )
 
 
+def apply_controller_seed(
+    workspace: Path,
+    config: dict[str, Any],
+    round_number: int | None,
+) -> dict[str, Any] | None:
+    """Override an adaptive round's authored seed from the frozen controller plan."""
+    path = workspace / ".hamilton_seed_plan.json"
+    if not path.is_file() or round_number is None:
+        return None
+    try:
+        plan = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"invalid .hamilton_seed_plan.json: {exc}") from exc
+    seeds = plan.get("round_seeds")
+    if (
+        plan.get("schema_version") != 1
+        or not isinstance(seeds, list)
+        or not seeds
+        or not all(isinstance(seed, int) and not isinstance(seed, bool) for seed in seeds)
+    ):
+        raise ConfigError("invalid Hamilton seed-plan schema")
+    if round_number > len(seeds):
+        raise ConfigError(
+            f"Hamilton seed plan has no seed for round {round_number}"
+        )
+    proposed = config["search"]["random_state"]
+    assigned = int(seeds[round_number - 1])
+    config["search"]["random_state"] = assigned
+    assignment = {
+        "mode": "controller_frozen_round_seed",
+        "round": round_number,
+        "proposed_seed_ignored": proposed,
+        "assigned_seed": assigned,
+    }
+    config.setdefault("_controller", {})["seed_assignment"] = assignment
+    return assignment
+
+
 def search_space_weight(config: dict[str, Any]) -> float:
     search = config.get("search") or {}
     data = config.get("data") or {}
@@ -482,6 +520,9 @@ def meaningful_config(
         projected["verification"].pop("residual_diagnostics")
     if controller_owned_budget:
         projected["search"].pop("max_evals", None)
+    # The controller's frozen repeat plan owns seeds. A planned seed change between
+    # rounds must not consume the one-field scientific trust-region allowance.
+    projected["search"].pop("random_state", None)
     return projected
 
 
@@ -801,6 +842,11 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["data"]["validation_fraction"] = float(validation_fraction)
     normalized["verification"]["candidate_ranking"] = ranking
     normalized["verification"]["residual_diagnostics"] = residual
+    apply_controller_seed(
+        workspace,
+        normalized,
+        adaptive_round_number(config_path, workspace),
+    )
     audit_single_field_adaptation(workspace, config_path, normalized)
     allocate_dynamic_evaluations(
         workspace,

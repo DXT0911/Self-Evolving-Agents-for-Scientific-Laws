@@ -225,6 +225,7 @@ class HamiltonPlayground(BasePlayground):
             stale_count = 0
             incumbent_score = None
             termination_reason = "max_rounds_reached"
+            active_round_incomplete = False
 
             self.logger.info(f"Starting Hamilton experiment with {max_rounds} max rounds")
             self.logger.info(f"Task: {task_description}")
@@ -292,6 +293,7 @@ class HamiltonPlayground(BasePlayground):
                         search_allowance = remaining - min(promotion_tokens, remaining)
                         if search_allowance <= 0:
                             termination_reason = "promotion_budget_reserved"
+                            active_round_incomplete = True
                             break
                         self.agent.config.max_total_tokens = (
                             min(per_round_tokens, search_allowance)
@@ -329,11 +331,13 @@ class HamiltonPlayground(BasePlayground):
                     result_files = discovery_result.get("completed_result_files") or []
                     if not result_files:
                         termination_reason = "verification_incomplete"
+                        active_round_incomplete = True
                         break
 
                 remaining = max_total_tokens - total_tokens if max_total_tokens else 0
                 if max_total_tokens and remaining <= 0:
                     termination_reason = "token_budget_reached"
+                    active_round_incomplete = True
                     break
                 self.agent.config.max_total_tokens = (
                     min(promotion_tokens, remaining)
@@ -458,7 +462,11 @@ class HamiltonPlayground(BasePlayground):
                 else {}
             )
             return {
-                "status": "completed" if final_signal.get("closed") else "incomplete",
+                "status": (
+                    "completed"
+                    if final_signal.get("closed") and not active_round_incomplete
+                    else "incomplete"
+                ),
                 "total_rounds": len(self.experiment_record["rounds"]),
                 "research_satisfied": bool(final_signal.get("satisfied", False)),
                 "termination_reason": termination_reason,

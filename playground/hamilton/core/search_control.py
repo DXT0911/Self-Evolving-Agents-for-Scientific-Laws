@@ -58,6 +58,9 @@ def meaningful_config(
         projected["verification"].pop("residual_diagnostics")
     if controller_owns_budget:
         projected["search"].pop("max_evals", None)
+    # Seeds are frozen by the controller for reproducibility and paired replay.
+    # They are not an LLM-authored scientific search intervention.
+    projected["search"].pop("random_state", None)
     return projected
 
 

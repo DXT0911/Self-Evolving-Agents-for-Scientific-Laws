@@ -16,9 +16,14 @@ All provider credentials must come from `${HAMILTON_API_KEY}`. Never commit a li
 |---|---|---|
 | `config.yaml` | Current integrated Hamilton development entry | Canonical development config |
 | `config_no_pysr.yaml` | Prompt/closure debugging without PySR | Diagnostic only; not a benchmark |
+| `config_governed_pysr_public_pilot.yaml` | Frozen governed-Hamilton arm for the public Hamilton-vs-PySR pilot | Permission-gated formal pilot |
 
 `config_no_pysr.yaml` creates only labelled protocol-debug artifacts. It cannot establish
 a candidate equation, benchmark performance, or scientific success.
+
+`config_governed_pysr_public_pilot.yaml` is tied to
+`experiments/hamilton_vs_pysr_governed_search/pilot_manifest.yaml`. It must not run unless
+that manifest passes launch validation after separate DeepSeek and PySR/Julia authorization.
 
 ## Frozen historical configurations
 

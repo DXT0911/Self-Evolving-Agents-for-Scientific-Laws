@@ -393,6 +393,38 @@ class StandardRunnerContractTests(unittest.TestCase):
             "dynamic_cumulative_ledger",
         )
 
+    def test_controller_seed_plan_overrides_adaptive_round_seed(self) -> None:
+        (self.workspace / ".hamilton_seed_plan.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "round_seeds": [1101, 1102, 1103],
+                }
+            ),
+            encoding="utf-8",
+        )
+        round_dir = self.workspace / "history" / "round1"
+        round_dir.mkdir(parents=True)
+        config = valid_config()
+        config["search"]["random_state"] = 9999
+        config["output"]["result_file"] = "history/round1/results/result.json"
+        config["output"]["run_directory"] = "history/round1/results/pysr-run"
+        config_path = round_dir / "experiment.json"
+        config_path.write_text(json.dumps(config), encoding="utf-8")
+
+        normalized, _ = RUNNER.load_and_validate(config_path, self.workspace)
+
+        self.assertEqual(normalized["search"]["random_state"], 1101)
+        self.assertEqual(
+            normalized["_controller"]["seed_assignment"],
+            {
+                "mode": "controller_frozen_round_seed",
+                "round": 1,
+                "proposed_seed_ignored": 9999,
+                "assigned_seed": 1101,
+            },
+        )
+
     def test_adaptive_pre_search_audit_requires_exactly_one_leaf_change(self) -> None:
         previous_config, _ = RUNNER.load_and_validate(
             self.write_config(valid_config()),
@@ -952,6 +984,78 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "changed after preparation"):
             exp._load_or_create_promotion_input()
 
+    def test_promotion_evidence_is_compact_controller_projection(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "status": "completed",
+                    "experiment_id": "compact-evidence",
+                    "config": {
+                        "search": {"maxsize": 31},
+                        "data": {"feature_columns": ["x1", "x2"]},
+                        "verification": {"residual_diagnostics": {"enabled": True}},
+                    },
+                    "selected": {
+                        "simplified_equation": "x1 + x2",
+                        "scientific_score": 0.25,
+                    },
+                    "metrics": {"validation": {"r2": 0.9}},
+                    "diagnostics": {
+                        "linear_raw_features": {
+                            "scale_aware": {
+                                "standardized_effect": {"x1": 0.5, "x2": 0.25}
+                            }
+                        }
+                    },
+                    "verification": {
+                        "short_ode": {"enabled": False},
+                        "residual_diagnostics": {
+                            "enabled": True,
+                            "status": "completed",
+                            "validation": {
+                                "state_dependence": {
+                                    "strongest_absolute_correlation": {
+                                        "signal": "x2",
+                                        "value": 0.2,
+                                    }
+                                },
+                                "temporal_structure": {
+                                    "strongest_reported_autocorrelation": {
+                                        "lag": 1,
+                                        "value": 0.1,
+                                    },
+                                    "durbin_watson": 1.8,
+                                },
+                            },
+                        },
+                    },
+                    "candidates": [{"large": "must not be copied"}] * 100,
+                }
+            ),
+            encoding="utf-8",
+        )
+        exp = PromotionExp(
+            SimpleNamespace(),
+            SimpleNamespace(experiment={}),
+            1,
+            result_files=["history/round1/results/result.json"],
+        )
+        exp.set_run_dir(self.workspace)
+        promotion_input = exp._load_or_create_promotion_input()
+        evidence = exp._write_promotion_evidence(promotion_input)
+        compact_result = evidence["results"][0]
+        self.assertFalse(evidence["full_result_read_required"])
+        self.assertNotIn("candidates", compact_result)
+        self.assertEqual(
+            compact_result["residual_diagnostics"]["strongest_state_dependence"],
+            {"signal": "x2", "value": 0.2},
+        )
+        self.assertEqual(
+            evidence["required_protocol_valid_result_files"],
+            ["history/round1/results/result.json"],
+        )
+
     def test_promotion_attempt_limit_does_not_call_agent(self) -> None:
         result_path = self.round_dir / "results" / "result.json"
         result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
@@ -1010,6 +1114,16 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
             ),
             "",
         )
+
+    def test_fast_finish_feedback_uses_current_round_and_attempt(self) -> None:
+        feedback = PromotionExp._fast_finish_feedback(
+            round_num=1,
+            attempt_num=3,
+        )
+        self.assertIn("history/round1/trace.md", feedback)
+        self.assertIn("# Round 1 工作记录", feedback)
+        self.assertIn("EVO_FAST_FINISH_RECOVERY_ATTEMPT_3", feedback)
+        self.assertNotIn("history/round3/trace.md", feedback)
 
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):
@@ -1283,6 +1397,23 @@ class RoundClosureContractTests(unittest.TestCase):
         self.assertEqual(
             PromotionExp._meaningful_config(legacy),
             PromotionExp._meaningful_config(expanded),
+        )
+
+    def test_controller_seed_is_not_a_scientific_config_change(self) -> None:
+        first = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"maxsize": 31, "random_state": 1101},
+            "verification": {},
+        }
+        second = copy.deepcopy(first)
+        second["search"]["random_state"] = 1102
+        self.assertEqual(
+            search_meaningful_config(first),
+            search_meaningful_config(second),
+        )
+        self.assertEqual(
+            PromotionExp._meaningful_config(first),
+            PromotionExp._meaningful_config(second),
         )
     def tearDown(self) -> None:
         self.temporary.cleanup()

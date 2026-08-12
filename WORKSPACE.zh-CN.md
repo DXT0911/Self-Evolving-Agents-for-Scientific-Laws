@@ -24,6 +24,7 @@
 | `playground/hamilton/benchmarks/*/private/` | Git 忽略的 controller 私有 test/OOD 资产，禁止提交 |
 | `evomaster/skills/pysr/` | PySR 相关知识与执行指南 |
 | `configs/hamilton/` | Hamilton 运行配置 |
+| `experiments/hamilton_vs_pysr_governed_search/` | governed Hamilton 与固定 PySR 的预注册对照实验 |
 | `docs/sragent/RESEARCH_PROTOCOL.md` | 研究范围、数据划分、实验与报告规范 |
 | `docs/sragent/README.md` | 当前规范与历史实验文档索引 |
 | `playground/hamilton/TODO.md` | 必须维护的实现进度记录 |

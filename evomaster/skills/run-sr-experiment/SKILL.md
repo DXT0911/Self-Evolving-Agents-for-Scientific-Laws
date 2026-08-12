@@ -14,9 +14,27 @@ Use the bundled runner instead of creating a new Python experiment script.
    `python playground/hamilton/core/pysr_preflight.py --timeout 180` first.
    This imports PySR and loads Julia's SymbolicRegression package without fitting,
    reading data, consuming evaluations, or calling an LLM.
-2. Read `task.md`, `plan.md`, and prior result summaries.
-3. Create one JSON configuration under the current `history/roundN/`. Use a new
-   experiment ID. For N > 1, implement the primary change in the next-round contract.
+2. Follow the controller phase exactly. During `hamilton_round`, read `task.md`,
+   `plan.md`, and prior result summaries. During `hamilton_promotion`, skip search
+   configuration and execution: read the controller-generated
+   `promotion_evidence.json`. Do not read the full governed result when the packet says
+   `full_result_read_required=false`.
+3. During round 1, create the frozen baseline JSON under `history/round1/`. For
+   governed round N > 1, do not rewrite the full configuration or reread
+   `config_schema.md`. Materialize the controller baseline plus the L2 single-field
+   patch:
+
+```text
+use_skill(
+  skill_name="run-sr-experiment",
+  action="run_script",
+  script_name="prepare_adaptive_config.py",
+  script_args="--round N"
+)
+```
+
+   This deterministically assigns the frozen round seed and writes
+   `history/roundN/experiment.json`.
 4. Validate before spending compute:
 
 ```text
@@ -40,13 +58,21 @@ use_skill(
 )
 ```
 
-7. Read the returned summary and result JSON. Compare the selected candidate with the
-   diagnostic-only linear fit, inspect candidate rankings, structured residual
-   diagnostics, and ODE failures, then update `trace.md`, `plan.md`, and `findings.md`.
-   When scientific governance is enabled, read `scientific_governance.md` and write its
-   decision block.
-8. Call `finish` only after recording Discovery, Verification, Promotion, and limitations.
-   Use `task_completed="false"` when another research round is required.
+7. During `hamilton_round`, read the returned summary and result JSON. Compare the
+   selected candidate with the diagnostic-only linear fit and inspect candidate
+   rankings, structured residual diagnostics, and ODE failures. Update only
+   `trace.md`, then call `finish(task_completed="false")`. Do not read
+   `scientific_governance.md` or update `plan.md` or `findings.md`.
+8. During `hamilton_promotion`, read `scientific_governance.md`, update `trace.md`,
+   `plan.md`, and `findings.md`, write the governed decision and residual-feedback
+   blocks, and then call `finish`. Read the compact evidence and three L2 files in
+   parallel, issue all three edits in one subsequent response, and then finish. Never
+   configure, validate, or rerun PySR in this phase.
+   Do not rewrite optional narrative sections. Replace the decision and next-round
+   contract together in one `plan.md` edit; use one concise current-round append for
+   each of `trace.md` and `findings.md`.
+   Do not reread files after editing. Call `finish` immediately and let deterministic
+   closure verify the artifacts.
 
 ## Rules
 
@@ -106,8 +132,9 @@ use_skill(
 
 Read [config_schema.md](references/config_schema.md) when creating or changing a configuration.
 For adaptive runs, also read [adaptive_rounds.md](references/adaptive_rounds.md).
-When `experiment.scientific_governance=true`, read
-[scientific_governance.md](references/scientific_governance.md).
+During `hamilton_promotion` with `experiment.scientific_governance=true`, read
+[scientific_governance.md](references/scientific_governance.md). Do not load it during
+`hamilton_round`.
 Before claiming cross-condition or final generalization, read
 [ood_protocol.md](references/ood_protocol.md). Tier 1--3 evaluation is a
 controller-only operation on a frozen candidate; never add sealed data to the runner.

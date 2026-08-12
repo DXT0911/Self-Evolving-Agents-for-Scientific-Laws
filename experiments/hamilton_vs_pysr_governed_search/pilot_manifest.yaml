@@ -1,0 +1,308 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-pilot-v1
+status: frozen
+launch_blocked: false
+
+research_question: >-
+  Under matched public data, initial PySR search space, cumulative evaluations,
+  deterministic candidate evaluation, and paired seeds, does governed Hamilton improve
+  validation quality, repeatability, and evaluation efficiency over fixed PySR?
+
+permissions:
+  deepseek: true
+  pysr_julia: true
+  private_ood: false
+  authorization_scope: operational_gate_only
+
+comparison:
+  primary:
+    challenger: governed_hamilton
+    baseline: ordinary_pysr
+  diagnostic_baseline: fixed_schedule_pysr
+
+arms:
+  - id: ordinary_pysr
+    llm_enabled: false
+    schedule: single_continuous_search
+    adaptive_search_config: false
+  - id: fixed_schedule_pysr
+    llm_enabled: false
+    schedule: matched_episode_restarts
+    adaptive_search_config: false
+  - id: governed_hamilton
+    llm_enabled: true
+    schedule: matched_episode_restarts
+    adaptive_search_config: true
+
+fairness:
+  locked_fields:
+    - public_dataset_bytes
+    - data_fingerprint
+    - train_validation_split
+    - feature_and_target_columns
+    - initial_pysr_search_space
+    - cumulative_pysr_evaluations
+    - candidate_evaluator
+    - scientific_gates
+    - paired_seed_plan
+    - code_and_environment
+  episode_count: 3
+  ordinary_search_uses_full_budget: true
+  fixed_schedule_matches_hamilton_allowances: true
+  llm_tokens_reported_separately: true
+
+budget:
+  authorization_state: authorized
+  authorized_scope: operational_gate_only
+  max_total_evals_per_task: 12000
+  allocation_policy: hamilton_dynamic_then_paired_pysr_replay
+  hamilton_dynamic_bounds:
+    base_evals: 4000
+    min_evals: 2000
+    max_evals: 6000
+    rounding_quantum: 500
+  episode_evals: realized_from_paired_hamilton_ledger
+  invariant: each_baseline_replays_paired_hamilton_actual_evaluations
+  planned_totals:
+    task_count: 11
+    paired_repeats: 3
+    arm_runs: 99
+    pysr_search_episodes: 231
+    maximum_evaluations_per_arm: 396000
+    maximum_evaluations_all_arms: 1188000
+    actual_evaluations: three_times_sum_of_paired_hamilton_ledgers
+
+llm_budget:
+  hamilton_task_repeats: 33
+  max_turns_per_agent_phase: 20
+  static_s01_repeat_1_final_recovery_token_ceiling: 26000
+  discovery_max_tokens_per_round: 160000
+  discovery_budget_revision:
+    reason: dynamic_d01_round3_validated_config_execution
+    prior_limit: 80000
+    revised_limit: 160000
+    changes_pysr_budget: false
+  promotion_max_tokens_per_round: 160000
+  promotion_budget_revision:
+    reason: dynamic_d01_round2_deterministic_audit_repair
+    prior_limit: 95000
+    revised_limit: 160000
+    changes_pysr_budget: false
+  remaining_operational_task_max_total_tokens: 600000
+  remaining_operational_task_promotion_max_attempts: 3
+  invalid_pre_evaluation_tokens_already_consumed: 139005
+  static_s01_repeat_1_tokens_consumed: 1047805
+  dynamic_d01_repeat_1_tokens_consumed: 939099
+  viv_u248_repeat_1_tokens_consumed: 625240
+  operational_tokens_consumed: 2751149
+  operational_unallocated_authorized_tokens: 848851
+  operational_authorized_total_token_ceiling: 3600000
+  additional_hamilton_launches:
+    state: operational_gate_completed
+    scope: [dynamic_d01/repeat_1, viv_u248/repeat_1]
+  note: ceilings_include_input_and_output_tokens_and_are_separate_from_pysr_evaluations
+
+execution_waves:
+  - id: operational_gate
+    tasks: [static_s01, dynamic_d01, viv_u248]
+    repeats: [repeat_1]
+    arm_runs: 9
+    maximum_evaluations: 108000
+    continuation_rule: >-
+      Continue only if every arm produces structurally valid artifacts, evaluation ledgers
+      reconcile, and no isolation or fairness contract fails. Scientific scores cannot be
+      used to change the frozen protocol.
+  - id: complete_pilot
+    tasks: all_remaining_frozen_tasks
+    repeats: all_remaining_paired_repeats
+    continuation_rule: run_without_protocol_changes_after_operational_gate_passes
+
+seed_plan:
+  immutable_after_first_result: true
+  repeats:
+    - repeat_id: repeat_1
+      ordinary_primary_seed: 1101
+      episode_seeds: [1101, 1102, 1103]
+    - repeat_id: repeat_2
+      ordinary_primary_seed: 2201
+      episode_seeds: [2201, 2202, 2203]
+    - repeat_id: repeat_3
+      ordinary_primary_seed: 3301
+      episode_seeds: [3301, 3302, 3303]
+
+dataset_families:
+  - id: blind_static_known_truth
+    status: frozen
+    task_count: 6
+    public_only: true
+    ground_truth_agent_visible: false
+    source: pmlb_srbench
+    source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+    tasks:
+      - id: static_s01
+        source_dataset: feynman_I_14_4
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_I_14_4.tsv.gz
+        bytes: 2642227
+        sha256: 2a8209403837a778f223cc54beb7be3fa7ae68520e8eb7bed82187342b6a5bfd
+        prepared_input: prepared_data/static_s01/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 2
+        prepared_sha256: a710c86ace14554bf5fb862f3ec730bc56151867cbf0db61443ecd23b4e2093b
+      - id: static_s02
+        source_dataset: feynman_I_12_2
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_I_12_2.tsv.gz
+        bytes: 4423080
+        sha256: 6fe281722cd1cf4da63248e09b84f5c11ddf73f13ef29e03e955cae8036548e3
+        prepared_input: prepared_data/static_s02/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 4
+        prepared_sha256: 4a6f94da693f1871e622318cdf61b1796343f65ecc2057ea11ef9569db6bd59c
+      - id: static_s03
+        source_dataset: feynman_II_15_4
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_II_15_4.tsv.gz
+        bytes: 3522949
+        sha256: 5e53471367d15f6bfecdee9ac34641dbd8d76a2e6f1e64946e9aafb4b09debcd
+        prepared_input: prepared_data/static_s03/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 3
+        prepared_sha256: 856a4cab346e21b152b3e9d0ce3d29cc0d93004e4859770ed80dcfb313c0ef0c
+      - id: static_s04
+        source_dataset: feynman_I_6_2a
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_I_6_2a.tsv.gz
+        bytes: 1779443
+        sha256: e6e54e08033d029d973fc68f3239a52e85d871b6beb720127fa1dc8e72da90d6
+        prepared_input: prepared_data/static_s04/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 1
+        prepared_sha256: 4c5619cc858b94a2e30384f5568bd368c496758d3c6abc1afaf69eb1c2f606d4
+      - id: static_s05
+        source_dataset: feynman_I_18_4
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_I_18_4.tsv.gz
+        bytes: 4342371
+        sha256: a857a458b0621f46b60f326d5760f7d3d39d6ba1fe87db1a7f1114bdfeb99862
+        prepared_input: prepared_data/static_s05/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 4
+        prepared_sha256: 0c96aeec2dc05750b19383a15b671d57d5e35fa48f6cdd81dc471fbae7af0df0
+      - id: static_s06
+        source_dataset: feynman_III_9_52
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/feynman_III_9_52.tsv.gz
+        bytes: 6145919
+        sha256: 186bb508ecec101e1099408ffe41705b6b6ab15b977cca17e2f2a487bb37b324
+        prepared_input: prepared_data/static_s06/input/data.csv
+        prepared_rows: 100000
+        prepared_features: 6
+        prepared_sha256: 58d950bc42bab28229052ccf44e7033a12f887c402097766d55d1be50b63dac8
+    split_policy: preregistered_public_train_validation
+  - id: known_dynamics_derivatives
+    status: frozen
+    task_count: 4
+    public_only: true
+    ground_truth_agent_visible: false
+    source: pmlb_ode_strogatz
+    source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+    tasks:
+      - id: dynamic_d01
+        source_dataset: strogatz_vdp1
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/strogatz_vdp1.tsv.gz
+        bytes: 11001
+        sha256: fe71082adec0b48fe905dfc0d34b92e1d5560ad5ed9da80f9f6edd3ab924ff88
+        prepared_input: prepared_data/dynamic_d01/input/data.csv
+        prepared_rows: 400
+        prepared_features: 2
+        prepared_sha256: 2e50b3279496d7a517f15524e0fa52796b6064855d4f3eb90ba3b84961cbb2e6
+      - id: dynamic_d02
+        source_dataset: strogatz_barmag1
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/strogatz_barmag1.tsv.gz
+        bytes: 10670
+        sha256: 5ebd813b1e30817354b31d0f51e4ad3a31dea6fa2f1eb85680112bea6ec63e9b
+        prepared_input: prepared_data/dynamic_d02/input/data.csv
+        prepared_rows: 400
+        prepared_features: 2
+        prepared_sha256: 5b963170b5014fb32a50a984a7c1d70e42f2a4075f660295403a3c2b3f5d5a9f
+      - id: dynamic_d03
+        source_dataset: strogatz_glider2
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/strogatz_glider2.tsv.gz
+        bytes: 10604
+        sha256: 9a3bd7573b3d0379ccf288c6284298a71f9a351d70b996ede69b5a97e883d94d
+        prepared_input: prepared_data/dynamic_d03/input/data.csv
+        prepared_rows: 400
+        prepared_features: 2
+        prepared_sha256: d8e0f5c6880966fd6dc5f3b9638891cb74b6f4d7c4ca083e90989bf5fb27bc8d
+      - id: dynamic_d04
+        source_dataset: strogatz_shearflow2
+        source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+        input: data_cache/strogatz_shearflow2.tsv.gz
+        bytes: 10633
+        sha256: 1d1044351977e97152308049736d1414e38d8167b7499121cb44fcd562f41fc1
+        prepared_input: prepared_data/dynamic_d04/input/data.csv
+        prepared_rows: 400
+        prepared_features: 2
+        prepared_sha256: 1b90097a827ae736acb63ec278104bace56f2dd4b142f2d5832fff8fa1dbdf34
+    split_policy: contiguous_time
+  - id: viv_public
+    status: frozen
+    task_count: 1
+    public_only: true
+    ground_truth_agent_visible: false
+    tasks:
+      - id: viv_u248
+        input: playground/hamilton/workspace/input/U248_train.csv
+        source_revision: b87800bcdcf3d2a1e4dd4548b7a63a5d52c3e147
+        sha256: c6d99ed7ee5d7f177195767f232990968c3b9a64e0fbd902fd0dc59feeb52635
+    split_policy: contiguous_time
+
+outcomes:
+  common_primary:
+    - terminal_public_validation_nrmse
+    - anytime_best_validation_auc
+    - structured_run_success
+  known_truth:
+    - algebraic_equivalence
+    - controller_challenge_grid_equivalence
+    - expression_complexity
+    - variable_selection
+  dynamics:
+    - derivative_validation
+    - short_trajectory_nrmse
+    - integration_boundedness
+  viv:
+    - contiguous_tail_validation
+    - short_trajectory_nrmse
+    - expression_complexity
+    - actual_variable_dependence
+    - residual_diagnostic_status
+  resources:
+    - cumulative_evaluations
+    - score_by_evaluation
+    - wall_clock_seconds
+    - llm_tokens
+    - failed_rejected_replayed_episodes
+
+analysis:
+  paired_by_task_and_repeat: true
+  report_all_task_results: true
+  aggregate_statistics:
+    - median
+    - interquartile_range
+    - paired_difference
+    - task_bootstrap_confidence_interval
+  viv_wind_speeds_are_one_family: true
+  pilot_and_formal_results_separate: true
+
+readiness_blockers: []
+
+forbidden_during_preparation:
+  - deepseek_api_call
+  - pysr_import_or_execution
+  - julia_execution
+  - private_test_or_ood_access

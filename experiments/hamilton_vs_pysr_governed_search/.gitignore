@@ -1,0 +1,4 @@
+# Public benchmark bytes are acquired locally and locked by SHA-256 in the manifest.
+data_cache/
+prepared_data/
+launch_bundle/

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hamilton versus PySR compact repeat result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "task_id",
+    "arm_id",
+    "repeat_id",
+    "status",
+    "data",
+    "budget",
+    "seeds",
+    "outcomes",
+    "reproducibility"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "arm_id": {
+      "enum": ["ordinary_pysr", "fixed_schedule_pysr", "governed_hamilton"]
+    },
+    "repeat_id": {"type": "string", "minLength": 1},
+    "status": {
+      "enum": ["completed", "failed", "rejected", "interrupted"]
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["public_only", "sha256", "split_id"],
+      "properties": {
+        "public_only": {"const": true},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "split_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["limit", "reserved", "consumed"],
+      "properties": {
+        "limit": {"type": "integer", "minimum": 1},
+        "reserved": {"type": "integer", "minimum": 0},
+        "consumed": {"type": "integer", "minimum": 0}
+      }
+    },
+    "seeds": {
+      "type": "object",
+      "required": ["primary", "episodes"],
+      "properties": {
+        "primary": {"type": "integer"},
+        "episodes": {
+          "type": "array",
+          "items": {"type": "integer"},
+          "minItems": 1
+        }
+      }
+    },
+    "outcomes": {
+      "type": "object",
+      "required": ["terminal_validation_nrmse", "structured_run_success"],
+      "properties": {
+        "terminal_validation_nrmse": {"type": ["number", "null"], "minimum": 0},
+        "anytime_best_validation_auc": {"type": ["number", "null"], "minimum": 0},
+        "structured_run_success": {"type": "boolean"},
+        "scientific_success": {"type": ["boolean", "null"]},
+        "equivalent_ground_truth": {"type": ["boolean", "null"]},
+        "selected_equation": {"type": ["string", "null"]},
+        "complexity": {"type": ["integer", "null"], "minimum": 0},
+        "failure_reason": {"type": ["string", "null"]}
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "wall_clock_seconds": {"type": "number", "minimum": 0},
+        "llm_input_tokens": {"type": "integer", "minimum": 0},
+        "llm_output_tokens": {"type": "integer", "minimum": 0}
+      }
+    },
+    "reproducibility": {
+      "type": "object",
+      "required": ["git_commit", "config_sha256", "environment"],
+      "properties": {
+        "git_commit": {"type": "string", "minLength": 7},
+        "config_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "environment": {"type": "object"}
+      }
+    }
+  }
+}

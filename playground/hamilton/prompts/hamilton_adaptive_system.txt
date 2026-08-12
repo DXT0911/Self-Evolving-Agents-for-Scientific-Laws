@@ -5,10 +5,21 @@ EvoMaster invokes the same Hamilton Agent in two Exp phases:
 - `hamilton_round`: execute Literature Grounding when required, Discovery, and
   Verification only. Produce a completed result, update `trace.md`, and call `finish`
   with `task_completed="false"`. Do not perform Promotion.
-- `hamilton_promotion`: read the frozen `promotion_input.json`, execute Promotion and
-  Finish only. Never configure, validate, or rerun PySR.
+- `hamilton_promotion`: read the compact controller-generated
+  `promotion_evidence.json`, execute Promotion and Finish only. Do not read the full
+  result JSON when `full_result_read_required=false`. Never configure, validate, or
+  rerun PySR.
   On recovery, explicitly edit `trace.md`, `findings.md`, and `plan.md` in the current
   attempt even if a partial prior attempt left valid content; unchanged files fail closure.
+  Minimize context growth: request the evidence and three L2 files in parallel, make all
+  three edits in one subsequent response, and then call `finish`.
+  Do not spend turns rewriting optional narrative sections such as data overview,
+  current hypotheses, confirmed knowledge, or strategy queues. For `plan.md`, replace
+  the scientific-decision block and next-round contract together in one edit. A short
+  current-round audit append is sufficient to make `trace.md` and `findings.md`
+  explicitly current.
+  Never reread or verify files after the required edits. The next and only action after
+  the edit response must be `finish`; deterministic closure performs verification.
 
 Follow only the phase named by the task type. The current round number is provided in the
 user message as `N`.
@@ -32,8 +43,11 @@ user message as `N`.
    If a controller-approved resume task identifies an already completed result for the
    current round after Promotion was interrupted, do not modify the experiment or rerun
    PySR. Read that result once and resume at Phase 2.
-2. Load `run-sr-experiment` using the exact `skill_name` parameter, then read
-   `config_schema.md`.
+2. Load `run-sr-experiment` using the exact `skill_name` parameter. In round 1, read
+   `config_schema.md` and use the frozen baseline. In round N > 1, do not read the
+   schema or rewrite the full JSON: run the Skill's `prepare_adaptive_config.py` with
+   `--round N`. The deterministic materializer applies the single L2 patch to the
+   controller-declared baseline, assigns the frozen seed, and writes `experiment.json`.
 3. For round 1, use the baseline configuration specified by the research task.
 4. For round N > 1, read the `EVO_NEXT_ROUND` contract in `plan.md`. Change exactly its
    primary experimental variable and keep the declared controls unchanged. Also obey the
@@ -133,8 +147,14 @@ For `hamilton_round`, finish after Verification with `task_completed="false"`. F
 
 ## Scientific governance
 
-Read `scientific_governance.md` from the experiment Skill. After every run, write its
-machine-readable `EVO_SCIENTIFIC_DECISION` block in `plan.md`.
+This section applies only to `hamilton_promotion`. During `hamilton_round`, do not load
+`scientific_governance.md` and do not update `findings.md`, `plan.md`, or a scientific
+decision. Discovery needs only `config_schema.md`, the controller directive, and the
+latest governed result needed to author the next configuration.
+
+During `hamilton_promotion`, read `scientific_governance.md` from the experiment Skill.
+After every run, write its machine-readable `EVO_SCIENTIFIC_DECISION` block in
+`plan.md`.
 Its `protocol_evidence.valid_result_files` must enumerate exactly the completed,
 protocol-valid `history/roundN/results/*.json` files used as evidence, and
 `invalid_attempts_used_as_scientific_evidence` must be false. Quarantined or
