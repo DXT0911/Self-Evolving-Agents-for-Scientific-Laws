@@ -15,8 +15,9 @@
 
 | 路径 | 用途 |
 |---|---|
+| `docs/sragent/REPOSITORY_MAP.zh-CN.md` | 简明仓库结构与实验资产导航 |
 | `playground/hamilton/` | Hamilton SR Agent 的实现 |
-| `playground/hamilton/DEVELOPMENT.md` | 协作开发指南与目录职责 |
+| `playground/hamilton/DEVELOPMENT.zh-CN.md` | 协作开发指南与目录职责 |
 | `playground/hamilton/core/` | 多轮智能体编排与实验执行 |
 | `playground/hamilton/prompts/` | 智能体提示词 |
 | `playground/hamilton/workspace/task.md` | 当前的 VIV 方程族发现任务 |
@@ -25,9 +26,14 @@
 | `evomaster/skills/pysr/` | PySR 相关知识与执行指南 |
 | `configs/hamilton/` | Hamilton 运行配置 |
 | `experiments/hamilton_vs_pysr_governed_search/` | governed Hamilton 与固定 PySR 的预注册对照实验 |
-| `docs/sragent/RESEARCH_PROTOCOL.md` | 研究范围、数据划分、实验与报告规范 |
-| `docs/sragent/README.md` | 当前规范与历史实验文档索引 |
+| `experiments/README.zh-CN.md` | 版本化实验状态索引 |
+| `docs/sragent/RESEARCH_PROTOCOL.zh-CN.md` | 研究范围、数据划分、实验与报告规范 |
+| `docs/sragent/README.zh-CN.md` | 当前规范与历史实验文档索引 |
 | `playground/hamilton/TODO.md` | 必须维护的实现进度记录 |
+
+governed Hamilton 对照实验已经完成三个任务、每个任务一个重复的公开运行门，但尚未完成
+计划中的多重复正式研究。审阅结果时应从实验索引进入，不要把被忽略的 `launch_bundle/`
+当作仓库文档入口。
 
 ## 上游框架目录
 

@@ -15,6 +15,7 @@ This fork is the canonical working repository for DXT0911's SR Agent research.
 
 | Path | Purpose |
 |---|---|
+| `docs/sragent/REPOSITORY_MAP.md` | Concise repository and artifact navigation |
 | `playground/hamilton/` | Hamilton SR Agent implementation |
 | `playground/hamilton/DEVELOPMENT.md` | Collaborator guide and directory ownership |
 | `playground/hamilton/core/` | Multi-round orchestration and experiment execution |
@@ -25,9 +26,14 @@ This fork is the canonical working repository for DXT0911's SR Agent research.
 | `evomaster/skills/pysr/` | PySR knowledge and execution guidance |
 | `configs/hamilton/` | Hamilton runtime configuration |
 | `experiments/hamilton_vs_pysr_governed_search/` | Preregistered governed-Hamilton versus fixed-PySR comparison |
+| `experiments/README.md` | Versioned experiment status index |
 | `docs/sragent/RESEARCH_PROTOCOL.md` | Research scope, data split, experiment and reporting rules |
 | `docs/sragent/README.md` | Current contracts versus historical experiment documents |
 | `playground/hamilton/TODO.md` | Required implementation progress log |
+
+The governed-Hamilton comparison has completed its three-task, one-repeat public
+operational gate. It has not completed the planned multi-repeat formal study. Start from
+the experiment index rather than an ignored `launch_bundle/` when reviewing results.
 
 ## Upstream framework paths
 

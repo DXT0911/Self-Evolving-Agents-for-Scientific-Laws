@@ -4,15 +4,15 @@ Playground is where developers build their own research agents. Each playground 
 
 **Developers should create their own playground in this directory to implement their research agents.**
 
-## Existing Examples
+## Versioned playgrounds
 
 | Playground | Type | Description | Docs |
 |---|---|---|---|
-| `minimal` | Single Agent | Minimal example, only inherits `BasePlayground`, ideal for learning the framework | [README](./minimal/README.md) |
-| `minimal_multi_agent` | Multi-Agent | Planning + Coding dual-agent collaboration, demonstrates multi-agent workflow | [README](./minimal_multi_agent/README.md) |
-| `minimal_kaggle` | Multi-Agent | Kaggle competition automation with 6 role agents (draft/debug/improve/research/knowledge/metric) | [README](./minimal_kaggle/README.md) |
-| `minimal_skill_task` | Single Agent + Skills | RAG-based Analyze → Plan → Search → Summarize workflow | [README](./minimal_skill_task/README.md) |
-| `x_master` | Multi-Phase Parallel | Four-phase iterative workflow: Solve → Critique → Rewrite → Select, with MCP tool support | [README](./x_master/README.md) |
+| `hamilton` | Single Agent + governed multi-round SR | LLM-controlled PySR search with deterministic budget, verification, Promotion, rollback, and closure | [README](./hamilton/README.md) |
+
+The generic extension guide below explains the upstream framework pattern. For Hamilton
+development, use its [collaborator guide](./hamilton/DEVELOPMENT.md) and the canonical
+configuration documented in [`../configs/hamilton/README.md`](../configs/hamilton/README.md).
 
 ## Quick Start: Create Your Playground
 

@@ -4,7 +4,9 @@
 </p>
 
 > 本 fork 的 SR Agent 研究入口：[`WORKSPACE.md`](./WORKSPACE.md)；
-> 实验协议：[`docs/sragent/RESEARCH_PROTOCOL.md`](./docs/sragent/RESEARCH_PROTOCOL.md)。
+> 实验协议：[`docs/sragent/RESEARCH_PROTOCOL.zh-CN.md`](./docs/sragent/RESEARCH_PROTOCOL.zh-CN.md)；
+> 简明目录导航：[`docs/sragent/REPOSITORY_MAP.zh-CN.md`](./docs/sragent/REPOSITORY_MAP.zh-CN.md)。
+> 下方保留上游框架概览作为背景；本分支中实际纳入版本控制的研究 playground 只有 Hamilton。
 
 <div align="center">
 
@@ -102,14 +104,10 @@ EvoMaster/
 │   ├── env/                # 环境（Docker, Local）
 │   ├── skills/             # 技能系统（Knowledge, Operator）
 │   └── utils/              # 工具（LLM, Types）
-├── playground/             # Playground 实现
-│   ├── minimal/            # 基础单智能体
-│   ├── minimal_kaggle/     # Kaggle 自动化
-│   ├── minimal_multi_agent/# Planning + Coding 多智能体
-│   ├── minimal_skill_task/ # RAG 工作流
-│   └── x_master/           # X-Master 四阶段工作流
-├── configs/                # 配置文件
-└── docs/                   # 文档
+├── playground/hamilton/    # Hamilton SR Agent 实现
+├── configs/hamilton/       # Hamilton 运行配置目录
+├── docs/sragent/           # SR Agent 当前规范与历史快照
+└── experiments/            # 版本化 SR Agent 实验包
 ```
 
 ## 📚 文档
@@ -127,11 +125,7 @@ EvoMaster/
 
 | Playground | 描述 | 文档 |
 |------------|------|------|
-| `minimal` | 基础单智能体 | [README](./playground/minimal/README_CN.md) |
-| `minimal_kaggle` | Kaggle 竞赛自动化 | [README](./playground/minimal_kaggle/README_CN.md) |
-| `minimal_multi_agent` | Planning + Coding 多智能体 | [README](./playground/minimal_multi_agent/README_CN.md) |
-| `minimal_skill_task` | RAG 分析→搜索→总结工作流 | [README](./playground/minimal_skill_task/README_CN.md) |
-| `x_master` | 四阶段并行工作流 | [README](./playground/x_master/README_CN.md) |
+| `hamilton` | 带确定性治理的多轮符号回归研究 Agent | [README](./playground/hamilton/README.md) |
 
 ## 🚀 快速开始
 

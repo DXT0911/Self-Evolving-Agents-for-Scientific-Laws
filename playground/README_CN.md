@@ -4,15 +4,15 @@ Playground 是开发者构建自己科研智能体的工作区。每个 playgrou
 
 **开发者应该在此目录下创建自己的 playground，实现自己的科研智能体。**
 
-## 现有示例
+## 当前纳入版本控制的 Playground
 
 | Playground | 类型 | 说明 | 文档 |
 |---|---|---|---|
-| `minimal` | 单智能体 | 最简示例，仅继承 `BasePlayground`，适合快速了解框架 | [README](./minimal/README.md) |
-| `minimal_multi_agent` | 多智能体 | Planning + Coding 双智能体协作，演示多 Agent 工作流 | [README](./minimal_multi_agent/README.md) |
-| `minimal_kaggle` | 多智能体 | Kaggle 竞赛自动化，含 6 个角色 Agent（draft/debug/improve/research/knowledge/metric） | [README](./minimal_kaggle/README.md) |
-| `minimal_skill_task` | 单智能体 + Skills | 基于 RAG 技能的 Analyze → Plan → Search → Summarize 工作流 | [README](./minimal_skill_task/README.md) |
-| `x_master` | 多阶段并行 | 四阶段迭代工作流 Solve → Critique → Rewrite → Select，支持 MCP 工具 | [README](./x_master/README.md) |
+| `hamilton` | 单 Agent + 治理式多轮 SR | LLM 控制 PySR 搜索，确定性 controller 管理预算、验证、Promotion、回滚与 closure | [README](./hamilton/README.md) |
+
+下方保留通用扩展指南，用于说明上游框架模式。开发 Hamilton 时，应阅读其
+[协作开发指南](./hamilton/DEVELOPMENT.zh-CN.md)以及
+[`../configs/hamilton/README.zh-CN.md`](../configs/hamilton/README.zh-CN.md)中的权威配置说明。
 
 ## 快速开始：创建你的 Playground
 
