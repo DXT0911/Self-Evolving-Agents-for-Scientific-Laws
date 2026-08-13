@@ -8,6 +8,9 @@ Generated inputs, launch bundles, checkpoints, and complete run workspaces remai
 
 ## Current experiments
 
+- `hamilton_vs_pysr_governed_search_v2/`: frozen pre-execution successor that excludes VIV,
+  adds an operator-union baseline, sealed dataset phases, and engine-measured efficiency.
+
 | Experiment | Status | Primary report |
 |---|---|---|
 | [`hamilton_vs_pysr_governed_search/`](hamilton_vs_pysr_governed_search/) | Public 9-arm operational gate completed; formal multi-repeat study not run | [`OPERATIONAL_GATE_STATUS_2026-07-28.md`](hamilton_vs_pysr_governed_search/OPERATIONAL_GATE_STATUS_2026-07-28.md) |

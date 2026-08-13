@@ -162,7 +162,22 @@ def _result_checkpoint(path: Path, requested: int, root: Path) -> dict[str, Any]
 def _job_checkpoints(
     job: dict[str, Any], bundle: Path, trace: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    workspace = REPO / str(job["workspace"])
+    workspace_value = Path(str(job["workspace"]))
+    local_workspace = REPO / workspace_value
+    if local_workspace.is_dir():
+        workspace = local_workspace
+    else:
+        # Launch bundles are intentionally Git-ignored and may be handed over outside the
+        # checkout that generated run_matrix.json.  Resolve the suffix after the bundle
+        # directory instead of coupling offline analysis to this module's repository.
+        parts = workspace_value.parts
+        try:
+            bundle_index = parts.index("launch_bundle")
+        except ValueError as exc:
+            raise ValueError(
+                f"workspace is neither local nor launch-bundle relative: {workspace_value}"
+            ) from exc
+        workspace = bundle.joinpath(*parts[bundle_index + 1 :])
     arm = job["arm"]
     attempts = trace["attempts"]
     if arm == "governed_hamilton":

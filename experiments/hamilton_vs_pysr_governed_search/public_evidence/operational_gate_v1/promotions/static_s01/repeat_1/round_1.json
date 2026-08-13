@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "round": 1,
+  "status": "completed",
+  "attempts": 3,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round1/results/result.json"
+  ],
+  "changed_config_fields": [],
+  "meaningful_config_change": null,
+  "single_config_change": null,
+  "incumbent_expected": {
+    "path": "history/round1/results/result.json",
+    "score": 0.17494470099978332,
+    "equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612"
+  },
+  "incumbent_action_expected": "initialize",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round1/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

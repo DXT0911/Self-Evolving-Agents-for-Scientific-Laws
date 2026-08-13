@@ -34,6 +34,8 @@ The comparison is not an old-Hamilton ablation. Its primary question is:
 - `arm_contracts.yaml`: frozen authority boundaries and allowed differences between arms.
 - `result_record.schema.json`: compact per-repeat result contract.
 - `prepare_public_data.py`: hash-checking adapter that creates opaque public CSV inputs.
+- `acquire_public_data.py`: downloads the ten external PMLB inputs from the frozen Git
+  revision and verifies the committed byte counts and SHA-256 fingerprints.
 - `task_specs.yaml`: frozen task adapters and shared initial numerical search space.
 - `build_launch_bundle.py`: materializes the ignored 99-job launch bundle without execution.
 - `freeze_paired_budget.py`: freezes one Hamilton ledger and generates its two paired
@@ -48,6 +50,11 @@ The comparison is not an old-Hamilton ablation. Its primary question is:
   equivalence against the controller-only registry.
 - `collect_ground_truth_equivalence.py`: applies the controller-only equivalence checks to
   every completed public result boundary in the launch bundle.
+- `export_public_evidence.py`: exports allowlisted result, Promotion, budget, and
+  reproducibility fields from the ignored operational-gate bundle into a versioned,
+  collaborator-safe evidence package.
+- `public_evidence/operational_gate_v1/`: compact public handoff evidence with SHA-256
+  checksums; it excludes raw data, private/OOD assets, LLM transcripts, and absolute paths.
 - `viv_long_horizon_replay.py`: replays the completed public U248 candidates through the
   deterministic Tier-0 long-horizon verifier without importing PySR or calling an LLM.
 - `VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md`: compact synthetic and historical-candidate
@@ -110,6 +117,12 @@ an LLM, PySR, or Julia:
 ```powershell
 python -m experiments.hamilton_vs_pysr_governed_search.prepare_public_data `
   experiments/hamilton_vs_pysr_governed_search/pilot_manifest.yaml
+```
+
+The frozen public cache itself can be acquired first with:
+
+```powershell
+python -m experiments.hamilton_vs_pysr_governed_search.acquire_public_data
 ```
 
 ## Required decisions before any further run

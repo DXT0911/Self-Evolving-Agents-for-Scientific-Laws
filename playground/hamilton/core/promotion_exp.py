@@ -131,8 +131,11 @@ class PromotionExp(BaseExp):
         # A missing error list is not proof that an audit ran: an interrupted LLM
         # request leaves a pending state with no errors. Only a completed closure
         # audit may explicitly authorize the bounded fast-finish path.
-        fast_finish_recovery = (
-            attempts >= 1 and state.get("fast_finish_eligible") is True
+        fast_finish_recovery = attempts >= 1 and (
+            state.get("fast_finish_eligible") is True
+            or self._existing_artifacts_fast_finish_eligible(
+                [item["path"] for item in promotion_input["results"]]
+            )
         )
         if fast_finish_recovery:
             recovery_feedback += self._fast_finish_feedback(
@@ -243,6 +246,34 @@ class PromotionExp(BaseExp):
         ):
             return False
         return True
+
+    def _existing_artifacts_fast_finish_eligible(
+        self, completed_results: list[str]
+    ) -> bool:
+        """Re-audit deterministic artifact repairs before another LLM attempt.
+
+        A user/controller may repair an exact machine-audit defect between attempts.
+        When every scientific and structural gate now passes, the next attempt should
+        perform only the bounded file-touch plus ``finish`` handshake instead of
+        allowing the LLM to rewrite the already-valid decision again.
+        """
+        grounding_required = self.round_num == 1 and self._literature_grounding_enabled()
+        closure = {
+            "closed": False,
+            "completed_result_files": completed_results,
+            "continuation_contract_valid": (
+                None if self._is_final_round() else self._continuation_contract_valid()
+            ),
+            "meaningful_config_change": self._meaningful_config_changed(completed_results),
+            "single_config_change": self._single_config_change(completed_results)[0],
+            "initial_priors": (
+                self._audit_initial_priors()
+                if grounding_required
+                else {"valid": True, "enabled": False, "errors": []}
+            ),
+            "scientific_decision": self._audit_scientific_decision(None),
+        }
+        return self._fast_finish_eligible(closure)
 
     @staticmethod
     def _recovery_feedback(

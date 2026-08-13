@@ -23,6 +23,21 @@ from typing import Any, Iterator
 import numpy as np
 import pandas as pd
 
+try:
+    from .engine_telemetry import make_logger_spec, validation_curve
+except ImportError:
+    import importlib.util
+
+    _telemetry_spec = importlib.util.spec_from_file_location(
+        "hamilton_engine_telemetry", Path(__file__).with_name("engine_telemetry.py")
+    )
+    if _telemetry_spec is None or _telemetry_spec.loader is None:
+        raise ImportError("could not load engine_telemetry.py")
+    _telemetry_module = importlib.util.module_from_spec(_telemetry_spec)
+    _telemetry_spec.loader.exec_module(_telemetry_module)
+    make_logger_spec = _telemetry_module.make_logger_spec
+    validation_curve = _telemetry_module.validation_curve
+
 
 class ConfigError(ValueError):
     """Raised when an experiment configuration violates the runner contract."""
@@ -2172,6 +2187,8 @@ def run_experiment(
     from pysr import PySRRegressor
 
     paths["run_directory"].parent.mkdir(parents=True, exist_ok=True)
+    telemetry_path = paths["run_directory"] / "engine_telemetry.jsonl"
+    telemetry_logger = make_logger_spec(telemetry_path, log_interval=1)
     model = PySRRegressor(
         niterations=search["niterations"],
         max_evals=search["max_evals"],
@@ -2190,6 +2207,7 @@ def run_experiment(
         progress=False,
         output_directory=str(paths["run_directory"].parent),
         run_id=paths["run_directory"].name,
+        logger_spec=telemetry_logger,
     )
     search_train = train.iloc[:: config["data"]["search_stride"]]
     search_features, search_target = transform_search_arrays(
@@ -2202,6 +2220,25 @@ def run_experiment(
         search_features,
         search_target,
         variable_names=features,
+    )
+
+    import sympy
+
+    y_validation = validation[target].to_numpy(dtype=float)
+    validation_scale = max(float(np.std(y_validation)), np.finfo(float).eps)
+
+    def telemetry_prediction(equation: str) -> np.ndarray:
+        search_expression = sympy.sympify(equation)
+        expression = restore_original_units(
+            search_expression, features, search_transform
+        )
+        return finite_predictions(expression, features, validation)
+
+    engine_telemetry = validation_curve(
+        telemetry_path,
+        predict_equation=telemetry_prediction,
+        target=y_validation,
+        target_scale=validation_scale,
     )
 
     equations = model.equations_
@@ -2290,6 +2327,7 @@ def run_experiment(
             "numpy": np.__version__,
             "pandas": pd.__version__,
         },
+        "engine_telemetry": engine_telemetry,
     }
 
 

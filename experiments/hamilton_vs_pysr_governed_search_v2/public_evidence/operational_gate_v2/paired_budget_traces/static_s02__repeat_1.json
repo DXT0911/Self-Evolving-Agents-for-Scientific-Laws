@@ -1,0 +1,34 @@
+{
+  "actual_total_requested_evals": 12000,
+  "attempts": [
+    {
+      "config_sha256": "4fefa92f9e07e473d80e07f3a5ee7cb730bf25678023ef08150a69ccc1ef049c",
+      "random_state": 4101,
+      "requested_evals": 4000,
+      "result_sha256": "0a18b2691a1f79101a55276885b1f78df0ed9a0d81c55f1763a476cc3f11a7c6",
+      "round": 1
+    },
+    {
+      "config_sha256": "fd9151df18678d8fe805f9a1333aebbfefa79e62bf61561efeff4e3027fbb69e",
+      "random_state": 4102,
+      "requested_evals": 4500,
+      "result_sha256": "b1b9a29f35c3785b30327314b0ac97d7c11bb98c97fcf0c6805f289ac5e2df2d",
+      "round": 2
+    },
+    {
+      "config_sha256": "9c628f922effe2231dcfb71b59c380f9dd9aa3310c825db2b95df3ed0ad879f3",
+      "random_state": 4103,
+      "requested_evals": 3500,
+      "result_sha256": "4fdfa1728b128d6d0a1e2d040cb90ea7d28afa8401dc59db1ddcec73cc091d9b",
+      "round": 3
+    }
+  ],
+  "contains_scientific_outputs": false,
+  "cumulative_ceiling": 12000,
+  "hamilton_ledger_sha256": "f9a9dc14766683fc7475b55797ce4d72193589abde94d8b1df6b60a79829d5bb",
+  "hamilton_seed_plan_sha256": "11f6b7382eafbfbf2c73aebd8a115f8694d13d20dd6903b6fc3e371a56f53d5a",
+  "repeat_id": "repeat_1",
+  "schema_version": 1,
+  "source": "governed_hamilton_evaluation_ledger",
+  "task_id": "static_s02"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "round": 2,
+  "status": "completed",
+  "attempts": 3,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round2/results/result.json"
+  ],
+  "changed_config_fields": [
+    "search.maxsize"
+  ],
+  "meaningful_config_change": true,
+  "single_config_change": true,
+  "incumbent_expected": {
+    "path": "history/round2/results/result.json",
+    "score": 0.17356765115046477,
+    "equation": "-2.4848418*x1 + 2.4848418*exp(0.34568632*x1 + 0.34568632*x2) - cos(x2 - 1.5449867) - 0.064011661731948"
+  },
+  "incumbent_action_expected": "promote",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round2/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

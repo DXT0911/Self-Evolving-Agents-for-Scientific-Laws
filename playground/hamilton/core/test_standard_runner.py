@@ -1367,6 +1367,24 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
         self.assertFalse(exp._fast_finish_eligible(invalid))
         self.assertFalse(exp._fast_finish_eligible({}))
 
+    def test_repaired_artifacts_can_authorize_fast_finish(self) -> None:
+        exp = PromotionExp(
+            SimpleNamespace(),
+            SimpleNamespace(experiment={"scientific_governance": True, "max_rounds": 3}),
+            1,
+        )
+        with (
+            patch.object(exp, "_continuation_contract_valid", return_value=True),
+            patch.object(exp, "_meaningful_config_changed", return_value=None),
+            patch.object(exp, "_single_config_change", return_value=(None, [])),
+            patch.object(exp, "_audit_scientific_decision", return_value={"valid": True}),
+        ):
+            self.assertTrue(
+                exp._existing_artifacts_fast_finish_eligible(
+                    ["history/round1/results/result.json"]
+                )
+            )
+
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):
     def setUp(self) -> None:

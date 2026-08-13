@@ -1,0 +1,94 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v2
+status: frozen_pre_execution
+private_ood_permitted: false
+deepseek_authorized_by_user: true
+pysr_julia_authorized_by_requested_execution: true
+
+goals:
+  - terminal_validation_accuracy
+  - ground_truth_recovery_and_reliability
+  - engine_measured_evaluation_efficiency
+  - llm_and_wall_clock_cost
+
+arms:
+  execution_order:
+    - governed_hamilton
+    - freeze_allowances_seeds_only
+    - ordinary_pysr
+    - fixed_schedule_pysr
+    - union_schedule_pysr
+  ids: [ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr, governed_hamilton]
+
+search:
+  binary_operators: ["+", "-", "*", "/"]
+  initial_unary_operators: [sin, cos, exp]
+  union_unary_operators: [sin, cos, exp, tanh]
+  episodes: 3
+  max_total_requested_evals_per_arm_task_repeat: 12000
+  dynamic_budget: {base: 4000, min: 2500, max: 5500, quantum: 500}
+  trust_region: {max_step_changes: 1, max_anchor_distance: 2, rollback_after_stale_rounds: 2}
+
+seed_plan:
+  repeat_1: {ordinary: 4101, episodes: [4101, 4102, 4103]}
+  repeat_2: {ordinary: 4201, episodes: [4201, 4202, 4203]}
+  repeat_3: {ordinary: 4301, episodes: [4301, 4302, 4303]}
+  repeat_4: {ordinary: 4401, episodes: [4401, 4402, 4403]}
+  repeat_5: {ordinary: 4501, episodes: [4501, 4502, 4503]}
+
+llm:
+  provider: deepseek
+  model: deepseek-v4-pro
+  discovery_max_tokens_per_round: 120000
+  promotion_max_tokens_per_round: 160000
+  promotion_max_attempts: 2
+  promotion_provider_thinking: disabled
+  max_tokens_per_hamilton_task_repeat: 600000
+  task_token_ceiling_overrides: {dynamic_d02: 1000000}
+  operational_amendment_2026_08_14:
+    reason: promotion_fit_preflight_needed_75352_tokens_after_round1_edits
+    change: promotion_max_tokens_per_round_60000_to_120000
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
+  operational_amendment_2026_08_14_b:
+    reason: static_round3_fit_preflight_needed_142837_tokens_before_finish
+    change: promotion_fit_ceiling_120000_to_160000_before_dynamic_d02_started
+    task_total_token_ceiling_changed: false
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
+  operational_amendment_2026_08_14_c:
+    reason: dynamic_d02_three_failed_promotion_repairs_consumed_270446_tokens
+    change: dynamic_d02_task_total_ceiling_600000_to_1000000
+    accounting: all_failed_and_recovery_tokens_remain_in_hamilton_cost
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
+
+waves:
+  - id: operational_gate
+    tasks: [static_s02, dynamic_d02]
+    repeats: [repeat_1]
+    arm_runs: 8
+    max_requested_evaluations: 96000
+    max_hamilton_tokens: 1600000
+  - id: validation_calibration
+    tasks: [static_s02, static_s04, dynamic_d02, dynamic_d03]
+    repeats: [repeat_1, repeat_2, repeat_3]
+    arm_runs: 48
+    max_requested_evaluations: 576000
+    max_hamilton_tokens: 7200000
+  - id: sealed_test
+    tasks: [static_s03, static_s05, static_s06, dynamic_d04]
+    repeats: [repeat_1, repeat_2, repeat_3, repeat_4, repeat_5]
+    arm_runs: 80
+    max_requested_evaluations: 960000
+    max_hamilton_tokens: 12000000
+
+analysis:
+  primary_metric: terminal_public_validation_nrmse
+  equivalence_metric: controller_challenge_grid_equivalence
+  efficiency_axis: engine_measured_evaluations
+  anytime_interpolation: right_continuous_best_so_far
+  nrmse_thresholds: [0.10, 0.05, 0.01]
+  failure_nrmse_penalty: 10.0
+  report_llm_tokens_separately: true
+  report_all_tasks_and_failures: true

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "round": 1,
+  "status": "completed",
+  "attempts": 1,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round1/results/result.json"
+  ],
+  "changed_config_fields": [],
+  "meaningful_config_change": null,
+  "single_config_change": null,
+  "incumbent_expected": {
+    "path": "history/round1/results/result.json",
+    "score": 1.1762777773980675,
+    "equation": "-161.03555*x"
+  },
+  "incumbent_action_expected": "initialize",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round1/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

@@ -1,0 +1,36 @@
+{
+  "actual_total_evals": 12000,
+  "attempts": [
+    {
+      "config_sha256": "51f5f180abeb72a9309343aa18524b67c1272ce38cb438736a33936a7cfaccc4",
+      "random_state": 1101,
+      "requested_evals": 4000,
+      "result_sha256": "0dab5301028e11a86079c333d63062fcd96e7f3595555ddce219c8d3a07a0779",
+      "round": 1,
+      "status": "completed"
+    },
+    {
+      "config_sha256": "45729d8196d0c030674a0f21eb2dda73110229f05fa721496f58a4722de21f64",
+      "random_state": 1102,
+      "requested_evals": 4500,
+      "result_sha256": "eea3c7d22565a59684cbf327557343d05450f96dcdc730e05e48201754d7b308",
+      "round": 2,
+      "status": "completed"
+    },
+    {
+      "config_sha256": "06d8aafe53381d6351a0f37c5e6c924fbf2949c9f3f4f4596efd34436c60770e",
+      "random_state": 1103,
+      "requested_evals": 3500,
+      "result_sha256": "64ed6d7f3f955d63b5f917038ee473db85604b20bfe39c2f4e5c12fe6c9998ca",
+      "round": 3,
+      "status": "completed"
+    }
+  ],
+  "contains_scientific_outputs": false,
+  "cumulative_ceiling": 12000,
+  "hamilton_ledger_sha256": "02cde546e27fbd51312737dc1d7d5922e7ac8a06edb4665608538a5f07f61089",
+  "repeat_id": "repeat_1",
+  "schema_version": 1,
+  "source": "governed_hamilton_evaluation_ledger",
+  "task_id": "static_s01"
+}
