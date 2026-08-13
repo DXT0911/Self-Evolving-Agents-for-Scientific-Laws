@@ -14,6 +14,9 @@ class LaunchBundleTests(unittest.TestCase):
             bundle = Path(directory) / "bundle"
             build(bundle)
             self.assertEqual(validate(bundle), [])
+            script = (bundle / "run_authorized.ps1").read_text(encoding="utf-8")
+            self.assertIn("ForEach-Object { Write-Host $_ }", script)
+            self.assertIn("return [int]$Code", script)
 
 
 if __name__ == "__main__":

@@ -278,7 +278,11 @@ $env:PYTHONUTF8 = "1"
 function Run-Step([string]$Name, [string]$WorkingDirectory, [string[]]$Arguments) {
   $Log = Join-Path $LogRoot ($Name + ".log")
   Push-Location $WorkingDirectory
-  try { & python @Arguments 2>&1 | Tee-Object -FilePath $Log; return $LASTEXITCODE }
+  try {
+    & python @Arguments 2>&1 | Tee-Object -FilePath $Log | ForEach-Object { Write-Host $_ }
+    $Code = $LASTEXITCODE
+    return [int]$Code
+  }
   finally { Pop-Location }
 }
 $Preflight = Run-Step "00_preflight" $Repo @("-m", "playground.hamilton.core.pysr_preflight", "--timeout", "180")
