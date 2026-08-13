@@ -1,6 +1,7 @@
 # Public VIV Dynamics-Feedback Operational-Gate Protocol
 
-Status: resource ceilings authorized on 2026-08-12; execution remains blocked by the environment gate.
+Status: execution blocked pending supplemental replacement authorization after the invalid
+2026-08-13 launch attempt recorded in `LAUNCH_ATTEMPT_2026-08-13.md`.
 
 ## Research question
 

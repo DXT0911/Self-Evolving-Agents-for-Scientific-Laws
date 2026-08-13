@@ -482,7 +482,7 @@ class HamiltonPlayground(BasePlayground):
             }
 
         finally:
-            if self.agent is not None and "original_agent_token_limit" in locals():
+            if getattr(self, "agent", None) is not None and "original_agent_token_limit" in locals():
                 self.agent.config.max_total_tokens = original_agent_token_limit
             self.cleanup()
 

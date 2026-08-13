@@ -77,7 +77,7 @@ def validate(
         require(bool(manifest.get("readiness_blockers")), "preparation blockers are required", errors)
         require(specs.get("executable_configs_materialized") is False, "preparation cannot contain executable configs", errors)
     elif mode == "authorized":
-        require(manifest.get("status") == "authorized_waiting_environment", "authorized status is invalid", errors)
+        require(manifest.get("status") == "authorized_waiting_supplemental_evaluations", "authorized status is invalid", errors)
         require(manifest.get("launch_blocked") is True, "environment blocker must keep launch blocked", errors)
         require(manifest.get("execution_permitted") is False, "blocked environment cannot permit execution", errors)
         require(permissions.get("deepseek") is True, "DeepSeek authorization must be recorded", errors)

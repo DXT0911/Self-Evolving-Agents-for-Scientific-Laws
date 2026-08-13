@@ -169,8 +169,8 @@ def hamilton_config() -> dict[str, Any]:
                     "preserve_system_messages": True,
                     "preserve_recent_turns": 10,
                 },
-                "system_prompt_file": "prompts/hamilton_adaptive_system.txt",
-                "user_prompt_file": "prompts/hamilton_adaptive_user.txt",
+                "system_prompt_file": str(ROOT / "playground/hamilton/prompts/hamilton_adaptive_system.txt"),
+                "user_prompt_file": str(ROOT / "playground/hamilton/prompts/hamilton_adaptive_user.txt"),
                 "skills": ["pysr", "run-sr-experiment", "evo-protocol"],
                 "tools": {"builtin": ["str_replace_editor", "think", "finish"]},
             }
@@ -290,12 +290,18 @@ if ($Preflight -ne 0) { exit $Preflight }
 $FitRun = Join-Path $PSScriptRoot "runs\fit_only_hamilton"
 $DynRun = Join-Path $PSScriptRoot "runs\dynamics_aware_hamilton"
 $Direct = Join-Path $PSScriptRoot "runs\direct_pysr\workspace"
-Run-Step "01_fit_only_hamilton" $Repo @("run.py", "--agent", "hamilton", "--config", (Join-Path $PSScriptRoot "configs\hamilton.yaml"), "--task", (Join-Path $FitRun "workspaces\task_0\task.md"), "--run-dir", $FitRun)
-Run-Step "02_fit_only_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--workspace", (Join-Path $FitRun "workspaces\task_0"), "--output", (Join-Path $FitRun "endpoint.json"))
-Run-Step "03_dynamics_aware_hamilton" $Repo @("run.py", "--agent", "hamilton", "--config", (Join-Path $PSScriptRoot "configs\hamilton.yaml"), "--task", (Join-Path $DynRun "workspaces\task_0\task.md"), "--run-dir", $DynRun)
-Run-Step "04_dynamics_aware_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--workspace", (Join-Path $DynRun "workspaces\task_0"), "--output", (Join-Path $DynRun "endpoint.json"))
-Run-Step "05_direct_pysr" $Direct @((Join-Path $Repo "evomaster\skills\run-sr-experiment\scripts\run_experiment.py"), "--config", "config.json")
-Run-Step "06_direct_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--source-result", (Join-Path $Direct "results\result.json"), "--output", (Join-Path $PSScriptRoot "runs\direct_pysr\endpoint.json"))
+$Code = Run-Step "01_fit_only_hamilton" $Repo @("run.py", "--agent", "hamilton", "--config", (Join-Path $PSScriptRoot "configs\hamilton.yaml"), "--task", (Join-Path $FitRun "workspaces\task_0\task.md"), "--run-dir", $FitRun)
+if ($Code -ne 0) { exit $Code }
+$Code = Run-Step "02_fit_only_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--workspace", (Join-Path $FitRun "workspaces\task_0"), "--output", (Join-Path $FitRun "endpoint.json"))
+if ($Code -ne 0) { exit $Code }
+$Code = Run-Step "03_dynamics_aware_hamilton" $Repo @("run.py", "--agent", "hamilton", "--config", (Join-Path $PSScriptRoot "configs\hamilton.yaml"), "--task", (Join-Path $DynRun "workspaces\task_0\task.md"), "--run-dir", $DynRun)
+if ($Code -ne 0) { exit $Code }
+$Code = Run-Step "04_dynamics_aware_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--workspace", (Join-Path $DynRun "workspaces\task_0"), "--output", (Join-Path $DynRun "endpoint.json"))
+if ($Code -ne 0) { exit $Code }
+$Code = Run-Step "05_direct_pysr" $Direct @((Join-Path $Repo "evomaster\skills\run-sr-experiment\scripts\run_experiment.py"), "--config", "config.json")
+if ($Code -ne 0) { exit $Code }
+$Code = Run-Step "06_direct_endpoint" $Repo @("-m", "experiments.viv_dynamics_feedback_gate.evaluate_endpoint", "--source-result", (Join-Path $Direct "results\result.json"), "--output", (Join-Path $PSScriptRoot "runs\direct_pysr\endpoint.json"))
+exit $Code
 '''
     script_path = output / "run_authorized.ps1"
     write_text(script_path, script)
