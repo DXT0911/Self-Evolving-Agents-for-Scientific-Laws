@@ -1,0 +1,99 @@
+schema_version: 1
+status: frozen_waiting_authorization
+experiment_id: hamilton-vs-pysr-governed-search-pilot-v1
+
+shared:
+  public_data_only: true
+  candidate_acceptance: deterministic
+  initial_search_space_equal_within_task: true
+  cumulative_evaluations_equal_within_task: true
+  validation_split_equal_within_task: true
+  candidate_evaluator_equal_within_task: true
+  operator_envelope:
+    binary: ["+", "-", "*", "/"]
+    unary: ["sin", "cos", "exp"]
+  controller_owned_fields:
+    - search.max_evals
+    - search.random_state
+    - output.result_file
+    - output.run_directory
+  immutable_fields:
+    - data.train_file
+    - data.allowed_files
+    - data.time_column
+    - data.feature_columns
+    - data.target_column
+    - data.validation_fraction
+    - verification
+  environment:
+    deterministic_pysr: true
+    parallelism: serial
+    versions_checked_by_authorized_pysr_julia_preflight: true
+  execution_order:
+    - governed_hamilton
+    - freeze_allowances_and_seeds_only
+    - ordinary_pysr_and_fixed_schedule_pysr
+
+arms:
+  ordinary_pysr:
+    llm_authority: none
+    search_episodes: 1
+    budget: paired_hamilton_realized_cumulative_evaluations
+    seed: repeat_primary_seed
+    search_configuration: frozen_initial_configuration
+    candidate_acceptance: deterministic_shared_evaluator
+
+  fixed_schedule_pysr:
+    llm_authority: none
+    search_episodes: 3
+    budget: exact_replay_of_paired_hamilton_realized_episode_allowances
+    seeds: paired_episode_seed_bundle
+    search_configuration: frozen_initial_configuration_every_episode
+    candidate_acceptance: deterministic_shared_evaluator
+
+  governed_hamilton:
+    llm_authority: propose_search_configuration_only
+    search_episodes: 3
+    budget: controller_allocated_with_frozen_cumulative_ceiling
+    seeds: paired_episode_seed_bundle
+    proposal_constraints:
+      max_step_changes: 1
+      max_anchor_distance: 2
+      rollback_after_stale_rounds: 2
+      allowed_scientific_leaves:
+        - search.binary_operators
+        - search.unary_operators
+        - search.niterations
+        - search.populations
+        - search.population_size
+        - search.tournament_selection_n
+        - search.maxsize
+        - search.parsimony
+        - data.standardize_search
+        - search.template_expression_spec
+      forbidden_authority:
+        - change_public_dataset
+        - change_split
+        - change_total_evaluation_budget
+        - change_candidate_evaluator
+        - change_scientific_gates
+        - select_or_accept_equation_directly
+        - access_ground_truth
+        - access_private_or_ood
+    deterministic_governance:
+      - schema_and_path_validation
+      - cumulative_evaluation_ledger
+      - dynamic_episode_allowance
+      - search_advancement_gates
+      - scientific_success_gates
+      - incumbent_persistence
+      - trust_region
+      - stale_round_rollback
+      - evidence_memory
+      - promotion_freeze_and_sha256
+      - closure_audit
+
+unresolved_before_launch:
+  - cumulative_evaluation_budget_authorization
+  - explicit_deepseek_authorization
+  - explicit_pysr_julia_authorization

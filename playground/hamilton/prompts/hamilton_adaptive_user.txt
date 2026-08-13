@@ -1,0 +1,17 @@
+Current research round: {input_data[round]}
+EvoMaster Exp phase: {task_type}
+Phase input: {input_data}
+
+The system has already created:
+
+- `task.md`
+- `plan.md`
+- `findings.md`
+- `history/round{input_data[round]}/trace.md`
+- `history/round{input_data[round]}/results/`
+
+Do not inspect directories to confirm their existence.
+
+## Research task
+
+{description}

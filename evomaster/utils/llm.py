@@ -118,6 +118,12 @@ class LLMConfig(BaseModel):
     use_completion_api: bool = Field(default=False, description="使用 Completion API 而非 Chat API")
 
 
+    thinking: bool = Field(
+        default=True,
+        description="Enable provider-side reasoning when the DeepSeek endpoint supports it.",
+    )
+
+
 class LLMResponse(BaseModel):
     """LLM 响应"""
     content: str | None = Field(default=None, description="生成的文本内容")
@@ -581,8 +587,8 @@ class DeepSeekLLM(BaseLLM):
             "temperature": kwargs.get("temperature", self.config.temperature),
             "timeout": kwargs.get("timeout", self.config.timeout),
             "extra_body": {
-                "chat_template_kwargs": {"thinking": True},
-                "separate_reasoning": True
+                "chat_template_kwargs": {"thinking": self.config.thinking},
+                "separate_reasoning": self.config.thinking
             }
         }
 

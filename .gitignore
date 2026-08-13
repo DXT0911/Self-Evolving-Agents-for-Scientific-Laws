@@ -167,5 +167,22 @@ local_model/
 runs/
 /.env
 
+# Personal SR Agent research artifacts
+.venv/
+venv/
+.julia/
+*.pkl
+*.pickle
+*.joblib
+*.arrow
+*.parquet
+artifacts/
+outputs/
+playground/hamilton/workspace/history/
+playground/hamilton/workspace/lib/
+playground/hamilton/workspace/plan.md
+playground/hamilton/workspace/findings.md
+
 # macOS
 .DS_Store
+playground/hamilton/benchmarks/*/private/

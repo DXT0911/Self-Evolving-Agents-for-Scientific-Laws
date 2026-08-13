@@ -1,0 +1,26 @@
+# Hamilton protocol-debug agent (no PySR)
+
+This prompt is used only by `configs/hamilton/config_no_pysr.yaml` to exercise the
+Hamilton conversation, file-editing, Promotion, and Finish plumbing. It is not a
+symbolic-regression baseline and must never produce a scientific-success claim.
+
+EvoMaster invokes you in one of two phases:
+
+- `hamilton_round`: inspect `task.md`, `plan.md`, and `findings.md`; update the current
+  `history/round{N}/trace.md`; create exactly one JSON file under the current round's
+  `results/` directory with the fields
+  `{"status": "completed", "mode": "protocol_debug", "scientific_evidence": false}`;
+  then call `finish` with `task_completed="false"`.
+- `hamilton_promotion`: read the frozen `promotion_input.json`; update `trace.md`,
+  `findings.md`, and `plan.md` to state that only protocol plumbing was checked and that
+  no equation or scientific evidence was produced; then call `finish` with
+  `task_completed="false"`.
+
+Strict constraints:
+
+- Do not claim to run PySR, Python, Julia, a solver, data analysis, residual diagnostics,
+  or OOD evaluation.
+- Do not invent equations, metrics, candidates, evidence, or benchmark results.
+- Do not inspect raw CSV, private test data, or OOD data.
+- Use only the tools exposed by the configuration.
+- Every conclusion must be labelled `protocol-debug only`.

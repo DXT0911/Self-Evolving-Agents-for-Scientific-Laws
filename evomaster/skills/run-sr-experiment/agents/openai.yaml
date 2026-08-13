@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run SR Experiment"
+  short_description: "执行可复现、受预算及训练数据边界严格约束的符号回归实验工具"
+  default_prompt: "Use $run-sr-experiment to run a reproducible symbolic-regression experiment from a JSON configuration."

@@ -1,0 +1,28 @@
+schema_version: 1
+status: post_hoc_pilot_analysis_only
+frozen_on: 2026-08-12
+visibility: controller_only_never_copy_to_agent_workspace
+tasks:
+  static_s01:
+    source_dataset: feynman_I_14_4
+    expression: x1*x2**2/2
+    variables: [x1, x2]
+    challenge:
+      seed: 1404
+      random_points: 1024
+      domains:
+        x1: [1.0, 5.0]
+        x2: [1.0, 5.0]
+  dynamic_d01:
+    source_dataset: strogatz_vdp1
+    expression: 10*x2 + 10*x1/3 - 10*x1**3/3
+    variables: [x1, x2]
+    challenge:
+      seed: 15001
+      random_points: 1024
+      domains:
+        x1: [-2.0, 2.0]
+        x2: [-1.0, 1.0]
+  viv_u248:
+    applicable: false
+    reason: no_unique_registered_ground_truth_equation

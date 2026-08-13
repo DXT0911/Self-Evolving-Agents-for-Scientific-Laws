@@ -6,6 +6,12 @@
   【<a href="./README.md">English</a> | <a href="./README-zh.md">简体中文</a>】
 </p>
 
+> SR Agent research in this fork starts at [`WORKSPACE.md`](./WORKSPACE.md).
+> See [`docs/sragent/RESEARCH_PROTOCOL.md`](./docs/sragent/RESEARCH_PROTOCOL.md)
+> for the experiment protocol and [`docs/sragent/REPOSITORY_MAP.md`](./docs/sragent/REPOSITORY_MAP.md)
+> for a concise directory map. The upstream overview below is retained for framework
+> context; Hamilton is the only versioned research playground in this branch.
+
 <div align="center">
 
 **The Universal Infrastructure for Building Evolving Autonomous Scientific Research Agents.**
@@ -101,14 +107,10 @@ EvoMaster/
 │   ├── env/                # Environment (Docker, Local)
 │   ├── skills/             # Skill system (Knowledge, Operator)
 │   └── utils/              # Utilities (LLM, Types)
-├── playground/             # Playground implementations
-│   ├── minimal/            # Basic single-agent
-│   ├── minimal_kaggle/     # Kaggle automation
-│   ├── minimal_multi_agent/# Planning + Coding agents
-│   ├── minimal_skill_task/ # RAG-based workflow
-│   └── x_master/           # X-Master 4-phase workflow
-├── configs/                # Configuration files
-└── docs/                   # Documentation
+├── playground/hamilton/    # Hamilton SR Agent implementation
+├── configs/hamilton/       # Hamilton runtime configuration catalog
+├── docs/sragent/           # SR Agent contracts and historical snapshots
+└── experiments/            # Versioned SR Agent experiment packages
 ```
 
 ## 📚 Documentation
@@ -126,11 +128,7 @@ EvoMaster/
 
 | Playground | Description | Documentation |
 |------------|-------------|---------------|
-| `minimal` | Basic single-agent playground | [README](./playground/minimal/README.md) |
-| `minimal_kaggle` | Kaggle competition automation | [README](./playground/minimal_kaggle/README.md) |
-| `minimal_multi_agent` | Planning + Coding agents | [README](./playground/minimal_multi_agent/README.md) |
-| `minimal_skill_task` | RAG-based Analyze→Search→Summarize | [README](./playground/minimal_skill_task/README.md) |
-| `x_master` | 4-phase parallel workflow | [README](./playground/x_master/README.md) |
+| `hamilton` | Governed multi-round symbolic-regression research agent | [README](./playground/hamilton/README.md) |
 
 ## 🚀 Quick Start
 

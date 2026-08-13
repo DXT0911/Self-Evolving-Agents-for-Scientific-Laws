@@ -1,0 +1,192 @@
+schema_version: 1
+status: frozen
+experiment_id: hamilton-vs-pysr-governed-search-pilot-v1
+
+shared_search:
+  engine: pysr
+  binary_operators: ["+", "-", "*", "/"]
+  unary_operators: ["sin", "cos", "exp"]
+  niterations: 1000
+  populations: 8
+  population_size: 32
+  tournament_selection_n: 12
+  maxsize: 31
+  parsimony: 0.001
+  top_k: 10
+
+shared_verification:
+  candidate_ranking:
+    enabled: true
+    max_candidates: 10
+    weights:
+      validation_nrmse: 1.0
+      trajectory_nrmse: 0.0
+      complexity: 0.05
+    failure_penalty: 100.0
+  residual_diagnostics:
+    enabled: true
+    max_lag: 50
+    feature_bins: 4
+    phase_bins: 8
+    high_frequency_fraction: 0.25
+
+tasks:
+  static_s01:
+    family: blind_static_known_truth
+    input: prepared_data/static_s01/input/data.csv
+    input_sha256: a710c86ace14554bf5fb862f3ec730bc56151867cbf0db61443ecd23b4e2093b
+    time_column: t
+    feature_columns: [x1, x2]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+  static_s02:
+    family: blind_static_known_truth
+    input: prepared_data/static_s02/input/data.csv
+    input_sha256: 4a6f94da693f1871e622318cdf61b1796343f65ecc2057ea11ef9569db6bd59c
+    time_column: t
+    feature_columns: [x1, x2, x3, x4]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+  static_s03:
+    family: blind_static_known_truth
+    input: prepared_data/static_s03/input/data.csv
+    input_sha256: 856a4cab346e21b152b3e9d0ce3d29cc0d93004e4859770ed80dcfb313c0ef0c
+    time_column: t
+    feature_columns: [x1, x2, x3]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+  static_s04:
+    family: blind_static_known_truth
+    input: prepared_data/static_s04/input/data.csv
+    input_sha256: 4c5619cc858b94a2e30384f5568bd368c496758d3c6abc1afaf69eb1c2f606d4
+    time_column: t
+    feature_columns: [x1]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+  static_s05:
+    family: blind_static_known_truth
+    input: prepared_data/static_s05/input/data.csv
+    input_sha256: 0c96aeec2dc05750b19383a15b671d57d5e35fa48f6cdd81dc471fbae7af0df0
+    time_column: t
+    feature_columns: [x1, x2, x3, x4]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+  static_s06:
+    family: blind_static_known_truth
+    input: prepared_data/static_s06/input/data.csv
+    input_sha256: 58d950bc42bab28229052ccf44e7033a12f887c402097766d55d1be50b63dac8
+    time_column: t
+    feature_columns: [x1, x2, x3, x4, x5, x6]
+    target_column: y
+    max_rows: null
+    search_stride: 10
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_static
+
+  dynamic_d01:
+    family: known_dynamics_derivatives
+    input: prepared_data/dynamic_d01/input/data.csv
+    input_sha256: 2e50b3279496d7a517f15524e0fa52796b6064855d4f3eb90ba3b84961cbb2e6
+    time_column: t
+    feature_columns: [x1, x2]
+    target_column: y
+    max_rows: null
+    search_stride: 1
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_dynamic_derivative
+  dynamic_d02:
+    family: known_dynamics_derivatives
+    input: prepared_data/dynamic_d02/input/data.csv
+    input_sha256: 5b963170b5014fb32a50a984a7c1d70e42f2a4075f660295403a3c2b3f5d5a9f
+    time_column: t
+    feature_columns: [x1, x2]
+    target_column: y
+    max_rows: null
+    search_stride: 1
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_dynamic_derivative
+  dynamic_d03:
+    family: known_dynamics_derivatives
+    input: prepared_data/dynamic_d03/input/data.csv
+    input_sha256: d8e0f5c6880966fd6dc5f3b9638891cb74b6f4d7c4ca083e90989bf5fb27bc8d
+    time_column: t
+    feature_columns: [x1, x2]
+    target_column: y
+    max_rows: null
+    search_stride: 1
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_dynamic_derivative
+  dynamic_d04:
+    family: known_dynamics_derivatives
+    input: prepared_data/dynamic_d04/input/data.csv
+    input_sha256: 1b90097a827ae736acb63ec278104bace56f2dd4b142f2d5832fff8fa1dbdf34
+    time_column: t
+    feature_columns: [x1, x2]
+    target_column: y
+    max_rows: null
+    search_stride: 1
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode: {enabled: false}
+    context: blind_dynamic_derivative
+
+  viv_u248:
+    family: viv_public
+    input: ../../playground/hamilton/workspace/input/U248_train.csv
+    input_sha256: c6d99ed7ee5d7f177195767f232990968c3b9a64e0fbd902fd0dc59feeb52635
+    time_column: t
+    feature_columns: [x, v]
+    target_column: a
+    max_rows: null
+    search_stride: 5
+    validation_fraction: 0.2
+    standardize_search: false
+    short_ode:
+      enabled: true
+      position_column: x
+      velocity_column: v
+      duration: 10.0
+      points: 1000
+      state_limit: 1000000
+    candidate_ranking_override:
+      enabled: true
+      max_candidates: 10
+      weights:
+        validation_nrmse: 1.0
+        trajectory_nrmse: 1.0
+        complexity: 0.05
+      failure_penalty: 100.0
+    context: public_viv

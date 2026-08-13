@@ -16,6 +16,10 @@ class SessionConfig(BaseModel):
     """Session 基础配置"""
     timeout: int = Field(default=3600, description="默认执行超时时间（秒）")
     workspace_path: str = Field(default="/workspace", description="工作空间路径")
+    blocked_read_extensions: list[str] = Field(
+        default_factory=list,
+        description="File suffixes that LLM-facing file tools must not expose.",
+    )
 
 
 class BaseSession(ABC):
