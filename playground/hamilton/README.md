@@ -146,6 +146,8 @@ playground/hamilton/
 - Tier 1--3 由 workspace 外的控制器对冻结候选执行，并用私有账本限制访问次数；
   Tier 3 验收后写入锁文件，禁止继续自适应搜索
 - 强制确定性串行运行，并保存候选方程、数据指纹、环境版本和结构化失败原因
+- 通过 SymbolicRegression logger 保存引擎实测 evaluations 与逐检查点 Pareto 前沿，并在
+  同一冻结验证块上生成 best-so-far NRMSE 曲线
 - 先使用 `--validate-only` 检查配置，再执行正式搜索
 
 ### Evo Protocol Skill (`evomaster/skills/evo-protocol/`)

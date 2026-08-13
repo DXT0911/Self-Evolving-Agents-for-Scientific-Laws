@@ -18,6 +18,11 @@ The four arms are:
   trust region, rollback, Promotion, and closure.
 
 The union arm distinguishes residual-guided timing from merely having a wider operator set.
+
+`max_evals` is recorded as a requested stopping threshold, not treated as the observed
+number of evaluations. SymbolicRegression's `SearchState.num_evals` logger value is the
+confirmatory efficiency axis because initialization and batched work can pass the requested
+threshold. Both values are retained in every result.
 No Hamilton candidate, score, residual, L2 memory, or natural-language decision enters a
 baseline workspace.
 

@@ -29,6 +29,13 @@ search:
   dynamic_budget: {base: 4000, min: 2500, max: 5500, quantum: 500}
   trust_region: {max_step_changes: 1, max_anchor_distance: 2, rollback_after_stale_rounds: 2}
 
+seed_plan:
+  repeat_1: {ordinary: 4101, episodes: [4101, 4102, 4103]}
+  repeat_2: {ordinary: 4201, episodes: [4201, 4202, 4203]}
+  repeat_3: {ordinary: 4301, episodes: [4301, 4302, 4303]}
+  repeat_4: {ordinary: 4401, episodes: [4401, 4402, 4403]}
+  repeat_5: {ordinary: 4501, episodes: [4501, 4502, 4503]}
+
 llm:
   provider: deepseek
   model: deepseek-v4-pro

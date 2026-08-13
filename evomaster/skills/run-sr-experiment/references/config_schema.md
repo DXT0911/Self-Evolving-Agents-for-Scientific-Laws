@@ -161,6 +161,9 @@ The result JSON contains:
 - optional public Tier-0 long-horizon summaries: robust steady amplitude, detrended-window FFT
   frequency, zero/large-initial-condition behavior, stationarity, attractor consistency,
   structured failure classes, and the ranking penalty;
+- engine telemetry sourced from SymbolicRegression `SearchState.num_evals`, with every
+  logged Pareto checkpoint re-evaluated on the frozen validation block to form a
+  best-so-far validation-NRMSE curve; the raw JSONL stays in the ignored PySR run directory;
 - runtime and environment versions;
 - structured error information on failure.
 
