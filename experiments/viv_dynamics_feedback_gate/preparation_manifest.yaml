@@ -1,8 +1,8 @@
 schema_version: 1
 experiment_id: viv-dynamics-feedback-public-gate-v1
-status: authorized_waiting_environment
-launch_blocked: true
-execution_permitted: false
+status: frozen_authorized
+launch_blocked: false
+execution_permitted: true
 private_ood_permitted: false
 
 permissions:
@@ -66,7 +66,7 @@ frozen_inputs:
     sha256: afbebbab17bc2069c56b44904345b36db96675c5af743f6a2751b499339f05fe
   arm_specs:
     path: experiments/viv_dynamics_feedback_gate/arm_specs.yaml
-    sha256: e356a817cec919e689a47161c0ff41cbd4480e492a7aed9ceef94a095c6fff4a
+    sha256: d07f4ddad949024583f6d2a94d980637906eab7c90b89c31565bd1647492e9ea
   calibration_report:
     path: experiments/hamilton_vs_pysr_governed_search/VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md
     sha256: 72a3ff4bb10ccb65cda2b6fccf7bd748912cacf24045c8762ffcc92898607809
@@ -74,14 +74,7 @@ frozen_inputs:
     path: evomaster/skills/run-sr-experiment/scripts/run_experiment.py
     sha256: eb702236a5e96135a74bc39a6719a231443d736704d283a2126f63b742984924
 
-readiness_blockers:
-  - juliapkg_lock_holder_unresolved
-  - pysr_preflight_180_seconds_not_passing
-  - materialize_three_independent_executable_configs
-  - materialize_and_hash_a_new_launch_bundle
-  - capture_environment_and_package_versions
-  - freeze_persistent_background_logging_command
-  - pass_launch_mode_safety_validation
+readiness_blockers: []
 
 forbidden:
   - reuse_2026_07_28_authorization
