@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import os
@@ -266,6 +267,8 @@ def build(output: Path = OUTPUT) -> dict[str, Any]:
         "private_ood_permitted": False, "git_commit": head,
         "execution_order": [job["arm"] for job in jobs], "jobs": jobs,
         "resource_ceilings": {"requested_evaluations_all_arms": 36000,
+                              "previous_interrupted_direct_pysr": 12000,
+                              "cumulative_requested_evaluations": 48000,
                               "deepseek_tokens_all_hamilton_arms": 1200000},
     }
     matrix_path = output / "run_matrix.json"
@@ -319,4 +322,7 @@ exit $Code
 
 
 if __name__ == "__main__":
-    print(json.dumps(build(), indent=2, sort_keys=True))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    print(json.dumps(build(args.output.resolve()), indent=2, sort_keys=True))

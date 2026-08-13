@@ -1,6 +1,6 @@
 schema_version: 1
 experiment_id: viv-dynamics-feedback-public-gate-v1
-executable_configs_materialized: false
+executable_configs_materialized: true
 
 common_search:
   engine: pysr

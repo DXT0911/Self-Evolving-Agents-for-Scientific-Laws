@@ -1,7 +1,7 @@
 # VIV 动力学反馈三臂公开运行门
 
-状态：`authorized_waiting_supplemental_evaluations`。首次启动产生了一笔中断的 12,000
-requested-evaluation reservation；替代 direct PySR 预算尚未授权，启动重新锁定。
+状态：`frozen_authorized`。首次启动产生的 12,000 requested-evaluation reservation
+继续计入账本；新的三臂替代运行获批 36,000，累计硬上限为 48,000。
 
 本实验包冻结一个不可执行的公开 U248 单重复运行门，用于比较：
 
@@ -23,7 +23,7 @@ bundle，DeepSeek 与 PySR/Julia 权限均为 false，private/OOD 始终禁止�
 ## 离线检查
 
 ```powershell
-python -m experiments.viv_dynamics_feedback_gate.validate_preparation --mode authorized
+python -m experiments.viv_dynamics_feedback_gate.validate_preparation --mode launch
 python -m unittest experiments.viv_dynamics_feedback_gate.test_validate_preparation
 ```
 

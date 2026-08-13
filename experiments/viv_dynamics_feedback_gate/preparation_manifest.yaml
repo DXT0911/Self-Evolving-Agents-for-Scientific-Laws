@@ -1,8 +1,8 @@
 schema_version: 1
 experiment_id: viv-dynamics-feedback-public-gate-v1
-status: authorized_waiting_supplemental_evaluations
-launch_blocked: true
-execution_permitted: false
+status: frozen_authorized
+launch_blocked: false
+execution_permitted: true
 private_ood_permitted: false
 
 permissions:
@@ -15,6 +15,9 @@ authorization:
   source: user_message_all_authorized
   deepseek_maximum_all_hamilton_arms: 1200000
   pysr_requested_evaluations_maximum_all_arms: 36000
+  supplemental_recorded_date: 2026-08-13
+  supplemental_source: user_message_explicit_additional_12000
+  cumulative_requested_evaluations_maximum: 48000
   executable_config_materialization: true
   local_review_commit: true
   push: false
@@ -45,8 +48,8 @@ requested_evaluation_budget:
   maximum_all_arms: 36000
   consumed_interrupted_direct_pysr: 12000
   remaining_authorized: 24000
-  supplemental_replacement_requested: 12000
-  proposed_cumulative_ceiling_after_supplement: 48000
+  supplemental_replacement_authorized: 12000
+  cumulative_ceiling_after_supplement: 48000
   hamilton_round_count: 3
   hamilton_dynamic_bounds:
     base_evals: 4000
@@ -67,10 +70,10 @@ proposed_llm_token_budget:
 frozen_inputs:
   protocol:
     path: experiments/viv_dynamics_feedback_gate/PROTOCOL.md
-    sha256: 486dff95fe2ed04b9c020b1d3b6dd1e872b224eb68c8033e14ac53e7b4a328a8
+    sha256: aed8e2482011196878063e0afd6f74de2731a5ce954a4150bffc46e476622ff8
   arm_specs:
     path: experiments/viv_dynamics_feedback_gate/arm_specs.yaml
-    sha256: e356a817cec919e689a47161c0ff41cbd4480e492a7aed9ceef94a095c6fff4a
+    sha256: d07f4ddad949024583f6d2a94d980637906eab7c90b89c31565bd1647492e9ea
   calibration_report:
     path: experiments/hamilton_vs_pysr_governed_search/VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md
     sha256: 72a3ff4bb10ccb65cda2b6fccf7bd748912cacf24045c8762ffcc92898607809
@@ -78,10 +81,7 @@ frozen_inputs:
     path: evomaster/skills/run-sr-experiment/scripts/run_experiment.py
     sha256: eb702236a5e96135a74bc39a6719a231443d736704d283a2126f63b742984924
 
-readiness_blockers:
-  - explicit_supplemental_12000_requested_evaluation_authorization
-  - create_clean_replacement_bundle_separate_from_failed_attempt
-  - pass_replacement_bundle_launch_validation
+readiness_blockers: []
 
 forbidden:
   - reuse_2026_07_28_authorization

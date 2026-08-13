@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -27,6 +28,11 @@ def validate(bundle: Path = OUTPUT) -> list[str]:
         errors.append("requested-evaluation ceiling mismatch")
     if sum(int(job.get("llm_token_ceiling", 0)) for job in jobs) != 1200000:
         errors.append("LLM token ceiling mismatch")
+    ceilings = matrix.get("resource_ceilings", {})
+    if ceilings.get("previous_interrupted_direct_pysr") != 12000:
+        errors.append("previous interrupted reservation is not preserved")
+    if ceilings.get("cumulative_requested_evaluations") != 48000:
+        errors.append("cumulative requested-evaluation ceiling mismatch")
     for raw, expected in lock.get("hashes", {}).items():
         path = ROOT / raw
         if not path.is_file() or sha256(path) != expected:
@@ -46,9 +52,11 @@ def validate(bundle: Path = OUTPUT) -> list[str]:
 
 
 if __name__ == "__main__":
-    problems = validate()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--bundle", type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    problems = validate(args.bundle.resolve())
     if problems:
         print("launch bundle validation failed:\n" + "\n".join(f"- {item}" for item in problems))
         raise SystemExit(1)
     print("launch bundle validation passed")
-

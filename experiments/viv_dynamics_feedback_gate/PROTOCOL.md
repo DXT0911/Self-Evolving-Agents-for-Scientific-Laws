@@ -1,7 +1,8 @@
 # Public VIV Dynamics-Feedback Operational-Gate Protocol
 
-Status: execution blocked pending supplemental replacement authorization after the invalid
-2026-08-13 launch attempt recorded in `LAUNCH_ATTEMPT_2026-08-13.md`.
+Status: replacement execution authorized after the invalid 2026-08-13 launch attempt.
+The failed 12,000 direct-PySR reservation remains consumed; the replacement adds 36,000,
+for a cumulative requested-evaluation ceiling of 48,000.
 
 ## Research question
 
