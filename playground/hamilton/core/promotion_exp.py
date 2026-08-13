@@ -128,10 +128,12 @@ class PromotionExp(BaseExp):
             attempts=attempts,
             prior_closure_errors=prior_closure_errors,
         )
-        # If the deterministic scientific audit found no errors, a recovery only
-        # needs fresh L2 touches plus the finish handshake. Enter this bounded path
-        # on the first recovery instead of spending several full Promotion attempts.
-        fast_finish_recovery = attempts >= 1 and not prior_closure_errors
+        # A missing error list is not proof that an audit ran: an interrupted LLM
+        # request leaves a pending state with no errors. Only a completed closure
+        # audit may explicitly authorize the bounded fast-finish path.
+        fast_finish_recovery = (
+            attempts >= 1 and state.get("fast_finish_eligible") is True
+        )
         if fast_finish_recovery:
             recovery_feedback += self._fast_finish_feedback(
                 round_num=self.round_num,
@@ -206,6 +208,7 @@ class PromotionExp(BaseExp):
             "attempts": attempts + 1,
             "input_sha256": self._file_digest(self._promotion_input_path()),
             "errors": closure.get("scientific_decision", {}).get("errors", []),
+            "fast_finish_eligible": self._fast_finish_eligible(closure),
             "result": (
                 {
                     "round": self.round_num,
@@ -219,6 +222,27 @@ class PromotionExp(BaseExp):
             ),
         })
         return result
+
+    def _fast_finish_eligible(self, closure: dict) -> bool:
+        """Allow fast finish only after all scientific/structural gates were audited."""
+        if closure.get("closed"):
+            return False
+        scientific = closure.get("scientific_decision", {})
+        initial_priors = closure.get("initial_priors", {})
+        if not (
+            scientific.get("valid")
+            and initial_priors.get("valid")
+            and closure.get("completed_result_files")
+        ):
+            return False
+        if closure.get("continuation_contract_valid") is False:
+            return False
+        if self.round_num > 1 and not (
+            closure.get("meaningful_config_change")
+            and closure.get("single_config_change")
+        ):
+            return False
+        return True
 
     @staticmethod
     def _recovery_feedback(

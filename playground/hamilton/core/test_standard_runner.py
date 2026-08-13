@@ -1345,6 +1345,28 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
         self.assertIn("EVO_FAST_FINISH_RECOVERY_ATTEMPT_3", feedback)
         self.assertNotIn("history/round3/trace.md", feedback)
 
+    def test_fast_finish_requires_explicit_successful_scientific_audit(self) -> None:
+        exp = PromotionExp(
+            SimpleNamespace(),
+            SimpleNamespace(experiment={}),
+            3,
+        )
+        valid = {
+            "closed": False,
+            "completed_result_files": ["history/round3/results/result.json"],
+            "continuation_contract_valid": None,
+            "meaningful_config_change": True,
+            "single_config_change": True,
+            "initial_priors": {"valid": True},
+            "scientific_decision": {"valid": True},
+        }
+        self.assertTrue(exp._fast_finish_eligible(valid))
+
+        invalid = dict(valid)
+        invalid["scientific_decision"] = {"valid": False}
+        self.assertFalse(exp._fast_finish_eligible(invalid))
+        self.assertFalse(exp._fast_finish_eligible({}))
+
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):
     def setUp(self) -> None:
