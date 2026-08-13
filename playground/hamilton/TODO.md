@@ -109,6 +109,13 @@ workspace/
 - [ ] P1：用正式私有 manifest 按 Tier 1 → Tier 2 → Tier 3 完成受控验收
 - [x] P2：增加 controller-only ground truth 注册表、代数/挑战网格等价验证和
   不向 Agent 泄露答案的公开静态/动力学任务基础设施
+- [x] P2：发布 v1 运行门的字段白名单公开证据包、固定 revision 数据获取脚本和协作者
+  Codex 交接文档
+- [x] P2：冻结排除 VIV 的 Hamilton-vs-PySR v2 开发/验证/测试任务划分、四实验臂、
+  四类指标和最大资源预算
+- [ ] P2：为 v2 增加引擎实测 evaluation 遥测、union-schedule 基线、执行配置一致性审计
+  和完整 launch-bundle 测试
+- [ ] P2：完成 v2 运行门、验证集策略选择和五重复封存测试
 
 R1--R8 受控实验已完成。当前 incumbent 为 `1.1619 - 1.8606x³`，scientific score 为
 `0.954`，但速度依赖、验证 R² 和 scientific score 成功门槛均未通过。该结果证明严格多轮闭环

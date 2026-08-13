@@ -1,0 +1,54 @@
+schema_version: 1
+status: frozen_before_v2_outcomes
+source_repository: https://github.com/EpistasisLab/pmlb
+source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+selection_basis:
+  - public traceable source and license
+  - compatible with scalar config-driven runner
+  - known controller-only expression
+  - complementary structural challenge
+  - identical bytes features split and evaluator across arms
+  - no VIV private or OOD asset
+
+phases:
+  development:
+    outcome_visibility: already_observed_in_v1
+    may_change_controller: true
+    tasks:
+      - {id: static_s01, source_dataset: feynman_I_14_4, structure: polynomial_interaction}
+      - {id: dynamic_d01, source_dataset: strogatz_vdp1, structure: cubic_nonlinear_interaction}
+  validation:
+    outcome_visibility: unopened_at_freeze
+    may_select_one_final_policy: true
+    tasks:
+      - {id: static_s02, source_dataset: feynman_I_12_2, structure: multivariable_rational}
+      - {id: static_s04, source_dataset: feynman_I_6_2a, structure: exponential}
+      - {id: dynamic_d02, source_dataset: strogatz_barmag1, structure: coupled_trigonometric}
+      - {id: dynamic_d03, source_dataset: strogatz_glider2, structure: division_and_trigonometric}
+  test:
+    outcome_visibility: sealed_until_final_policy_commit
+    may_change_controller: false
+    tasks:
+      - {id: static_s03, source_dataset: feynman_II_15_4, structure: periodic_trigonometric}
+      - {id: static_s05, source_dataset: feynman_I_18_4, structure: mixed_rational}
+      - {id: static_s06, source_dataset: feynman_III_9_52, structure: difficult_periodic_rational}
+      - {id: dynamic_d04, source_dataset: strogatz_shearflow2, structure: mixed_trigonometric_products}
+
+row_split:
+  static:
+    policy: deterministic_contiguous_public_order
+    train_fraction: 0.8
+    validation_fraction: 0.2
+    note: source rows are independently sampled; order is retained for v1 compatibility
+  dynamics:
+    policy: contiguous_time
+    train_fraction: 0.8
+    validation_fraction: 0.2
+    note: random row splitting is forbidden
+
+aggregation:
+  development_repeats: 0
+  validation_repeats: 3
+  test_repeats: 5
+  pair_by: [task_id, repeat_id]
+  never_pool_phases: true

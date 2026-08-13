@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "round": 1,
+  "status": "completed",
+  "attempts": 3,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round1/results/result.json"
+  ],
+  "changed_config_fields": [],
+  "meaningful_config_change": null,
+  "single_config_change": null,
+  "incumbent_expected": {
+    "path": "history/round1/results/result.json",
+    "score": 0.7875155128866885,
+    "equation": "(x1*x2 + 1)*(x2*cos(x2) + exp(x2))*(exp(x2) + sin(x2))*cos(x1) - 0.73458175"
+  },
+  "incumbent_action_expected": "initialize",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round1/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

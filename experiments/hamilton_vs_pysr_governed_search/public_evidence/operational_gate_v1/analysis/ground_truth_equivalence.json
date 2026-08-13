@@ -1,0 +1,1217 @@
+{
+  "schema_version": 1,
+  "analysis_status": "post_hoc_pilot_analysis_not_preregistered",
+  "source": "completed_public_pilot_result_boundaries",
+  "controller_only": true,
+  "private_ood_accessed": false,
+  "selection_warning": "Both ever-observed and last-observed decisions are reported. Neither is silently substituted for a separately governed terminal incumbent.",
+  "claim_limit": "The registry, challenge grid, and tolerances were added after the first pilot outcomes and cannot support a retrospective preregistration claim.",
+  "records": [
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "ordinary_pysr/static_s01/repeat_1/workspace/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.08390081418876232,
+              "normalized_max_error": 0.3328227156711274,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_1.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.08390081418876232,
+              "normalized_max_error": 0.3328227156711274,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 8500,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_2.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "x2*(0.499858340349071*x1*x2 - 0.000378325343810429*x1 + 0.0011098395*x2)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.0003049162290877049,
+              "normalized_max_error": 0.0010759355427937469,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_3.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "1.7591625*x1*(x2 + exp(cos(x2 + 1.0594174)) - 1.0286113) + x2 - 2.9978979",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.023851338236630378,
+              "normalized_max_error": 0.10828113789933365,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round1/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.08390081418876232,
+              "normalized_max_error": 0.3328227156711274,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 8500,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round2/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "-2.4848418*x1 + 2.4848418*exp(0.34568632*x1 + 0.34568632*x2) - cos(x2 - 1.5449867) - 0.064011661731948",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.0958259754569399,
+              "normalized_max_error": 0.27368066833798826,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round3/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "static_s01",
+            "applicable": true,
+            "candidate_equation": "(x2 - 1.0573021)*(2.745499*x1 + x2 - 4.005535)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.04973017330155763,
+              "normalized_max_error": 0.21485850207199667,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "ordinary_pysr/dynamic_d01/repeat_1/workspace/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "x2*(-1.91624842311779*x1 + 6.901197*x2 + 6.901197*sin(cos(x1)) + 6.901197*sin(2.33374810260445*cos(x1)) - 4.14458342779258)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 1.1096629721493725,
+              "normalized_max_error": 5.635191843256902,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_1.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "(x1*x2 + 1)*(x2*cos(x2) + exp(x2))*(exp(x2) + sin(x2))*cos(x1) - 0.73458175",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.9343083027044714,
+              "normalized_max_error": 3.093914719690648,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 8500,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_2.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "x2*(9.74087633348014*cos(0.93113518581402*x1**2 - 0.89847213*x2) - 0.843590977828236)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 1.0766542593820814,
+              "normalized_max_error": 4.234800465902105,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_3.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "1.72109722701978*x2 + (1.72109722701978*x1**2 + 5.16329168105934*x2)*cos(x1*(x1 - 0.7031097*x2)) - 0.622415656339567",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.9742359287235473,
+              "normalized_max_error": 3.036650352467082,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "applicable": true,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round1/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "(x1*x2 + 1)*(x2*cos(x2) + exp(x2))*(exp(x2) + sin(x2))*cos(x1) - 0.73458175",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 0.9343083027044714,
+              "normalized_max_error": 3.093914719690648,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 8500,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round2/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "2.5871763219121*x2*(1.50045580096094*x1 + 2)*(x2 + 2.19243002147047*cos(x1) - 0.8470158)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 1.246184808917295,
+              "normalized_max_error": 6.9378638419445515,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round3/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "dynamic_d01",
+            "applicable": true,
+            "candidate_equation": "x2 - (x2*(x1 - tanh(x2)) - tanh(x2))*(3.5624720078762*x1*(x2 + 0.4297288) + 7.1249440157524*x1 - 3.5624720078762*x2 + 9.07925919534587)",
+            "algebraic_equivalent": false,
+            "challenge_grid": {
+              "controller_only": true,
+              "point_count": 1033,
+              "normalized_rmse": 1.946585660675752,
+              "normalized_max_error": 10.101168303771002,
+              "normalized_rmse_tolerance": 1e-08,
+              "normalized_max_error_tolerance": 1e-07,
+              "numerically_equivalent": false,
+              "evaluation_error": null
+            },
+            "variable_selection": {
+              "candidate": [
+                "x1",
+                "x2"
+              ],
+              "ground_truth": [
+                "x1",
+                "x2"
+              ],
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "equivalent_ground_truth": false
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": false,
+      "last_observed_boundary_equivalent": false
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "applicable": false,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "ordinary_pysr/viv_u248/repeat_1/workspace/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": null,
+      "last_observed_boundary_equivalent": null
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "applicable": false,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_1.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 9000,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_2.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_3.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": null,
+      "last_observed_boundary_equivalent": null
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "applicable": false,
+      "checkpoints": [
+        {
+          "checkpoint": 1,
+          "cumulative_requested_evaluations": 4000,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round1/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        },
+        {
+          "checkpoint": 2,
+          "cumulative_requested_evaluations": 9000,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round2/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        },
+        {
+          "checkpoint": 3,
+          "cumulative_requested_evaluations": 12000,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round3/results/result.json",
+          "verification": {
+            "schema_version": 1,
+            "task_id": "viv_u248",
+            "applicable": false,
+            "reason": "no_unique_registered_ground_truth_equation",
+            "equivalent_ground_truth": null
+          }
+        }
+      ],
+      "ever_equivalent_at_observed_boundary": null,
+      "last_observed_boundary_equivalent": null
+    }
+  ],
+  "skipped_runs": [
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    }
+  ]
+}

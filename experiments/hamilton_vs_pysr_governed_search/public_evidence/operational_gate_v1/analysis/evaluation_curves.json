@@ -1,0 +1,881 @@
+{
+  "schema_version": 1,
+  "analysis_status": "post_hoc_legacy_reconstruction_not_preregistered",
+  "source": "offline_public_pilot_results",
+  "uses_engine_measured_evaluations": false,
+  "budget_axis": "cumulative_requested_evaluations",
+  "metric": "best_observed_candidate_validation_nrmse",
+  "interpolation": "episode_endpoint_step_weighted_by_requested_budget",
+  "warning": "Legacy results contain completed-boundary reservations, not per-evaluation timestamps. Ordinary one-shot runs have no valid anytime AUC.",
+  "records": [
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 1,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 12000,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.13784792680623492,
+          "best_so_far_validation_nrmse": 0.13784792680623492,
+          "selected_validation_nrmse": 0.13784792680623492,
+          "result_file": "ordinary_pysr/static_s01/repeat_1/workspace/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": null,
+      "anytime_auc_eligible": false,
+      "ineligibility_reason": "fewer_than_two_observed_boundaries"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.13784792680623492,
+          "best_so_far_validation_nrmse": 0.13784792680623492,
+          "selected_validation_nrmse": 0.13784792680623492,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_1.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 4500,
+          "cumulative_requested_evaluations": 8500,
+          "normalized_evaluation_fraction": 0.7083333333333334,
+          "checkpoint_best_candidate_validation_nrmse": 0.0004869244612857586,
+          "best_so_far_validation_nrmse": 0.0004869244612857586,
+          "selected_validation_nrmse": 0.0004869244612857586,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_2.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3500,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.03822055769885439,
+          "best_so_far_validation_nrmse": 0.0004869244612857586,
+          "selected_validation_nrmse": 0.03822055769885439,
+          "result_file": "fixed_schedule_pysr/static_s01/repeat_1/workspace/results/episode_3.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.04627392524293547,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.13784792680623492,
+          "best_so_far_validation_nrmse": 0.13784792680623492,
+          "selected_validation_nrmse": 0.13784792680623492,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round1/results/result.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 4500,
+          "cumulative_requested_evaluations": 8500,
+          "normalized_evaluation_fraction": 0.7083333333333334,
+          "checkpoint_best_candidate_validation_nrmse": 0.15231765115046478,
+          "best_so_far_validation_nrmse": 0.13784792680623492,
+          "selected_validation_nrmse": 0.15231765115046478,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round2/results/result.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3500,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.08031253915442725,
+          "best_so_far_validation_nrmse": 0.08031253915442725,
+          "selected_validation_nrmse": 0.08031253915442725,
+          "result_file": "governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round3/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.12106677207445768,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 1,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 12000,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.5680661417605615,
+          "best_so_far_validation_nrmse": 0.5680661417605615,
+          "selected_validation_nrmse": 0.5680661417605615,
+          "result_file": "ordinary_pysr/dynamic_d01/repeat_1/workspace/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": null,
+      "anytime_auc_eligible": false,
+      "ineligibility_reason": "fewer_than_two_observed_boundaries"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.7439671257899143,
+          "best_so_far_validation_nrmse": 0.7439671257899143,
+          "selected_validation_nrmse": 0.7439671257899143,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_1.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 4500,
+          "cumulative_requested_evaluations": 8500,
+          "normalized_evaluation_fraction": 0.7083333333333334,
+          "checkpoint_best_candidate_validation_nrmse": 0.6465320014496839,
+          "best_so_far_validation_nrmse": 0.6465320014496839,
+          "selected_validation_nrmse": 0.6465320014496839,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_2.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3500,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.6774804968655165,
+          "best_so_far_validation_nrmse": 0.6465320014496839,
+          "selected_validation_nrmse": 0.6774804968655165,
+          "result_file": "fixed_schedule_pysr/dynamic_d01/repeat_1/workspace/results/episode_3.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.6790103762297608,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.7439671257899143,
+          "best_so_far_validation_nrmse": 0.7439671257899143,
+          "selected_validation_nrmse": 0.7439671257899143,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round1/results/result.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 4500,
+          "cumulative_requested_evaluations": 8500,
+          "normalized_evaluation_fraction": 0.7083333333333334,
+          "checkpoint_best_candidate_validation_nrmse": 0.5827122477632285,
+          "best_so_far_validation_nrmse": 0.5827122477632285,
+          "selected_validation_nrmse": 0.5827122477632285,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round2/results/result.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3500,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.3550877893911581,
+          "best_so_far_validation_nrmse": 0.3550877893911581,
+          "selected_validation_nrmse": 0.3550877893911581,
+          "result_file": "governed_hamilton/dynamic_d01/repeat_1/workspaces/task_0/history/round3/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.5700734067469366,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 1,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 12000,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.6854646788024997,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6871817983721491,
+          "result_file": "ordinary_pysr/viv_u248/repeat_1/workspace/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": null,
+      "anytime_auc_eligible": false,
+      "ineligibility_reason": "fewer_than_two_observed_boundaries"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.6854646788024997,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6871817983721491,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_1.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 5000,
+          "cumulative_requested_evaluations": 9000,
+          "normalized_evaluation_fraction": 0.75,
+          "checkpoint_best_candidate_validation_nrmse": 0.6872133338414127,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6872133338414127,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_2.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3000,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.6872138045973661,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6872138045973661,
+          "result_file": "fixed_schedule_pysr/viv_u248/repeat_1/workspace/results/episode_3.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.6854646788024997,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "total_requested_evaluations": 12000,
+      "measurement_resolution": "completed_episode_boundaries",
+      "checkpoint_count": 3,
+      "curve": [
+        {
+          "checkpoint": 1,
+          "requested_evaluations": 4000,
+          "cumulative_requested_evaluations": 4000,
+          "normalized_evaluation_fraction": 0.3333333333333333,
+          "checkpoint_best_candidate_validation_nrmse": 0.6854646788024997,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6871817983721491,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round1/results/result.json"
+        },
+        {
+          "checkpoint": 2,
+          "requested_evaluations": 5000,
+          "cumulative_requested_evaluations": 9000,
+          "normalized_evaluation_fraction": 0.75,
+          "checkpoint_best_candidate_validation_nrmse": 0.6869833618281727,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6872139614900767,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round2/results/result.json"
+        },
+        {
+          "checkpoint": 3,
+          "requested_evaluations": 3000,
+          "cumulative_requested_evaluations": 12000,
+          "normalized_evaluation_fraction": 1.0,
+          "checkpoint_best_candidate_validation_nrmse": 0.6871497337398008,
+          "best_so_far_validation_nrmse": 0.6854646788024997,
+          "selected_validation_nrmse": 0.6872000955881988,
+          "result_file": "governed_hamilton/viv_u248/repeat_1/workspaces/task_0/history/round3/results/result.json"
+        }
+      ],
+      "anytime_best_validation_auc": 0.6854646788024997,
+      "anytime_auc_eligible": true,
+      "ineligibility_reason": null
+    }
+  ],
+  "skipped": [
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s01",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s02",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s03",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s04",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s05",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "static_s06",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d01",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d02",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d03",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_1",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "dynamic_d04",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_2",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "ordinary_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "fixed_schedule_pysr",
+      "reason": "paired_budget_trace_missing"
+    },
+    {
+      "task_id": "viv_u248",
+      "repeat_id": "repeat_3",
+      "arm_id": "governed_hamilton",
+      "reason": "paired_budget_trace_missing"
+    }
+  ]
+}

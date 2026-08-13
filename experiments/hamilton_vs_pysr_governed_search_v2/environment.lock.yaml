@@ -1,0 +1,15 @@
+schema_version: 1
+status: frozen_target_environment
+python: 3.13.5
+packages:
+  pysr: 1.5.9
+  juliacall: 0.9.26
+  numpy: 2.3.2
+  pandas: 2.3.3
+  sympy: 1.14.0
+  pyyaml: 6.0.3
+julia: 1.11.9
+platform_reference: Windows 11
+deterministic: true
+parallelism: serial
+note: exact runtime environment is rechecked and recorded per result; mismatches block launch

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "round": 3,
+  "status": "completed",
+  "attempts": 1,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round3/results/result.json"
+  ],
+  "changed_config_fields": [
+    "search.parsimony"
+  ],
+  "meaningful_config_change": true,
+  "single_config_change": true,
+  "incumbent_expected": {
+    "path": "history/round3/results/result.json",
+    "score": 1.1368969529139876,
+    "equation": "-161.242987983945*x - 7.2266703"
+  },
+  "incumbent_action_expected": "promote",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round3/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

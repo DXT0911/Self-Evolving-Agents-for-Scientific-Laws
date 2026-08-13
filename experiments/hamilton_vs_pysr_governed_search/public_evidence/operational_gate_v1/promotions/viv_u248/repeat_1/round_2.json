@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "round": 2,
+  "status": "completed",
+  "attempts": 1,
+  "errors": [],
+  "closed": true,
+  "completed_result_files": [
+    "history/round2/results/result.json"
+  ],
+  "changed_config_fields": [
+    "search.maxsize"
+  ],
+  "meaningful_config_change": true,
+  "single_config_change": true,
+  "incumbent_expected": {
+    "path": "history/round1/results/result.json",
+    "score": 1.1762777773980675,
+    "equation": "-161.03555*x"
+  },
+  "incumbent_action_expected": "retain",
+  "residual_feedback": {
+    "valid": true,
+    "errors": [],
+    "result_file": "history/round2/results/result.json"
+  },
+  "search_advancement_gates_valid": true,
+  "success_gates_valid": true
+}

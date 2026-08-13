@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "package_id": "hamilton-vs-pysr-operational-gate-v1-public-evidence",
+  "source_git_commit": "b87800bcdcf3d2a1e4dd4548b7a63a5d52c3e147",
+  "tasks": [
+    "static_s01",
+    "dynamic_d01",
+    "viv_u248"
+  ],
+  "repeats": [
+    "repeat_1"
+  ],
+  "arms": [
+    "governed_hamilton",
+    "ordinary_pysr",
+    "fixed_schedule_pysr"
+  ],
+  "private_ood_included": false,
+  "raw_data_included": false,
+  "llm_transcripts_included": false,
+  "claim_status": "runtime_pilot_not_formal_multi_repeat_benchmark",
+  "records": [
+    {
+      "kind": "budget_trace",
+      "file": "budget_traces/static_s01/repeat_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/governed_hamilton/round_1.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/static_s01/repeat_1/round_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/governed_hamilton/round_2.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/static_s01/repeat_1/round_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/governed_hamilton/round_3.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/static_s01/repeat_1/round_3.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/ordinary_pysr/endpoint.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/fixed_schedule_pysr/episode_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/fixed_schedule_pysr/episode_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/static_s01/repeat_1/fixed_schedule_pysr/episode_3.json"
+    },
+    {
+      "kind": "budget_trace",
+      "file": "budget_traces/dynamic_d01/repeat_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/governed_hamilton/round_1.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/dynamic_d01/repeat_1/round_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/governed_hamilton/round_2.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/dynamic_d01/repeat_1/round_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/governed_hamilton/round_3.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/dynamic_d01/repeat_1/round_3.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/ordinary_pysr/endpoint.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_3.json"
+    },
+    {
+      "kind": "budget_trace",
+      "file": "budget_traces/viv_u248/repeat_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/governed_hamilton/round_1.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/viv_u248/repeat_1/round_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/governed_hamilton/round_2.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/viv_u248/repeat_1/round_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/governed_hamilton/round_3.json"
+    },
+    {
+      "kind": "promotion",
+      "file": "promotions/viv_u248/repeat_1/round_3.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/ordinary_pysr/endpoint.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_1.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_2.json"
+    },
+    {
+      "kind": "result",
+      "file": "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_3.json"
+    }
+  ],
+  "sha256": {
+    "analysis/evaluation_curves.json": "b71bab6e070eb4a2639dcd8113f65b830eb782df4c26e536dd818235f4cda0c1",
+    "analysis/ground_truth_equivalence.json": "9c4c8a743eb5df03c7f39096317b3f40bb47ca5f102bd0c890040d41e884a280",
+    "budget_traces/dynamic_d01/repeat_1.json": "9d0823fb9cf48621af08a2f4317e8191a053a4a1cf033586a73db2be42413dcf",
+    "budget_traces/static_s01/repeat_1.json": "a07ff4d5d0d7e71957f362d2c73b1fc2d99f6ba36d95782716eb9e81370b1d60",
+    "budget_traces/viv_u248/repeat_1.json": "5dc94ebf21e5326ae41345ce0efd1b957374fce66f3fed0781c06c5ad1a47daa",
+    "promotions/dynamic_d01/repeat_1/round_1.json": "9b20ea3440f699c85057e7670b11f4930a3f8e4c5bf45fcd403c2e123072dfd3",
+    "promotions/dynamic_d01/repeat_1/round_2.json": "ed15f9d357740d876cb68ef6aabc8539b67dc910d60cd47112b36fa7d4417029",
+    "promotions/dynamic_d01/repeat_1/round_3.json": "fdb945ea868716c3ef2f29ca964e3873d5245dc2381a9d9db854d502a310b2b4",
+    "promotions/static_s01/repeat_1/round_1.json": "df0ada5d83e617508b672cb4393e8ff81fc135e1b3d4ee37827349b94bfe7735",
+    "promotions/static_s01/repeat_1/round_2.json": "84282569b8b8fd33b15c17520d21dc87b7ade04c71528d8c041eb69417e9da37",
+    "promotions/static_s01/repeat_1/round_3.json": "e48006c4cce9c9ff12c8b5c8f7fe38981aa59562ebe3db94de40db5a44363113",
+    "promotions/viv_u248/repeat_1/round_1.json": "1a6479abb652201082550a8f9d72ec1843ddb7c7895a93bd327699c5e2d93478",
+    "promotions/viv_u248/repeat_1/round_2.json": "b05fb0bb7b1070a850c6bb4c32e2208bc07a555e53dd6070c64fb72fdafc6d3f",
+    "promotions/viv_u248/repeat_1/round_3.json": "653b0ae147744e0dab19bc0b9626c3f8cd9ee1395f9c0165f535993761752c59",
+    "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_1.json": "1bc32119c788673348b1f13cfd9782c448422d72fe4257ea8bf64ed01b7f7ffb",
+    "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_2.json": "6dc89ca4c68900cd2d912c721c53304b429b545595bd46351d0d2bb526dcb98f",
+    "results/dynamic_d01/repeat_1/fixed_schedule_pysr/episode_3.json": "0b73f623b68ca026e6ec76bcb81a630e4c0a299b1e762602160473258e5913ea",
+    "results/dynamic_d01/repeat_1/governed_hamilton/round_1.json": "378b523eec5f25fe8aea130860bf299d56155e3b99cca027e15338f7096f97d4",
+    "results/dynamic_d01/repeat_1/governed_hamilton/round_2.json": "659d1002219c276cd5895e829da229eb272b98dcd2682f836db9caf9250999f1",
+    "results/dynamic_d01/repeat_1/governed_hamilton/round_3.json": "91ad12e9c34a525cf48fd6674b03cda8dcce81da898d560f47675224fdab9eba",
+    "results/dynamic_d01/repeat_1/ordinary_pysr/endpoint.json": "6e374974cf4807ed992ef82245e692205595a72d78b3b664a7d538840d9f6db5",
+    "results/static_s01/repeat_1/fixed_schedule_pysr/episode_1.json": "c50831807fb6a5ec06cd4a65c82f5243b7855cd63e4b1d4369b8ad7ffd8eca2e",
+    "results/static_s01/repeat_1/fixed_schedule_pysr/episode_2.json": "e75837937edb3aed57e9fb58c7fe3d3fb87e657948e1745036d71eff3a0859ea",
+    "results/static_s01/repeat_1/fixed_schedule_pysr/episode_3.json": "d59a6fa5c3bfd077cc25e3cd0ee06745695c960b9d418ba4212cac95fb04e62f",
+    "results/static_s01/repeat_1/governed_hamilton/round_1.json": "ceddce902a94ab9f59af2ec7fa9f30067abf12546558fb885a7e71be489b37cc",
+    "results/static_s01/repeat_1/governed_hamilton/round_2.json": "c2cd64f2ec6f508214a85376d4e8f1246d1a863e555be69012a810446ebac82e",
+    "results/static_s01/repeat_1/governed_hamilton/round_3.json": "872626f6e0f74bb8392ada02a8a461beb837c4bdc5346d5a4e7a51bc0de22bb8",
+    "results/static_s01/repeat_1/ordinary_pysr/endpoint.json": "08878898e4ecc6aa73992d0322cfe1f183ca9ccdba1d1c9467cc22a66bdec69d",
+    "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_1.json": "85afe68590a4fe86148be19f463ee69e094b43fb053d537d8cbce9e863f59200",
+    "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_2.json": "2ee552d3bfce7cdf525878be863e35dc18322851685fe342d5545389d95ea788",
+    "results/viv_u248/repeat_1/fixed_schedule_pysr/episode_3.json": "55b1276d752a11e19ac89e07608d721a693de09f6ea74c062c431d95919cd0e7",
+    "results/viv_u248/repeat_1/governed_hamilton/round_1.json": "d9876c8dc67a31011420b32423ebc0f288e33ababdb18c924d177dadc905a839",
+    "results/viv_u248/repeat_1/governed_hamilton/round_2.json": "7b2ea5694d0c5537c8ac4ebc5568553474a3bee74c2ab3cb2fcff74465ac3c0d",
+    "results/viv_u248/repeat_1/governed_hamilton/round_3.json": "21bb3e8a62f385b29265d0f6cd8a8c402154d3c581ba38733947528a665cefb7",
+    "results/viv_u248/repeat_1/ordinary_pysr/endpoint.json": "868a97c903acdef62ac30209f5bc75b2b3cd2a3d047f6a96c79b0acd043361aa"
+  }
+}

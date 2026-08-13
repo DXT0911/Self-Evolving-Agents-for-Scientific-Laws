@@ -1,0 +1,80 @@
+schema_version: 1
+status: frozen_before_formal_execution
+frozen_on: 2026-08-13
+visibility: controller_only_never_copy_to_agent_workspace
+source_revision: 7c1f4bdc00136dc2e55c87fa6b8ba6e8af6d1a68
+tasks:
+  static_s01:
+    source_dataset: feynman_I_14_4
+    expression: x1*x2**2/2
+    variables: [x1, x2]
+    challenge: {seed: 1404, random_points: 1024, domains: {x1: [1.0, 5.0], x2: [1.0, 5.0]}}
+  static_s02:
+    source_dataset: feynman_I_12_2
+    expression: x1*x2/(4*pi*x3*x4**2)
+    variables: [x1, x2, x3, x4]
+    challenge:
+      seed: 1202
+      random_points: 1024
+      domains: {x1: [1.0, 5.0], x2: [1.0, 5.0], x3: [1.0, 5.0], x4: [1.0, 5.0]}
+  static_s03:
+    source_dataset: feynman_II_15_4
+    expression: -x1*x2*cos(x3)
+    variables: [x1, x2, x3]
+    challenge: {seed: 2154, random_points: 1024, domains: {x1: [1.0, 5.0], x2: [1.0, 5.0], x3: [1.0, 5.0]}}
+  static_s04:
+    source_dataset: feynman_I_6_2a
+    expression: exp(-x1**2/2)/sqrt(2*pi)
+    variables: [x1]
+    challenge: {seed: 620, random_points: 1024, domains: {x1: [1.0, 3.0]}}
+  static_s05:
+    source_dataset: feynman_I_18_4
+    expression: (x1*x3+x2*x4)/(x1+x2)
+    variables: [x1, x2, x3, x4]
+    challenge:
+      seed: 1804
+      random_points: 1024
+      domains: {x1: [1.0, 5.0], x2: [1.0, 5.0], x3: [1.0, 5.0], x4: [1.0, 5.0]}
+  static_s06:
+    source_dataset: feynman_III_9_52
+    expression: (x1*x2*x3/(x4/(2*pi)))*sin((x5-x6)*x3/2)**2/(((x5-x6)*x3/2)**2)
+    variables: [x1, x2, x3, x4, x5, x6]
+    challenge:
+      seed: 3952
+      random_points: 1024
+      domains:
+        x1: [1.0, 3.0]
+        x2: [1.0, 3.0]
+        x3: [1.0, 3.0]
+        x4: [1.0, 3.0]
+        x5: [1.0, 5.0]
+        x6: [1.01, 4.97]
+  dynamic_d01:
+    source_dataset: strogatz_vdp1
+    expression: 10*x2 + 10*x1/3 - 10*x1**3/3
+    variables: [x1, x2]
+    challenge: {seed: 15001, random_points: 1024, domains: {x1: [-2.0, 2.0], x2: [-1.0, 1.0]}}
+  dynamic_d02:
+    source_dataset: strogatz_barmag1
+    expression: sin(x1-x2)/2-sin(x1)
+    variables: [x1, x2]
+    challenge:
+      seed: 15002
+      random_points: 1024
+      domains: {x1: [4.1184890487447, 5.98625733320336], x2: [0.200011672644315, 6.6497768432110895]}
+  dynamic_d03:
+    source_dataset: strogatz_glider2
+    expression: x1-cos(x2)/x1
+    variables: [x1, x2]
+    challenge:
+      seed: 15003
+      random_points: 1024
+      domains: {x1: [0.162554709909313, 5.603272452842469], x2: [-1.32283061311855, 28.7652192235257]}
+  dynamic_d04:
+    source_dataset: strogatz_shearflow2
+    expression: (cos(x2)**2+sin(x2)**2/10)*sin(x1)
+    variables: [x1, x2]
+    challenge:
+      seed: 15004
+      random_points: 1024
+      domains: {x1: [-4.35009524082152, 3.59982835587276], x2: [-2.7469888932939703, 2.14720535921647]}

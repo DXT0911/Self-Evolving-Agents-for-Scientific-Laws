@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "task_id": "static_s01",
+  "repeat_id": "repeat_1",
+  "arm_id": "governed_hamilton",
+  "checkpoint": "round_1",
+  "experiment_id": "governed_hamilton__static_s01__r1__round1",
+  "status": "completed",
+  "started_at": "2026-07-28T01:59:49.922524+00:00",
+  "completed_at": "2026-07-28T02:00:20.287143+00:00",
+  "runtime_seconds": 30.364619799998763,
+  "data": {
+    "sha256": "a710c86ace14554bf5fb862f3ec730bc56151867cbf0db61443ecd23b4e2093b",
+    "split": {
+      "selected_rows": 100000,
+      "train_rows": 80000,
+      "validation_rows": 20000,
+      "search_rows": 8000,
+      "search_stride": 10,
+      "train_time": [
+        0.0,
+        79999.0
+      ],
+      "validation_time": [
+        80000.0,
+        99999.0
+      ]
+    },
+    "feature_columns": [
+      "x1",
+      "x2"
+    ],
+    "target_column": "y"
+  },
+  "search": {
+    "engine": "pysr",
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "unary_operators": [
+      "sin",
+      "cos",
+      "exp"
+    ],
+    "max_evals": 4000,
+    "niterations": 1000,
+    "populations": 8,
+    "population_size": 32,
+    "tournament_selection_n": 12,
+    "maxsize": 31,
+    "parsimony": 0.001,
+    "top_k": 10,
+    "random_state": 1101
+  },
+  "selected": {
+    "selection_method": "scientific_score",
+    "equation": "((1.2282937 + (x1 * (x2 + (x2 - (cos(exp(cos(cos(cos(x2)))) - x2) + exp(-0.27900007)))))) - 0.45077506) / 0.9348774",
+    "search_space_equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612",
+    "simplified_equation": "-1.0696589734654*x1*(-2*x2 + cos(x2 - exp(cos(cos(cos(x2))))) + 0.756539850257256) + 0.831679790312612",
+    "loss": 3.0690272,
+    "complexity": 23,
+    "scientific_score": 0.17494470099978332
+  },
+  "metrics": {
+    "train": {
+      "mse": 3.0692191761432186,
+      "rmse": 1.7519187127670104,
+      "mae": 1.5902991537514615,
+      "r2": 0.9811208548867038
+    },
+    "validation": {
+      "mse": 3.066373655856658,
+      "rmse": 1.7511064090616133,
+      "mae": 1.5887604750498423,
+      "r2": 0.9809979490752229
+    }
+  },
+  "ranking": {
+    "validation_nrmse": 0.13784792680623492,
+    "trajectory_nrmse": 100.0,
+    "complexity_normalized": 0.7419354838709677,
+    "scientific_score": 0.17494470099978332
+  },
+  "short_ode": {
+    "enabled": false,
+    "status": "skipped"
+  },
+  "residual_diagnostics": {
+    "enabled": true,
+    "status": "completed",
+    "definition": "target_minus_prediction_in_original_units",
+    "role": "diagnostic_only_not_in_scientific_score",
+    "train": {
+      "summary": {
+        "count": 80000,
+        "mean": -1.121745284475589,
+        "std": 1.3456993322804311,
+        "rmse": 1.7519187127670104,
+        "nrmse_train_target_scale": 0.13740140142406224,
+        "max_abs": 6.835221597327518
+      },
+      "strongest_state_dependence": {
+        "signal": "x2",
+        "value": 0.6245837122557966
+      },
+      "temporal_structure": {
+        "trend_correlation": 0.00037176565966988396,
+        "durbin_watson": 1.1888112215062698,
+        "strongest_reported_autocorrelation": {
+          "lag": 46,
+          "value": 0.010562914078640438
+        },
+        "spectrum": {
+          "status": "completed",
+          "dominant_frequency_hz": 0.434425,
+          "dominant_power_fraction": 0.0003137809640535771,
+          "high_frequency_cutoff_hz": 0.375,
+          "high_frequency_power_fraction": 0.2547411575678375
+        }
+      }
+    },
+    "validation": {
+      "summary": {
+        "count": 20000,
+        "mean": -1.1214125758701414,
+        "std": 1.3449191390328834,
+        "rmse": 1.7511064090616133,
+        "nrmse_train_target_scale": 0.13733769317853112,
+        "max_abs": 6.6960208913817425
+      },
+      "strongest_state_dependence": {
+        "signal": "x2",
+        "value": 0.6229662112552263
+      },
+      "temporal_structure": {
+        "trend_correlation": 0.0018401701968653189,
+        "durbin_watson": 1.178910840140141,
+        "strongest_reported_autocorrelation": {
+          "lag": 29,
+          "value": 0.01601197593961784
+        },
+        "spectrum": {
+          "status": "completed",
+          "dominant_frequency_hz": 0.0684,
+          "dominant_power_fraction": 0.000932267625202477,
+          "high_frequency_cutoff_hz": 0.375,
+          "high_frequency_power_fraction": 0.2522856386958556
+        }
+      }
+    }
+  },
+  "reproducibility": {
+    "random_state": 1101,
+    "deterministic": true,
+    "parallelism": "serial",
+    "git_commit": "b87800bcdcf3d2a1e4dd4548b7a63a5d52c3e147",
+    "python": "3.13.5",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.3.2",
+    "pandas": "2.3.3"
+  },
+  "evaluation_budget": {
+    "requested_evals": 4000,
+    "reservation_status": "reserved_before_pysr"
+  }
+}

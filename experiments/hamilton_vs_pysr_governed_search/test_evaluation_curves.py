@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import unittest
+import tempfile
+from pathlib import Path
 
 from .evaluation_curves import (
+    _job_checkpoints,
     build_boundary_curve,
     checkpoint_validation_nrmse,
     endpoint_step_auc,
@@ -62,6 +65,31 @@ class EvaluationCurveTests(unittest.TestCase):
                   "selected_validation_nrmse": 0.2}],
                 100,
             )
+
+    def test_resolves_handed_off_bundle_outside_current_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = Path(tmp) / "renamed_bundle"
+            workspace = bundle / "ordinary_pysr" / "task" / "repeat_1" / "workspace"
+            result = workspace / "results" / "result.json"
+            result.parent.mkdir(parents=True)
+            result.write_text(
+                '{"status":"completed","selected":{"equation":"x",'
+                '"simplified_equation":"x"},"candidates":[{"equation":"x",'
+                '"simplified_equation":"x","ranking":{"validation_nrmse":0.1}}]}',
+                encoding="utf-8",
+            )
+            checkpoints = _job_checkpoints(
+                {
+                    "arm": "ordinary_pysr",
+                    "workspace": (
+                        "experiments/hamilton_vs_pysr_governed_search/launch_bundle/"
+                        "ordinary_pysr/task/repeat_1/workspace"
+                    ),
+                },
+                bundle,
+                {"actual_total_evals": 10, "attempts": []},
+            )
+            self.assertEqual(checkpoints[0]["requested_evaluations"], 10)
 
 
 if __name__ == "__main__":

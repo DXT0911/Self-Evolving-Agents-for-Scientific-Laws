@@ -10,6 +10,7 @@
 
 | 实验 | 状态 | 主要报告 |
 |---|---|---|
+| [`hamilton_vs_pysr_governed_search_v2/`](hamilton_vs_pysr_governed_search_v2/) | 排除 VIV 的冻结执行前 v2；新增完整算子基线、封存数据阶段和实测效率指标 | [`PROTOCOL.md`](hamilton_vs_pysr_governed_search_v2/PROTOCOL.md) |
 | [`hamilton_vs_pysr_governed_search/`](hamilton_vs_pysr_governed_search/) | 公开 9-arm 运行门完成；正式多重复研究未运行 | [`OPERATIONAL_GATE_STATUS_2026-07-28.md`](hamilton_vs_pysr_governed_search/OPERATIONAL_GATE_STATUS_2026-07-28.md) |
 | [`viv_dynamics_feedback_gate/`](viv_dynamics_feedback_gate/) | 不可执行准备态；等待独立授权 | [`PROTOCOL.md`](viv_dynamics_feedback_gate/PROTOCOL.md) |
 

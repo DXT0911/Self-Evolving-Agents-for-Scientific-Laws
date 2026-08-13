@@ -31,6 +31,8 @@ pilot，不是完整的正式多重复 benchmark，也不能证明普遍优越�
 - `arm_contracts.yaml`：冻结的授权边界和实验臂允许差异。
 - `result_record.schema.json`：每个重复的紧凑结果契约。
 - `prepare_public_data.py`：校验哈希并产生不透明公开 CSV 输入的 adapter。
+- `acquire_public_data.py`：从冻结的 PMLB Git revision 下载十个外部公开输入，并校验已提交
+  的字节数和 SHA-256 指纹。
 - `task_specs.yaml`：冻结任务 adapter 和共享初始数值搜索空间。
 - `build_launch_bundle.py`：不执行实验，只生成被忽略的 99-job launch bundle。
 - `freeze_paired_budget.py`：冻结一条 Hamilton 账本，生成两个配对 PySR replay 配置，不复制
@@ -43,6 +45,10 @@ pilot，不是完整的正式多重复 benchmark，也不能证明普遍优越�
   绝不能进入 Agent workspace。
 - `ground_truth_equivalence.py`：对 controller-only 注册表进行代数、数值和变量选择等价检查。
 - `collect_ground_truth_equivalence.py`：对 launch bundle 中每个已完成公开结果边界应用等价检查。
+- `export_public_evidence.py`：从被忽略的运行门 bundle 中按字段白名单导出结果、Promotion、
+  预算和复现信息，形成可供协作者审计的版本化证据包。
+- `public_evidence/operational_gate_v1/`：带 SHA-256 的紧凑公开交接证据；不包含原始数据、
+  private/OOD 资产、LLM 对话或绝对路径。
 - `viv_long_horizon_replay.py`：对公开 U248 历史候选执行事后 Tier 0 长期动力学回放；
   不导入 PySR，也不调用 LLM。
 - `VIV_LONG_HORIZON_CALIBRATION_2026-08-12.md`：合成系统与历史候选的紧凑校准报告；
@@ -98,6 +104,12 @@ python experiments/hamilton_vs_pysr_governed_search/validate_manifest.py `
 ```powershell
 python -m experiments.hamilton_vs_pysr_governed_search.prepare_public_data `
   experiments/hamilton_vs_pysr_governed_search/pilot_manifest.yaml
+```
+
+协作者可以先获取并校验冻结的公开缓存：
+
+```powershell
+python -m experiments.hamilton_vs_pysr_governed_search.acquire_public_data
 ```
 
 ## 后续运行前必须重新决策
