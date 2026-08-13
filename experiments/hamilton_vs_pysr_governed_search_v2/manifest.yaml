@@ -40,10 +40,28 @@ llm:
   provider: deepseek
   model: deepseek-v4-pro
   discovery_max_tokens_per_round: 120000
-  promotion_max_tokens_per_round: 60000
+  promotion_max_tokens_per_round: 160000
   promotion_max_attempts: 2
   promotion_provider_thinking: disabled
   max_tokens_per_hamilton_task_repeat: 600000
+  task_token_ceiling_overrides: {dynamic_d02: 1000000}
+  operational_amendment_2026_08_14:
+    reason: promotion_fit_preflight_needed_75352_tokens_after_round1_edits
+    change: promotion_max_tokens_per_round_60000_to_120000
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
+  operational_amendment_2026_08_14_b:
+    reason: static_round3_fit_preflight_needed_142837_tokens_before_finish
+    change: promotion_fit_ceiling_120000_to_160000_before_dynamic_d02_started
+    task_total_token_ceiling_changed: false
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
+  operational_amendment_2026_08_14_c:
+    reason: dynamic_d02_three_failed_promotion_repairs_consumed_270446_tokens
+    change: dynamic_d02_task_total_ceiling_600000_to_1000000
+    accounting: all_failed_and_recovery_tokens_remain_in_hamilton_cost
+    scientific_search_changed: false
+    evaluations_repeated_or_added: false
 
 waves:
   - id: operational_gate
@@ -51,7 +69,7 @@ waves:
     repeats: [repeat_1]
     arm_runs: 8
     max_requested_evaluations: 96000
-    max_hamilton_tokens: 1200000
+    max_hamilton_tokens: 1600000
   - id: validation_calibration
     tasks: [static_s02, static_s04, dynamic_d02, dynamic_d03]
     repeats: [repeat_1, repeat_2, repeat_3]

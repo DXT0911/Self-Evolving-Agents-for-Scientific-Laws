@@ -10,6 +10,11 @@
 `experiments/hamilton_vs_pysr_governed_search/public_evidence/operational_gate_v1/`；v2 协议位于
 `experiments/hamilton_vs_pysr_governed_search_v2/`。
 
+截至 2026-08-14，v2 operational gate 的 8 个运行已经全部完成，禁止重复运行。先读
+`experiments/hamilton_vs_pysr_governed_search_v2/RESULTS.zh-CN.md` 和
+`public_evidence/operational_gate_v2/`。当前结果不支持“已经稳定胜过普通 PySR”，因此下一项
+工作是开发 v3 搜索延续/保守动作策略，而不是打开 v2 sealed test。
+
 ## 从 GitHub 建立电脑环境
 
 ```powershell
@@ -59,7 +64,9 @@ python -m unittest `
 > 10 个提交，不要直接运行实验。完整阅读 `WORKSPACE.zh-CN.md`、
 > `docs/sragent/RESEARCH_PROTOCOL.zh-CN.md`、`playground/hamilton/DEVELOPMENT.zh-CN.md`、
 > `experiments/hamilton_vs_pysr_governed_search_v2/README.zh-CN.md`、`PROTOCOL.md`、
-> `dataset_split.yaml`、`manifest.yaml`，以及 v1 `public_evidence/operational_gate_v1/README.md`。
+> `dataset_split.yaml`、`manifest.yaml`、`RESULTS.zh-CN.md`、v2
+> `public_evidence/operational_gate_v2/README.md`，以及 v1
+> `public_evidence/operational_gate_v1/README.md`。
 > v2 排除 VIV；开发集是 static_s01/dynamic_d01，验证集和封存测试集以 dataset_split.yaml
 > 为准。参考方程只能由 controller 使用，绝不能复制到 Agent workspace。四个实验臂必须
 > 使用相同公开字节、划分、初始配置、总 evaluation 预算、evaluator 和配对 seed；Hamilton
@@ -68,6 +75,8 @@ python -m unittest `
 > launch-bundle 审计。保留完整运行证据，不使用 git reset --hard、git clean 或强推，不提交
 > API key、`.env`、原始运行目录、数据缓存、provider 日志或 private/OOD 资产。若当前状态
 > 已有结果，先读取最近的版本化报告和机器账本再继续，绝不能重复已完成的 PySR episode。
+> v2 operational gate 已完成且显示 mixed result；不要打开 sealed test。先提出并测试一种能
+> 延续 PySR search state、允许“保持配置继续搜索”且对 ordinary PySR 公平的 v3 设计。
 
 ## 协作与提交规则
 

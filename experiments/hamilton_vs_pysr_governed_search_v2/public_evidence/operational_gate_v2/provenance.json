@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "git_revision_at_search_time": "efd35c51187587f3430a9d60bf3ff4f49185358e",
+  "formal_search_complete": true,
+  "requested_evaluations_added_during_recovery": 0,
+  "startup_incident": {
+    "arm": "ordinary_pysr/static_s02/repeat_1",
+    "cause": "non-escalated sandbox could not create the JuliaPkg lock under the user profile",
+    "engine_telemetry_created": false,
+    "engine_evaluations_consumed": 0,
+    "preserved_local_record": "preflight_failed_zero_engine_evals_ledger.json",
+    "excluded_from_scientific_budget": true
+  },
+  "files": {
+    "experiments/hamilton_vs_pysr_governed_search_v2/manifest.yaml": "eabdcec40d578ed2f936d03fa5cd05b2e4e5256fd56a337b8771c6ab3ea6c15d",
+    "experiments/hamilton_vs_pysr_governed_search_v2/dataset_split.yaml": "e0b58d9b438be525a416f6624545992a1c2b4d7eb27eca432334ec2f12509aec",
+    "experiments/hamilton_vs_pysr_governed_search_v2/controller_ground_truth.yaml": "5de955fe1dd8662f33624b92f56224fe8b05b96a8723781d35bdfebf6ca467d6",
+    "experiments/hamilton_vs_pysr_governed_search_v2/PROTOCOL.md": "f0af44288300b3dc9391a778ad08943d88e4115362e074dd38227fa76c58afd2",
+    "experiments/hamilton_vs_pysr_governed_search_v2/RESULTS.zh-CN.md": "c2ee101fccd338d85606e34c4d05a57f848986c45aae7a45f8259e45c80bd431",
+    "experiments/hamilton_vs_pysr_governed_search_v2/freeze_paired_budget.py": "00c1908b36033116609ebdb36d1cc81da7dac3364f65f19ae23104bb8554bae1",
+    "experiments/hamilton_vs_pysr_governed_search_v2/analyze_operational_gate.py": "59d6b919157211d7e128858148a812eb5b7cca745d3e140581e5ddf5b672a5ca",
+    "docs/sragent/HAMILTON_V2_COLLABORATOR_HANDOFF.zh-CN.md": "67574966c62c7555576482ea4c9cc3ec6e3b0860f695e9ef91233a429e2f3ca0",
+    "configs/hamilton/config_governed_pysr_v2.yaml": "1612686fb6b7501dafe504b55467275a17d273d269630a547b060f286a2945f5",
+    "playground/hamilton/core/promotion_exp.py": "4b832fc5bc2d671d524e5d3f015622affd9df9f1c2d8be9725be3ef41213a85a",
+    "evomaster/skills/run-sr-experiment/scripts/run_experiment.py": "567210c03fd2d2091e0bfd1803f0a90462bb7bec1d87d0dc0af299feb827baa0"
+  }
+}

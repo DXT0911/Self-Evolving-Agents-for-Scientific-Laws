@@ -1,68 +1,53 @@
+# Fast-finish recovery: 500,624 of the frozen 600,000 task tokens were used.
 llm:
   openai:
     provider: "openai"
     model: "deepseek-v4-pro"
     api_key: "${HAMILTON_API_KEY}"
     base_url: "https://api.deepseek.com"
-    temperature: 0.7
+    temperature: 0.2
     max_tokens: 30000
     timeout: 120
     max_retries: 3
     retry_delay: 1.0
   default: "openai"
-
 agents:
   hamilton:
     llm: "openai"
-    max_turns: 20
+    max_turns: 10
+    max_total_tokens: 99376
     enable_tools: true
     context:
       max_tokens: 120000
       truncation_strategy: "latest_half"
       preserve_system_messages: true
-      preserve_recent_turns: 10
-    system_prompt_file: "prompts/hamilton_adaptive_system.txt"
+      preserve_recent_turns: 3
+    system_prompt_file: "prompts/hamilton_promotion_resume_system.txt"
     user_prompt_file: "prompts/hamilton_adaptive_user.txt"
-    skills: [pysr, run-sr-experiment, evo-protocol]
+    skills: []
     tools:
       builtin: [str_replace_editor, think, finish]
-
 session:
   type: "local"
   local:
     working_dir: "./playground/hamilton/workspace"
-    timeout: 21600
+    timeout: 1800
     blocked_read_extensions: [.csv, .tsv, .parquet, .feather]
     gpu_devices: null
     cpu_devices: null
     symlinks: {}
-
 experiment:
+  start_round: 3
   max_rounds: 3
-  max_total_tokens: 600000
-  max_tokens_per_round: 120000
-  task_template: "experiments/hamilton_vs_pysr_governed_search/templates/hamilton_task.md"
   scientific_governance: true
   require_literature_grounding: false
+  resume_completed_result: "history/round3/results/result.json"
+  max_total_tokens: 99376
+  max_tokens_per_round: 99376
   max_total_evals: 12000
-  search_control:
-    search_advancement: {min_score_improvement: 0.0}
-    trust_region:
-      enabled: true
-      max_anchor_distance: 2
-      max_step_changes: 1
-      rollback_after_stale_rounds: 2
-    dynamic_budget:
-      enabled: true
-      base_evals: 4000
-      min_evals: 2500
-      max_evals: 5500
-      rounding_quantum: 500
-  pysr_preflight: {enabled: true, timeout_seconds: 180}
   promotion:
-    max_tokens: 160000
+    max_tokens: 99376
     max_attempts: 2
-
 llm_output: {show_in_console: true, log_to_file: true}
 logging:
   level: INFO

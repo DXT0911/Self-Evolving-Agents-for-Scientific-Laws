@@ -23,6 +23,23 @@ The union arm distinguishes residual-guided timing from merely having a wider op
 number of evaluations. SymbolicRegression's `SearchState.num_evals` logger value is the
 confirmatory efficiency axis because initialization and batched work can pass the requested
 threshold. Both values are retained in every result.
+
+Operational amendment (2026-08-14): the Promotion fit-only ceiling was raised from
+60,000 to 120,000 tokens after the first closure attempt stopped before `finish()`
+(34,845 used plus 40,507 estimated next-step tokens). This changes no scientific search
+field, seed, dataset, evaluation allowance, result, or total 600,000-token task ceiling;
+the completed PySR round is resumed rather than repeated.
+
+A second implementation-only amendment raised the per-Promotion fit ceiling to 160,000
+before `dynamic_d02` started. Static round 3 required 99,616 used plus 43,221 estimated
+next-step tokens before `finish()`. The unchanged 600,000-token task cap remains the
+controlling authorization; no search or evaluation field changed.
+
+After three failed `dynamic_d02` Promotion repairs consumed 270,446 tokens without
+search, that task's total ceiling was raised from 600,000 to 1,000,000 under the user's
+explicit unrestricted DeepSeek authorization. Every failed token remains charged to
+Hamilton's reported cost. The 12,000 requested-evaluation ceiling and all scientific
+controls remain unchanged.
 No Hamilton candidate, score, residual, L2 memory, or natural-language decision enters a
 baseline workspace.
 
@@ -60,8 +77,10 @@ change; any change creates v3.
 - union envelope `sin cos exp tanh`;
 - maximum one changed scientific leaf per transition and anchor distance two;
 - Discovery ceiling 120,000 tokens per round;
-- Promotion ceiling 60,000 tokens per round, at most two attempts, provider thinking off;
-- Hamilton task/repeat ceiling 600,000 tokens;
+- final amended Promotion ceiling 160,000 tokens per round, at most two attempts per
+  invocation, provider thinking off;
+- Hamilton task/repeat ceiling 600,000 tokens for `static_s02` and the explicitly amended
+  1,000,000-token ceiling for `dynamic_d02`;
 - every launch uses persistent stdout/stderr files and fail-fast exit propagation.
 
 The execution ceiling for all planned validation and test runs is 1,536,000 requested PySR
@@ -87,3 +106,18 @@ replicates.
 
 The v1 requested-boundary AUC remains historical and post-hoc. V2 confirmatory efficiency
 claims require engine-measured telemetry produced during the run.
+
+## Operational-gate completion (2026-08-14)
+
+All eight arm/task runs completed with the frozen 12,000 requested evaluations. The
+Hamilton realized schedule was 4,000 / 4,500 / 3,500 on both tasks and was frozen before
+the three control arms were materialized. Engine telemetry and controller-only challenge
+checks are present for every endpoint. No candidate exactly recovered registered ground
+truth.
+
+This gate falsified a blanket claim that Hamilton already outperforms ordinary PySR:
+Hamilton beat ordinary and fixed-schedule PySR on `static_s02`, but lost narrowly to the
+union-schedule diagnostic; on `dynamic_d02`, it lost to ordinary and fixed-schedule PySR
+while beating the union schedule. The results therefore authorize engineering diagnosis,
+not validation calibration or sealed-test execution with the current policy. Compact
+evidence is in `public_evidence/operational_gate_v2/`.
