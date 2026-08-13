@@ -156,7 +156,18 @@ class BaseAgent(ABC):
             for turn in range(self.config.max_turns):
                 if self.config.max_total_tokens is not None:
                     used = self._trajectory_token_usage()
-                    estimated_next = self.context_manager.estimate_tokens(self.current_dialog) + 2048
+                    # A hard API-token ceiling must reserve the provider's maximum
+                    # completion, not an optimistic fixed allowance. Otherwise one
+                    # long response can overshoot the authorized budget before the
+                    # post-response exhaustion check runs.
+                    completion_limit = int(
+                        getattr(getattr(self.llm, "config", None), "max_tokens", None)
+                        or 4096
+                    )
+                    estimated_next = (
+                        self.context_manager.estimate_tokens(self.current_dialog)
+                        + completion_limit
+                    )
                     if used + estimated_next > self.config.max_total_tokens:
                         self.logger.warning(
                             f"Token budget preflight stopped run: used={used}, "

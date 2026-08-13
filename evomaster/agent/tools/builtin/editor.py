@@ -100,24 +100,24 @@ class EditorToolParams(BaseToolParams):
     path: str = Field(
         description="Absolute path to file or directory, e.g. `/workspace/file.py` or `/workspace`.",
     )
-    file_text: str = Field(
-        default="",
+    file_text: str | None = Field(
+        default=None,
         description="Required parameter of `create` command, with the content of the file to be created.",
     )
-    old_str: str = Field(
-        default="",
+    old_str: str | None = Field(
+        default=None,
         description="Required parameter of `str_replace` command containing the string in `path` to replace.",
     )
-    new_str: str = Field(
-        default="",
+    new_str: str | None = Field(
+        default=None,
         description="Optional parameter of `str_replace` command containing the new string. Required parameter of `insert` command containing the string to insert.",
     )
-    insert_line: int = Field(
-        default=-1,
+    insert_line: int | None = Field(
+        default=None,
         description="Required parameter of `insert` command. The `new_str` will be inserted AFTER the line `insert_line` of `path`.",
     )
-    view_range: list[int] = Field(
-        default_factory=list,
+    view_range: list[int] | None = Field(
+        default=None,
         description="Optional parameter of `view` command when `path` points to a file. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start.",
     )
 
@@ -156,13 +156,23 @@ class EditorTool(BaseTool):
             path_type = self._validate_path(session, params.command, params.path)
             
             if params.command == "view":
-                return self._view(session, params.path, params.view_range, path_type)
+                return self._view(session, params.path, params.view_range or [], path_type)
             elif params.command == "create":
-                return self._create(session, params.path, params.file_text)
+                return self._create(session, params.path, params.file_text or "")
             elif params.command == "str_replace":
-                return self._str_replace(session, params.path, params.old_str, params.new_str)
+                return self._str_replace(
+                    session,
+                    params.path,
+                    params.old_str or "",
+                    params.new_str or "",
+                )
             elif params.command == "insert":
-                return self._insert(session, params.path, params.insert_line, params.new_str)
+                return self._insert(
+                    session,
+                    params.path,
+                    -1 if params.insert_line is None else params.insert_line,
+                    params.new_str or "",
+                )
             elif params.command == "undo_edit":
                 return self._undo_edit(session, params.path)
             else:
