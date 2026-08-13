@@ -42,3 +42,16 @@ ceiling of 738,694. The aggregate Hamilton ceiling remains 1,338,694 tokens.
 Attempt 4 may use at most those remaining 61,281 tokens. It adds no requested evaluations and
 does not authorize PySR search, private/OOD access, unrelated scientific changes, a fifth
 Promotion attempt, or either downstream arm before normal fit-only endpoint closure.
+
+## Promotion attempt 5 completion authorization
+
+After attempt 4 exposed an editor-parameter incompatibility and a token-preflight defect, the
+user explicitly authorized Promotion attempt 5 to finish the same four Round 3 audit
+corrections. The authorization covers attempt 4's recorded 28,788-token overrun and provides
+attempt 5 with at most 90,000 tokens.
+
+The fit-only Hamilton ceiling is increased from 738,694 to 857,482 tokens, and the aggregate
+ceiling for both Hamilton arms is increased from 1,338,694 to 1,457,482 tokens. Requested
+evaluations do not increase; their cumulative ceiling remains 48,000. Attempt 5 must cap each
+model completion at 12,000 tokens and may not run PySR, access private/OOD data, make unrelated
+scientific changes, or start downstream arms before normal fit-only endpoint closure.
