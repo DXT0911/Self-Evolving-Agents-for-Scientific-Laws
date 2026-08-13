@@ -31,3 +31,14 @@ consume at most 69,347 additional tokens.
 This authorization adds no requested evaluations and leaves their cumulative ceiling at
 48,000. It does not authorize another PySR search, a retry beyond Promotion attempt 3,
 private/OOD access, or either downstream arm before normal fit-only endpoint closure.
+
+## Promotion attempt 4 audit-correction authorization
+
+After attempt 3 returned normally but failed four deterministic scientific-audit checks, the
+user explicitly authorized Promotion attempt 4 solely to correct those four reported errors.
+Attempt 3 used 8,066 tokens, leaving 61,281 tokens within the already authorized fit-only
+ceiling of 738,694. The aggregate Hamilton ceiling remains 1,338,694 tokens.
+
+Attempt 4 may use at most those remaining 61,281 tokens. It adds no requested evaluations and
+does not authorize PySR search, private/OOD access, unrelated scientific changes, a fifth
+Promotion attempt, or either downstream arm before normal fit-only endpoint closure.
