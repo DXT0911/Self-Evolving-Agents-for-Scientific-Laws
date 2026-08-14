@@ -112,6 +112,7 @@ def default_control_config(experiment: dict[str, Any]) -> dict[str, Any]:
         },
         "trust_region": {
             "enabled": bool(trust.get("enabled", True)),
+            "allow_noop_continue": bool(trust.get("allow_noop_continue", False)),
             "max_anchor_distance": int(trust.get("max_anchor_distance", 2) or 2),
             "max_step_changes": int(trust.get("max_step_changes", 1) or 1),
             "rollback_after_stale_rounds": int(
@@ -143,6 +144,8 @@ def validate_control_config(control: dict[str, Any]) -> None:
         raise ValueError("Hamilton search-control sections must be objects")
     if not isinstance(advancement, dict):
         raise ValueError("Hamilton search advancement section must be an object")
+    if not isinstance(trust.get("allow_noop_continue", False), bool):
+        raise ValueError("trust_region.allow_noop_continue must be boolean")
     if float(advancement.get("min_score_improvement", -1)) < 0:
         raise ValueError("min_score_improvement must be non-negative")
     for name in (

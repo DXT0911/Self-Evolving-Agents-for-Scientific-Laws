@@ -33,8 +33,9 @@ use_skill(
 )
 ```
 
-   This deterministically assigns the frozen round seed and writes
-   `history/roundN/experiment.json`.
+   This deterministically assigns the frozen round seed for restart-mode protocols. In a
+   warm-start protocol it retains the initial seed, preserves the shared run directory,
+   and materializes either the one-field modification or an authorized no-op continuation.
 4. Validate before spending compute:
 
 ```text

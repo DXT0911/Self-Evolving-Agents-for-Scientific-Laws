@@ -160,9 +160,11 @@ protocol-valid `history/roundN/results/*.json` files used as evidence, and
 `invalid_attempts_used_as_scientific_evidence` must be false. Quarantined or
 protocol-invalid attempts may be acknowledged only as budget/audit events, never as
 scientific findings, hypothesis counts, or cross-round convergence evidence.
-When continuing, `next_strategy.config_patch` must be a one-entry object whose dotted
-key exactly equals `next_strategy.config_field`; every other normalized configuration
-leaf remains invariant.
+When continuing, choose `next_strategy.action` as `modify` or `continue`. For `modify`,
+`config_patch` must be a one-entry object whose dotted key exactly equals `config_field`.
+For `continue`, use `config_field: null` and `config_patch: {}`; this is permitted only
+when the controller enables no-op continuation. Every normalized scientific leaf then
+remains invariant while the warm-start PySR state receives more evaluations.
 
 - `scientific_score` is minimized. `search_advancement_gates` decide whether a strictly
   better, numerically valid candidate becomes the search incumbent. `scientific_gates`
@@ -179,7 +181,8 @@ leaf remains invariant.
 - Tie the next strategy to a diagnosed failed gate. State the exact config field,
   current-round residual evidence, an alternative explanation, expected effect,
   expected residual change, risks, and falsification evidence.
-- The next strategy must contain exactly one leaf config path and the next round must
-  change exactly that one field.
+- Prefer `continue` when the evidence does not justify a causal parameter intervention.
+  Otherwise use `modify` with exactly one compatible leaf config path, and the next round
+  must change exactly that field.
 - Solver completion alone is not scientific success. Mark true only when all explicit
   task gates contain quantitative passing evidence.

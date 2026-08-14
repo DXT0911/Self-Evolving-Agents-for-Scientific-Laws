@@ -31,6 +31,14 @@
     "random_state": 42,
     "top_k": 10
   },
+  "search_session": {
+    "mode": "warm_start",
+    "session_id": "task-repeat-1",
+    "round": 1,
+    "final_round": false,
+    "round_action": "initialize",
+    "compatible_change_fields": ["search.parsimony"]
+  },
   "verification": {
     "short_ode": {
       "enabled": true,
@@ -101,6 +109,12 @@
 - `niterations`, `max_evals`, `populations`, `population_size`, `maxsize`, and ODE duration must be positive.
 - `tournament_selection_n` must be smaller than `population_size`.
 - PySR runs with `deterministic=true` and `parallelism="serial"`.
+- `search_session` is optional. In warm-start mode, all rounds use one workspace-local
+  PySR worker, one initial seed, and one unchanged run directory. `round_action` is
+  `initialize`, `continue`, or `modify`. Only `search.parsimony` is initially a
+  compatible warm-start change. Keep `search.maxsize` fixed for the session because
+  PySR sizes its saved hall-of-fame state at initialization. Losing the worker after
+  round 1 is a hard failure rather than an implicit restart.
 - Candidate ranking weights must be non-negative and `max_candidates <= top_k`.
 - Long-horizon dynamics is optional and disabled for historical configurations. When enabled,
   it requires exactly position and velocity features, at least 64 integration points, an
@@ -164,6 +178,8 @@ The result JSON contains:
 - engine telemetry sourced from SymbolicRegression `SearchState.num_evals`, with every
   logged Pareto checkpoint re-evaluated on the frozen validation block to form a
   best-so-far validation-NRMSE curve; the raw JSONL stays in the ignored PySR run directory;
+- warm-start session metadata including cumulative and per-round engine-measured
+  evaluations, effective cumulative stopping limit, and whether state was preserved;
 - runtime and environment versions;
 - structured error information on failure.
 

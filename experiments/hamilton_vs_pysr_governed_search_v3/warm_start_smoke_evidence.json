@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "purpose": "implementation_equivalence_not_scientific_arm",
+  "task": "static_s01_development_only",
+  "requested_evaluations": {
+    "ordinary": 2000,
+    "warm_segments": [
+      1000,
+      1000
+    ]
+  },
+  "endpoint_exact_equality": {
+    "equation": true,
+    "scientific_score": true,
+    "validation_mse": true,
+    "validation_r2": true
+  },
+  "endpoint": {
+    "equation": "x1 + (x1 + 0.049344912)*(3.07483124557417*x2 + cos(x2) - 4.62061102431546) + cos(x2) + 0.28362587",
+    "scientific_score": 0.05226695738616914,
+    "validation_mse": 0.07544112086501577,
+    "validation_r2": 0.9995324979335897
+  },
+  "engine_measured_evaluations": {
+    "ordinary": 2901.0,
+    "warm_segmented_total": 2930.0,
+    "difference": 29.0,
+    "relative_overhead": 0.009996552912788694,
+    "rounds": [
+      1582.0,
+      1348.0
+    ]
+  },
+  "worker_final_status": "closed",
+  "compatible_change_smoke": {
+    "status": "passed",
+    "changed_fields": [
+      "search.parsimony"
+    ],
+    "state_preserved": true,
+    "worker_final_status": "closed",
+    "round_engine_measured_evaluations": 1502.0,
+    "policy": {
+      "allowed": [
+        "search.parsimony"
+      ],
+      "fixed": [
+        "search.maxsize",
+        "search.random_state"
+      ]
+    }
+  },
+  "result_sha256": {
+    "ordinary": "9c7ef708e282a8d28b7a5e4adbadbf728e0b5394aca84bf1f556bf65830d72ee",
+    "warm_round1": "be62ec1c036021d25241c61046d1cdec70724a35282fa66353b837bb050e4b39",
+    "warm_round2": "ca27b4e2668827c2974287c9e97ab69951161cd21cc9f29c2c6c5c10f3929a3d",
+    "modify_round1": "f0cd524513d8ca42e1ef8fc55430fdd9d640299200ec434a5639d5b982cfdb5a",
+    "modify_round2": "e4fd7176c21c20bdc79baa621f74049b7d70058e2367e0949eb3c34c2afaeeaf"
+  },
+  "conclusion": "do_not_add_continuation_schedule_as_formal_arm"
+}

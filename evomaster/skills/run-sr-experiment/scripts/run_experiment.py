@@ -11,6 +11,8 @@ import math
 import os
 import platform
 import re
+import socket
+import struct
 import subprocess
 import sys
 import time
@@ -52,6 +54,219 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", required=True, help="JSON config relative to the workspace.")
     parser.add_argument("--validate-only", action="store_true", help="Validate without running PySR.")
     return parser.parse_args()
+
+
+WARM_START_DIR = ".hamilton_warm_start"
+
+
+def warm_start_session(config: dict[str, Any]) -> dict[str, Any] | None:
+    value = config.get("search_session")
+    if value is None:
+        return None
+    session = require_dict(value, "search_session")
+    if session.get("mode") != "warm_start":
+        raise ConfigError("search_session.mode must be 'warm_start'")
+    session_id = session.get("session_id")
+    if not isinstance(session_id, str) or re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", session_id) is None:
+        raise ConfigError("search_session.session_id must be a safe non-empty identifier")
+    round_number = positive_int(session.get("round"), "search_session.round")
+    final_round = session.get("final_round", False)
+    if not isinstance(final_round, bool):
+        raise ConfigError("search_session.final_round must be boolean")
+    round_action = session.get(
+        "round_action", "initialize" if round_number == 1 else "modify"
+    )
+    if round_action not in {"initialize", "continue", "modify"}:
+        raise ConfigError(
+            "search_session.round_action must be initialize, continue, or modify"
+        )
+    allowed = session.get("compatible_change_fields", ["search.parsimony"])
+    if not isinstance(allowed, list) or not all(
+        field == "search.parsimony" for field in allowed
+    ):
+        raise ConfigError(
+            "search_session.compatible_change_fields may contain only "
+            "search.parsimony"
+        )
+    return {
+        "mode": "warm_start",
+        "session_id": session_id,
+        "round": round_number,
+        "final_round": final_round,
+        "round_action": round_action,
+        "compatible_change_fields": list(dict.fromkeys(allowed)),
+    }
+
+
+def _warm_message(connection: socket.socket, value: dict[str, Any]) -> dict[str, Any]:
+    payload = json.dumps(value, ensure_ascii=False).encode("utf-8")
+    connection.sendall(struct.pack("!I", len(payload)) + payload)
+    header = connection.recv(4)
+    if len(header) != 4:
+        raise RuntimeError("warm-start worker returned an incomplete header")
+    size = struct.unpack("!I", header)[0]
+    chunks = bytearray()
+    while len(chunks) < size:
+        block = connection.recv(size - len(chunks))
+        if not block:
+            raise RuntimeError("warm-start worker returned an incomplete response")
+        chunks.extend(block)
+    response = json.loads(chunks.decode("utf-8"))
+    if not isinstance(response, dict):
+        raise RuntimeError("warm-start worker response must be an object")
+    return response
+
+
+def _atomic_json(path: Path, value: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(
+        json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, path)
+
+
+def _worker_alive(pid: object) -> bool:
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+
+        process_query_limited_information = 0x1000
+        still_active = 259
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.OpenProcess(
+            process_query_limited_information, False, pid
+        )
+        if not handle:
+            return False
+        try:
+            exit_code = ctypes.c_ulong()
+            return bool(kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code))) and (
+                exit_code.value == still_active
+            )
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _start_warm_worker(
+    workspace: Path, session: dict[str, Any], metadata_path: Path
+) -> dict[str, Any]:
+    if session["round"] != 1:
+        raise ConfigError(
+            "warm-start worker state is unavailable after round 1; refusing a silent restart"
+        )
+    token = uuid.uuid4().hex
+    worker = Path(__file__).with_name("warm_start_worker.py")
+    command = [
+        sys.executable,
+        str(worker),
+        "--workspace",
+        str(workspace),
+        "--port",
+        "0",
+        "--token",
+        token,
+        "--metadata",
+        str(metadata_path),
+    ]
+    kwargs: dict[str, Any] = {
+        "cwd": str(workspace),
+        "stdin": subprocess.DEVNULL,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+        "close_fds": True,
+    }
+    if os.name == "nt":
+        kwargs["creationflags"] = (
+            getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            | getattr(subprocess, "DETACHED_PROCESS", 0)
+        )
+    else:
+        kwargs["start_new_session"] = True
+    process = subprocess.Popen(command, **kwargs)
+    deadline = time.monotonic() + 180.0
+    while time.monotonic() < deadline:
+        if metadata_path.is_file():
+            try:
+                metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                metadata = None
+            if isinstance(metadata, dict) and metadata.get("status") == "ready":
+                return metadata
+        if process.poll() is not None:
+            raise RuntimeError(
+                f"warm-start worker exited during startup with code {process.returncode}"
+            )
+        time.sleep(0.1)
+    process.terminate()
+    raise RuntimeError("warm-start worker did not become ready within 180 seconds")
+
+
+def run_warm_start_round(
+    config: dict[str, Any], workspace: Path
+) -> dict[str, Any]:
+    session = warm_start_session(config)
+    if session is None:
+        raise ConfigError("run_warm_start_round requires search_session")
+    state_dir = workspace / WARM_START_DIR / session["session_id"]
+    metadata_path = state_dir / "worker.json"
+    metadata: dict[str, Any] | None = None
+    if metadata_path.is_file():
+        try:
+            candidate = json.loads(metadata_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            candidate = None
+        if (
+            isinstance(candidate, dict)
+            and candidate.get("status") == "ready"
+            and _worker_alive(candidate.get("pid"))
+        ):
+            metadata = candidate
+        elif session["round"] > 1:
+            raise ConfigError(
+                "warm-start worker was lost after round 1; refusing a fresh PySR restart"
+            )
+    if metadata is None:
+        metadata_path.unlink(missing_ok=True)
+        metadata = _start_warm_worker(workspace, session, metadata_path)
+
+    request_id = uuid.uuid4().hex
+    request_path = state_dir / "requests" / f"{request_id}.json"
+    response_path = state_dir / "responses" / f"{request_id}.json"
+    request_relative = request_path.relative_to(workspace).as_posix()
+    response_relative = response_path.relative_to(workspace).as_posix()
+    _atomic_json(request_path, {
+        "schema_version": 1,
+        "config": config,
+        "response_file": response_relative,
+    })
+    try:
+        with socket.create_connection(
+            ("127.0.0.1", int(metadata["port"])), timeout=21600
+        ) as connection:
+            response = _warm_message(connection, {
+                "token": metadata["token"],
+                "request_file": request_relative,
+            })
+    except (OSError, ValueError, KeyError) as exc:
+        raise RuntimeError(f"warm-start worker communication failed: {exc}") from exc
+    if response.get("status") != "completed" or not response_path.is_file():
+        detail = response.get("error", {})
+        raise RuntimeError(
+            f"warm-start worker failed: {detail.get('type')}: {detail.get('message')}"
+        )
+    payload = json.loads(response_path.read_text(encoding="utf-8"))
+    result = payload.get("result")
+    if not isinstance(result, dict) or result.get("status") != "completed":
+        raise RuntimeError("warm-start worker produced no completed result")
+    return result
 
 
 def require_dict(value: Any, name: str) -> dict[str, Any]:
@@ -548,6 +763,11 @@ def meaningful_config(
     # The controller's frozen repeat plan owns seeds. A planned seed change between
     # rounds must not consume the one-field scientific trust-region allowance.
     projected["search"].pop("random_state", None)
+    session = projected.get("search_session")
+    if isinstance(session, dict):
+        session.pop("round", None)
+        session.pop("final_round", None)
+        session.pop("round_action", None)
     return projected
 
 
@@ -599,6 +819,15 @@ def expected_adaptive_config_patch(workspace: Path) -> dict[str, Any] | None:
     strategy = decision.get("next_strategy")
     if not isinstance(strategy, dict):
         return None
+    action = strategy.get("action", "modify")
+    if action == "continue":
+        if strategy.get("config_field") not in {None, ""} or strategy.get("config_patch") != {}:
+            raise ConfigError(
+                "continue action requires no config_field and an empty config_patch"
+            )
+        return {}
+    if action != "modify":
+        raise ConfigError("next_strategy.action must be 'continue' or 'modify'")
     config_field = strategy.get("config_field")
     config_patch = strategy.get("config_patch")
     if not isinstance(config_field, str) or not config_field:
@@ -677,11 +906,17 @@ def audit_single_field_adaptation(
         .get("trust_region", {})
         .get("max_step_changes", 1)
     )
-    if not 1 <= len(changed) <= max_step_changes:
+    expected_patch = expected_adaptive_config_patch(workspace)
+    allow_noop = bool(
+        (control or {}).get("trust_region", {}).get("allow_noop_continue", False)
+    )
+    minimum_changes = 0 if allow_noop and expected_patch == {} else 1
+    if not minimum_changes <= len(changed) <= max_step_changes:
         raise ConfigError(
-            "adaptive round must change exactly one scientific config field "
+            "adaptive round must change exactly one scientific config field or use an "
+            "explicitly authorized no-op continuation "
             "within the trust-region step before PySR; "
-            f"allowed_changes=1..{max_step_changes}, changed_fields={changed}"
+            f"allowed_changes={minimum_changes}..{max_step_changes}, changed_fields={changed}"
         )
     anchor = state.get("incumbent", {}).get("config")
     if isinstance(anchor, dict) and anchor:
@@ -697,8 +932,7 @@ def audit_single_field_adaptation(
                 f"max_anchor_distance={max_anchor_distance}, "
                 f"anchor_changed_fields={anchor_distance}"
             )
-    expected_patch = expected_adaptive_config_patch(workspace)
-    if expected_patch is not None:
+    if expected_patch:
         expected_field, expected_value = next(iter(expected_patch.items()))
         if controller_budget and expected_field == "search.max_evals":
             raise ConfigError(
@@ -723,6 +957,7 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
 
     if config.get("schema_version") != 1:
         raise ConfigError("schema_version must be 1")
+    session = warm_start_session(config)
     experiment_id = config.get("experiment_id")
     if not isinstance(experiment_id, str) or not experiment_id.strip():
         raise ConfigError("experiment_id must be a non-empty string")
@@ -937,6 +1172,8 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
         raise ConfigError("output.result_file must end in .json")
 
     normalized = json.loads(json.dumps(config))
+    if session is not None:
+        normalized["search_session"] = session
     normalized["_config_file"] = str(config_path.relative_to(workspace)).replace("\\", "/")
     normalized["data"]["max_rows"] = max_rows
     normalized["data"]["search_stride"] = search_stride
@@ -2166,11 +2403,15 @@ def evaluate_candidates(
     return records
 
 
-def run_experiment(
+def _run_experiment_with_model(
     config: dict[str, Any],
     paths: dict[str, Path],
     workspace: Path,
-) -> dict[str, Any]:
+    model: Any | None = None,
+    *,
+    cumulative_max_evals: int | None = None,
+    engine_evals_before: float = 0.0,
+) -> tuple[dict[str, Any], Any]:
     started_at = utc_now()
     started = time.perf_counter()
     train, validation, split = load_data(config, paths["train"])
@@ -2189,26 +2430,41 @@ def run_experiment(
     paths["run_directory"].parent.mkdir(parents=True, exist_ok=True)
     telemetry_path = paths["run_directory"] / "engine_telemetry.jsonl"
     telemetry_logger = make_logger_spec(telemetry_path, log_interval=1)
-    model = PySRRegressor(
-        niterations=search["niterations"],
-        max_evals=search["max_evals"],
-        populations=search["populations"],
-        population_size=search["population_size"],
-        tournament_selection_n=search["tournament_selection_n"],
-        maxsize=search["maxsize"],
-        parsimony=float(search.get("parsimony", 0.0)),
-        binary_operators=search["binary_operators"],
-        unary_operators=search.get("unary_operators") or None,
-        random_state=search["random_state"],
-        deterministic=True,
-        parallelism="serial",
-        model_selection="best",
-        verbosity=0,
-        progress=False,
-        output_directory=str(paths["run_directory"].parent),
-        run_id=paths["run_directory"].name,
-        logger_spec=telemetry_logger,
-    )
+    effective_max_evals = int(search["max_evals"])
+    session = warm_start_session(config)
+    if model is None:
+        model = PySRRegressor(
+            niterations=search["niterations"],
+            max_evals=effective_max_evals,
+            populations=search["populations"],
+            population_size=search["population_size"],
+            tournament_selection_n=search["tournament_selection_n"],
+            maxsize=search["maxsize"],
+            parsimony=float(search.get("parsimony", 0.0)),
+            binary_operators=search["binary_operators"],
+            unary_operators=search.get("unary_operators") or None,
+            random_state=search["random_state"],
+            deterministic=True,
+            parallelism="serial",
+            warm_start=session is not None,
+            model_selection="best",
+            verbosity=0,
+            progress=False,
+            output_directory=str(paths["run_directory"].parent),
+            run_id=paths["run_directory"].name,
+            logger_spec=telemetry_logger,
+        )
+    else:
+        if session is None or not bool(getattr(model, "warm_start", False)):
+            raise ConfigError("an existing PySR model requires an active warm-start session")
+        model.max_evals = effective_max_evals
+        model.niterations = search["niterations"]
+        model.maxsize = search["maxsize"]
+        model.parsimony = float(search.get("parsimony", 0.0))
+        # PySR's SearchState.num_evals and max_evals are per fit() invocation even
+        # when the population is warm-started. The existing logger keeps its writer,
+        # so truncate only its JSONL sink to isolate this round's incremental curve.
+        telemetry_path.write_text("", encoding="utf-8")
     search_train = train.iloc[:: config["data"]["search_stride"]]
     search_features, search_target = transform_search_arrays(
         search_train,
@@ -2240,6 +2496,21 @@ def run_experiment(
         target=y_validation,
         target_scale=validation_scale,
     )
+    round_engine_evals = float(engine_telemetry["final_engine_measured_evaluations"])
+    engine_evals_after = engine_evals_before + round_engine_evals
+    if session is not None:
+        engine_telemetry["warm_start_session"] = {
+            "session_id": session["session_id"],
+            "round": session["round"],
+            "engine_evaluations_before": engine_evals_before,
+            "engine_evaluations_after": engine_evals_after,
+            "round_engine_measured_evaluations": round_engine_evals,
+            "effective_round_max_evals": effective_max_evals,
+            "cumulative_requested_evaluations": int(
+                cumulative_max_evals or search["max_evals"]
+            ),
+            "state_preserved": True,
+        }
 
     equations = model.equations_
     if isinstance(equations, list):
@@ -2288,7 +2559,7 @@ def run_experiment(
             "reason": str(exc),
         }
 
-    return {
+    result = {
         "schema_version": 1,
         "experiment_id": config["experiment_id"],
         "status": "completed",
@@ -2329,6 +2600,16 @@ def run_experiment(
         },
         "engine_telemetry": engine_telemetry,
     }
+    return result, model
+
+
+def run_experiment(
+    config: dict[str, Any],
+    paths: dict[str, Path],
+    workspace: Path,
+) -> dict[str, Any]:
+    result, _ = _run_experiment_with_model(config, paths, workspace)
+    return result
 
 
 def write_result(path: Path, result: dict[str, Any]) -> None:
@@ -2420,7 +2701,11 @@ def main() -> int:
             config,
             result_path,
         )
-        result = run_experiment(config, paths, workspace)
+        result = (
+            run_warm_start_round(config, workspace)
+            if warm_start_session(config) is not None
+            else run_experiment(config, paths, workspace)
+        )
         result["evaluation_budget"] = {
             "attempt_id": evaluation_attempt["attempt_id"],
             "requested_evals": evaluation_attempt["requested_evals"],

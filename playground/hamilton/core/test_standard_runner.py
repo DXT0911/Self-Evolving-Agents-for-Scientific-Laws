@@ -1876,6 +1876,65 @@ class RoundClosureContractTests(unittest.TestCase):
             ["verification.short_ode.duration"],
         )
 
+    def test_round_two_accepts_authorized_warm_start_noop_continue(self) -> None:
+        previous_config = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"niterations": 10, "parsimony": 0.001},
+            "verification": {"short_ode": {"duration": 1.0}},
+        }
+        (self.round_dir / "results" / "previous.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        (self.workspace / ".hamilton_search_control.json").write_text(
+            json.dumps({
+                "schema_version": 1,
+                "search_advancement": {"min_score_improvement": 0.0},
+                "trust_region": {
+                    "allow_noop_continue": True,
+                    "max_anchor_distance": 2,
+                    "max_step_changes": 1,
+                    "rollback_after_stale_rounds": 2,
+                },
+                "dynamic_budget": {
+                    "enabled": False,
+                    "base_evals": 100,
+                    "min_evals": 100,
+                    "max_evals": 100,
+                    "rounding_quantum": 100,
+                },
+                "max_rounds": 3,
+            }),
+            encoding="utf-8",
+        )
+        self.exp.round_num = 2
+        round_two = self.workspace / "history" / "round2"
+        (round_two / "results").mkdir(parents=True)
+        (round_two / "trace.md").write_text("initial trace", encoding="utf-8")
+        before = self.exp._snapshot_closure_artifacts()
+        (round_two / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text(
+            self.continuation_contract(), encoding="utf-8"
+        )
+        current_config = copy.deepcopy(previous_config)
+        current_config["search_session"] = {
+            "mode": "warm_start",
+            "round": 2,
+            "round_action": "continue",
+        }
+        (round_two / "results" / "continued.json").write_text(
+            json.dumps({"status": "completed", "config": current_config}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(
+            before, self.finish_trajectory("false")
+        )
+        self.assertTrue(closure["closed"])
+        self.assertTrue(closure["meaningful_config_change"])
+        self.assertTrue(closure["single_config_change"])
+        self.assertEqual(closure["changed_config_fields"], [])
+
     def test_round_two_rejects_multiple_config_changes(self) -> None:
         previous_config = {
             "data": {"train_file": "input/train.csv"},
