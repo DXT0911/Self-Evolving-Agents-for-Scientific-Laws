@@ -20,6 +20,11 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def worker_path(workspace: Path, session_id: str) -> Path:
+    key = hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:12]
+    return workspace / ".hws" / key / "worker.json"
+
+
 def collect() -> dict:
     paths = {
         "ordinary": RUN / "ordinary/results/result.json",
@@ -34,9 +39,9 @@ def collect() -> dict:
     ordinary = values["ordinary"]
     final = values["warm_round2"]
     warm_engine = final["engine_telemetry"]["warm_start_session"]
-    worker = read(RUN / "warm/.hamilton_warm_start/static-s01-repeat-1/worker.json")
+    worker = read(worker_path(RUN / "warm", "static-s01-repeat-1"))
     modify_worker = read(
-        RUN / "warm_modify/.hamilton_warm_start/static-s01-modify-repeat-1/worker.json"
+        worker_path(RUN / "warm_modify", "static-s01-modify-repeat-1")
     )
     modify_final = values["modify_round2"]
     modify_transition = modify_final["warm_start_transition"]

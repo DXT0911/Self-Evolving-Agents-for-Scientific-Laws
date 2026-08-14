@@ -56,7 +56,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-WARM_START_DIR = ".hamilton_warm_start"
+WARM_START_DIR = ".hws"
+
+
+def warm_start_state_dir(workspace: Path, session_id: str) -> Path:
+    """Use a short stable directory to stay below legacy Windows path limits."""
+    key = hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:12]
+    return workspace / WARM_START_DIR / key
 
 
 def warm_start_session(config: dict[str, Any]) -> dict[str, Any] | None:
@@ -119,12 +125,22 @@ def _warm_message(connection: socket.socket, value: dict[str, Any]) -> dict[str,
 
 def _atomic_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, path)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        temporary.write_text(
+            json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
+            encoding="utf-8",
+        )
+        for attempt in range(100):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError:
+                if attempt == 99:
+                    raise
+                time.sleep(0.01)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _worker_alive(pid: object) -> bool:
@@ -215,7 +231,7 @@ def run_warm_start_round(
     session = warm_start_session(config)
     if session is None:
         raise ConfigError("run_warm_start_round requires search_session")
-    state_dir = workspace / WARM_START_DIR / session["session_id"]
+    state_dir = warm_start_state_dir(workspace, session["session_id"])
     metadata_path = state_dir / "worker.json"
     metadata: dict[str, Any] | None = None
     if metadata_path.is_file():
@@ -238,8 +254,8 @@ def run_warm_start_round(
         metadata = _start_warm_worker(workspace, session, metadata_path)
 
     request_id = uuid.uuid4().hex
-    request_path = state_dir / "requests" / f"{request_id}.json"
-    response_path = state_dir / "responses" / f"{request_id}.json"
+    request_path = state_dir / "q" / f"{request_id[:16]}.json"
+    response_path = state_dir / "r" / f"{request_id[:16]}.json"
     request_relative = request_path.relative_to(workspace).as_posix()
     response_relative = response_path.relative_to(workspace).as_posix()
     _atomic_json(request_path, {

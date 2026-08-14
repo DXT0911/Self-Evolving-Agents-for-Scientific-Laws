@@ -1,6 +1,6 @@
 schema_version: 1
 experiment_id: hamilton-vs-pysr-governed-search-v3
-status: development_smoke_passed_formal_experiment_not_started
+status: development_pilot_completed_with_operational_audit_failures
 inherits_dataset_split_from: ../hamilton_vs_pysr_governed_search_v2/dataset_split.yaml
 viv_in_scope: false
 
@@ -30,3 +30,12 @@ development_smoke:
   segmented_engine_evaluation_overhead_fraction: 0.009996552912788694
   parsimony_hot_change_state_preserved: true
   evidence_file: warm_start_smoke_evidence.json
+
+development_pilot:
+  task: static_s01
+  repeats: 1
+  successful_requested_evaluations_per_arm: 3000
+  status: completed_with_operational_audit_failures
+  performance_claims_permitted: false
+  evidence_file: pilot_evidence.json
+  human_summary: PILOT_RESULTS.zh-CN.md

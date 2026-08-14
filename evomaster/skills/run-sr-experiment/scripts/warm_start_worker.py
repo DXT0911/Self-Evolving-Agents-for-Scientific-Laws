@@ -11,6 +11,8 @@ import socket
 import struct
 import sys
 import traceback
+import uuid
+import time
 from pathlib import Path
 from typing import Any
 
@@ -51,12 +53,22 @@ def _send(connection: socket.socket, value: dict[str, Any]) -> None:
 
 def _atomic_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, path)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        temporary.write_text(
+            json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
+            encoding="utf-8",
+        )
+        for attempt in range(100):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError:
+                if attempt == 99:
+                    raise
+                time.sleep(0.01)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _scientific_projection(config: dict[str, Any]) -> dict[str, Any]:

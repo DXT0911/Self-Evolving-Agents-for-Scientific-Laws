@@ -1,0 +1,54 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v3-pilot-01
+status: completed_with_operational_audit_failures
+interpretation: development_pilot_only_not_confirmatory
+viv_in_scope: false
+
+task: static_s01
+repeat: repeat_1
+seed: 7101
+episodes: 3
+requested_evaluations_per_episode: 1000
+requested_evaluations_per_arm: 3000
+hamilton_ledger_ceiling: 5000
+max_hamilton_tokens: 600000
+
+operational_amendment_2026_08_14:
+  reason: first_round_ipc_atomic_write_failed_before_pysr_started
+  failed_reserved_evaluations: 2000
+  engine_evaluations_consumed_by_failure: 0
+  additional_successful_search_evaluations: 0
+  action: retain_both_failed_audits_and_add_2000_ledger_headroom_for_final_path_fix_retry
+
+arms:
+  execution_order: [governed_hamilton, ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr]
+  ids: [ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr, governed_hamilton]
+  continuation_schedule_is_formal_arm: false
+  ordinary: one_continuous_search
+  fixed: three_same_seed_restarts
+  union: three_same_seed_restarts_with_union_operator_envelope
+  governed_hamilton: three_round_persistent_warm_start
+
+search:
+  binary_operators: ["+", "-", "*", "/"]
+  initial_unary_operators: [sin, cos, exp]
+  union_unary_operators: [sin, cos, exp, tanh]
+  compatible_warm_changes: [search.parsimony]
+  fixed_for_warm_session: [search.maxsize, search.random_state]
+
+success_gates:
+  all_arm_results_completed: true
+  all_requested_evaluation_ledgers_reconcile: true
+  warm_start_state_preserved_all_rounds: true
+  no_silent_worker_restart: true
+  engine_telemetry_present_all_results: true
+  performance_claims_permitted: false
+
+outcome:
+  completed_at: 2026-08-14
+  evidence_file: pilot_evidence.json
+  human_summary: PILOT_RESULTS.zh-CN.md
+  successful_requested_evaluations_per_arm: 3000
+  rank_by_scientific_score: [ordinary_pysr, union_schedule_pysr, governed_hamilton, fixed_schedule_pysr]
+  hamilton_final_promotion_closed: false
+  no_orphaned_reserved_attempts: true

@@ -5,6 +5,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -63,6 +64,23 @@ def config(round_number: int = 1) -> dict:
 
 
 class WarmStartRunnerTests(unittest.TestCase):
+    def test_atomic_request_write_tolerates_concurrent_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "requests" / "same.json"
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                list(pool.map(lambda value: RUNNER._atomic_json(target, {"value": value}), range(64)))
+            payload = json.loads(target.read_text(encoding="utf-8"))
+            self.assertIn(payload["value"], range(64))
+            self.assertEqual(list(target.parent.glob("*.tmp")), [])
+
+    def test_warm_start_ipc_uses_short_hashed_paths(self) -> None:
+        workspace = Path("C:/") / ("long-workspace-segment-" * 7)
+        state = RUNNER.warm_start_state_dir(workspace, "descriptive-session-name")
+        request = state / "q" / "0123456789abcdef.json"
+        self.assertEqual(state.parent.name, ".hws")
+        self.assertEqual(len(state.name), 12)
+        self.assertLess(len(str(request)), 260)
+
     def test_session_validation_and_transition(self) -> None:
         first = config(1)
         second = config(2)
