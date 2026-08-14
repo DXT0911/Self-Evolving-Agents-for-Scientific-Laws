@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "max_total_evals": null,
+  "created_at": "2026-08-14T08:38:35.190563+00:00",
+  "attempts": [
+    {
+      "attempt_id": "4a20a036-8bed-48ab-ad68-6a71d9621dfd",
+      "experiment_id": "v5_pilot_union_schedule_pysr__static_s02__repeat_2__e1",
+      "config_sha256": "e23acf214c2fc971b422ac3308ecfd79b957d3c18e02a8320772fc6633a02d59",
+      "result_file": "results/episode_1.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:38:35.192256+00:00",
+      "finished_at": "2026-08-14T08:41:16.962373+00:00",
+      "result_sha256": "9121021e3663055b356449bdeb895b94ce3c778aa5206e3d7722c6cd26639bac"
+    },
+    {
+      "attempt_id": "4d82a7df-4125-42b9-a51a-ebb3373e0684",
+      "experiment_id": "v5_pilot_union_schedule_pysr__static_s02__repeat_2__e1",
+      "config_sha256": "e23acf214c2fc971b422ac3308ecfd79b957d3c18e02a8320772fc6633a02d59",
+      "result_file": "results/episode_1.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:41:05.498458+00:00",
+      "finished_at": "2026-08-14T08:43:46.170145+00:00",
+      "result_sha256": "392784cee80be98f7025a4675780415b48ef03db2dd28b1fb0a15a71c266fa97"
+    },
+    {
+      "attempt_id": "5fb0cf3b-e8a2-4cfe-a48b-a21ea11e72af",
+      "experiment_id": "v5_pilot_union_schedule_pysr__static_s02__repeat_2__e2",
+      "config_sha256": "1d99dbc9d4ea23a7310821579271d858a8bf2beaf85702ad5054f6a0c925aa49",
+      "result_file": "results/episode_2.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:43:47.823726+00:00",
+      "finished_at": "2026-08-14T08:46:29.106877+00:00",
+      "result_sha256": "522bd0fe81098b7af789431b851e9d93e7bf96f148fb645212386dd7a9e97b56"
+    },
+    {
+      "attempt_id": "16ff2221-05a4-47bc-8edd-f83260aa70a1",
+      "experiment_id": "v5_pilot_union_schedule_pysr__static_s02__repeat_2__e3",
+      "config_sha256": "d995a7d5e86f07da6fe855224aa7fc2206885403bc17f1d13efbf6e8b4159f27",
+      "result_file": "results/episode_3.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:48:19.136135+00:00",
+      "finished_at": "2026-08-14T08:51:02.262076+00:00",
+      "result_sha256": "c1f6b9c1a2d9b434dd9544b91bb4bec31fb750601bce4b62064018179aac06bf"
+    }
+  ]
+}

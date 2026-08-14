@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "max_total_evals": null,
+  "created_at": "2026-08-14T08:32:47.487463+00:00",
+  "attempts": [
+    {
+      "attempt_id": "1f356bac-274f-44c7-9220-1ec6f9883fe6",
+      "experiment_id": "v5_pilot_fixed_schedule_pysr__static_s02__repeat_3__e1",
+      "config_sha256": "5b9401295dedb4c494f081ea33d8034f641a4c62b410185afbcbd4f1aebc523f",
+      "result_file": "results/episode_1.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:32:47.489394+00:00",
+      "finished_at": "2026-08-14T08:33:16.067729+00:00",
+      "result_sha256": "51db43f669109cda94f713b5b2663bbd709de8b4ab5b0834f9c332b26b67ff2f"
+    },
+    {
+      "attempt_id": "ae6e7cc0-76a7-446a-a45b-afd6866599e7",
+      "experiment_id": "v5_pilot_fixed_schedule_pysr__static_s02__repeat_3__e2",
+      "config_sha256": "3f4dcbdf94ab9703c2e5db999385ff381a954eccc8ba73531ddffa468645252c",
+      "result_file": "results/episode_2.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:33:17.572872+00:00",
+      "finished_at": "2026-08-14T08:33:46.379414+00:00",
+      "result_sha256": "e68e5a9471d83bd34c33ca7a8fdeae35e6d1ed2866ed6e7c8bab4935a65996e4"
+    },
+    {
+      "attempt_id": "d0585cef-a490-4c40-8352-66db97e3c4ad",
+      "experiment_id": "v5_pilot_fixed_schedule_pysr__static_s02__repeat_3__e3",
+      "config_sha256": "17444683f06189549aabab9b72406b1a37880c2c10614cafd9ec86c032f1f18b",
+      "result_file": "results/episode_3.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-14T08:33:47.880363+00:00",
+      "finished_at": "2026-08-14T08:34:16.497787+00:00",
+      "result_sha256": "ec2f64f836c7c513fd9c688e57d8ab0ee19927b60b3cde8e3573ab18a9b1d993"
+    }
+  ]
+}

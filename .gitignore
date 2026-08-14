@@ -186,3 +186,9 @@ playground/hamilton/workspace/findings.md
 # macOS
 .DS_Store
 playground/hamilton/benchmarks/*/private/
+
+# Reproducible Hamilton pilot bundles: exclude regenerated inputs and runtime-only state.
+experiments/hamilton_vs_pysr_governed_search_v*/pilot_bundle/**/input/data.csv
+experiments/hamilton_vs_pysr_governed_search_v*/pilot_bundle/**/.hws/
+experiments/hamilton_vs_pysr_governed_search_v*/pilot_bundle/**/.hamilton_evaluation_ledger.lock
+experiments/hamilton_vs_pysr_governed_search_v*/pilot_bundle/**/session/pysr/

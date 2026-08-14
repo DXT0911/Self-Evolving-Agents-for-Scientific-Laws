@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "search_advancement": {
+    "min_score_improvement": 0.0
+  },
+  "trust_region": {
+    "enabled": true,
+    "allow_noop_continue": true,
+    "max_anchor_distance": 2,
+    "max_step_changes": 1,
+    "rollback_after_stale_rounds": 2
+  },
+  "dynamic_budget": {
+    "enabled": true,
+    "base_evals": 1000,
+    "min_evals": 1000,
+    "max_evals": 1000,
+    "rounding_quantum": 1000
+  },
+  "deterministic_policy": {
+    "enabled": true,
+    "binding": true,
+    "warm_compatible_fields": [
+      "search.parsimony"
+    ],
+    "thresholds": {
+      "min_score_improvement": 0.0001,
+      "stale_rounds_before_intervention": 2,
+      "high_complexity_fraction": 0.8,
+      "low_complexity_fraction": 0.25,
+      "material_residual_correlation": 0.3,
+      "parsimony_multiplier": 2.0,
+      "min_parsimony": 1e-08,
+      "max_parsimony": 1.0
+    }
+  },
+  "max_rounds": 3
+}

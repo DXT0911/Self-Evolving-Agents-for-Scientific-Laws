@@ -947,6 +947,53 @@ class HamiltonSearchControlTests(unittest.TestCase):
         self.assertTrue(directive["rollback_required"])
         self.assertEqual(directive["baseline_mode"], "rollback_to_incumbent")
 
+    def test_binding_policy_is_persisted_from_frozen_result_diagnostics(self) -> None:
+        controlled = copy.deepcopy(self.experiment)
+        controlled["search_control"]["deterministic_policy"] = {
+            "enabled": True,
+            "binding": True,
+            "warm_compatible_fields": ["search.parsimony"],
+            "thresholds": {
+                "min_score_improvement": 0.0001,
+                "stale_rounds_before_intervention": 2,
+                "high_complexity_fraction": 0.8,
+                "low_complexity_fraction": 0.25,
+                "material_residual_correlation": 0.3,
+                "parsimony_multiplier": 2.0,
+                "min_parsimony": 1e-8,
+                "max_parsimony": 1.0,
+            },
+        }
+        (self.workspace / ".hamilton_search_control.json").unlink()
+        initialize_control(self.workspace, controlled)
+        result_path = self.workspace / "history/round1/results/r1.json"
+        result_path.parent.mkdir(parents=True)
+        config = self.config(parsimony=0.01)
+        result_path.write_text(
+            json.dumps({
+                "status": "completed",
+                "config": config,
+                "selected": {"scientific_score": 0.4, "complexity": 10},
+                "verification": {"residual_diagnostics": {"validation": {}}},
+            }),
+            encoding="utf-8",
+        )
+        state = update_state(
+            self.workspace,
+            round_num=1,
+            current_result_file="history/round1/results/r1.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="initialize",
+            incumbent_score=0.4,
+            incumbent_equation="x",
+            incumbent_config=config,
+        )
+        policy = state["next_round"]["controller_policy"]
+        self.assertTrue(policy["binding"])
+        self.assertEqual(policy["action"]["action"], "continue")
+        self.assertEqual(RUNNER.expected_adaptive_config_patch(self.workspace), {})
+        self.assertTrue(round_directive(self.workspace, 2)["controller_policy"]["binding"])
+
     def test_runner_enforces_rollback_baseline_instead_of_latest_failed_config(self) -> None:
         baseline_path = self.workspace / "baseline.json"
         baseline_path.write_text(
@@ -1384,6 +1431,45 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
                     ["history/round1/results/result.json"]
                 )
             )
+
+    def test_audited_recovery_closes_without_another_agent_call(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        (self.round_dir / "trace.md").write_text("# trace\n", encoding="utf-8")
+
+        class FailingAgent:
+            def run(self, _task):
+                raise AssertionError("audited deterministic recovery must not call the agent")
+
+        exp = PromotionExp(
+            FailingAgent(),
+            SimpleNamespace(experiment={"max_rounds": 1}),
+            1,
+            result_files=["history/round1/results/result.json"],
+        )
+        exp.set_run_dir(self.workspace)
+        exp._load_or_create_promotion_input()
+        exp._write_promotion_state(
+            {
+                "status": "pending",
+                "attempts": 1,
+                "input_sha256": exp._file_digest(exp._promotion_input_path()),
+                "fast_finish_eligible": True,
+            }
+        )
+
+        with patch.object(
+            exp,
+            "_audit_scientific_decision",
+            return_value={"valid": True, "errors": []},
+        ):
+            result = exp.run("promote")
+        self.assertTrue(result["signal"]["closed"])
+        self.assertTrue(result["signal"]["deterministic_finish_recovery"])
+        self.assertIsNone(result["trajectory"])
+        state = exp._load_promotion_state()
+        self.assertEqual(state["status"], "completed")
+        self.assertTrue(state["deterministic_finish_recovery"])
 
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):

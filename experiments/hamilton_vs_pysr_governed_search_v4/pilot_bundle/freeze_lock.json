@@ -1,0 +1,17 @@
+{
+  "experiment_id": "hamilton-vs-pysr-governed-search-v4-pilot-01",
+  "hashes": {
+    "configs/hamilton/config_governed_pysr_v4_pilot.yaml": "c2c299b7194d119a5f8bf23ae503d3067b1d7f58ddbba8bc330aa1e066f6aadf",
+    "evomaster/skills/run-sr-experiment/scripts/run_experiment.py": "fd7df485ceb26e7002ed2262c1df7e0601005f88a4b730a298a11281234c572d",
+    "experiments/hamilton_vs_pysr_governed_search_v4/execute_governed_hamilton.py": "a433df7d27c82b0dda246b0489ec938b998eea02e8fffa23384f1526bdc3c006",
+    "experiments/hamilton_vs_pysr_governed_search_v4/pilot_bundle/binding_policy.json": "f7252b9a6c4f309c26f188dd526f83931a6b06a88f4c088193c0cf47de670b7c",
+    "experiments/hamilton_vs_pysr_governed_search_v4/pilot_bundle/paired_budget_trace.json": "cc23e55b9d371b423b46bb26d8fbe56483e12b7153bcc4ab6b344e1dc3aee447",
+    "experiments/hamilton_vs_pysr_governed_search_v4/pilot_bundle/run_matrix.json": "1fa198bad0954464f2de46d0a4844d2f88b4873dd7a4e98c7d4280b098e2ef26",
+    "experiments/hamilton_vs_pysr_governed_search_v4/pilot_manifest.yaml": "b0f00a420269dd77b452c83ceb858a83f59ad85fd6a4dd7844a0bf16d6b22543",
+    "playground/hamilton/core/governed_policy.py": "6fc818ed064b595d5d3505b7aa412ab9e09a424f6df6fc3df38cc03e1870d730",
+    "playground/hamilton/core/search_control.py": "91fae7dc3cc6b67f24252c361557b899fbb26f5bb4ceff49221f3c307a523079",
+    "playground/hamilton/prompts/hamilton_v4_pilot_system.txt": "f8ae51ab25de7e4210c9a6b5a2a2501f07f5416df2112f09da80977940c86562"
+  },
+  "input/data.csv": "a710c86ace14554bf5fb862f3ec730bc56151867cbf0db61443ecd23b4e2093b",
+  "schema_version": 1
+}

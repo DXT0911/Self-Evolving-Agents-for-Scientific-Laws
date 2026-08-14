@@ -1,0 +1,60 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v4-pilot-01
+status: frozen_pre_execution
+interpretation: development_pilot_only_not_confirmatory
+frozen_at: 2026-08-14
+viv_in_scope: false
+
+task: static_s01
+repeats:
+  - {repeat_id: repeat_1, seed: 8201}
+  - {repeat_id: repeat_2, seed: 8202}
+  - {repeat_id: repeat_3, seed: 8203}
+episodes: 3
+requested_evaluations_per_episode: 1000
+requested_evaluations_per_arm_per_seed: 3000
+requested_evaluations_total: 36000
+hamilton_ledger_ceiling_per_seed: 4000
+max_hamilton_tokens_per_seed: 30000
+max_hamilton_tokens_total: 90000
+retry_policy:
+  maximum_retries_per_arm_seed: 1
+  allowed_only_when_engine_measured_evaluations: 0
+  no_top_up_after_engine_consumption: true
+
+arms:
+  execution_order: [governed_hamilton, ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr]
+  ids: [ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr, governed_hamilton]
+  ordinary: one_continuous_search
+  fixed: three_same_seed_restarts
+  union: three_same_seed_restarts_with_union_operator_envelope
+  governed_hamilton: three_round_persistent_warm_start_with_binding_policy
+
+search:
+  binary_operators: ["+", "-", "*", "/"]
+  initial_unary_operators: [sin, cos, exp]
+  union_unary_operators: [sin, cos, exp, tanh]
+  compatible_warm_changes: [search.parsimony]
+  fixed_for_warm_session: [search.maxsize, search.random_state]
+
+binding_policy:
+  enabled: true
+  llm_authority: advisory_structural_hypothesis_only
+  controller_authority: [action_selection, config_sanitization, candidate_retention, rollback, budget]
+  thresholds:
+    min_score_improvement: 0.0001
+    stale_rounds_before_intervention: 2
+    high_complexity_fraction: 0.8
+    low_complexity_fraction: 0.25
+    material_residual_correlation: 0.3
+    parsimony_multiplier: 2.0
+    min_parsimony: 1.0e-8
+    max_parsimony: 1.0
+
+success_gates:
+  all_arm_results_completed: true
+  all_requested_evaluation_ledgers_reconcile: true
+  binding_action_enforced_before_every_adaptive_run: true
+  warm_start_state_preserved_all_rounds: true
+  token_ceiling_respected_per_seed: true
+  performance_claims_permitted: false

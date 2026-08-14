@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "static_s02",
+  "registry": "experiments/hamilton_vs_pysr_governed_search_v2/controller_ground_truth.yaml",
+  "post_hoc_only": true,
+  "best_hamilton_results": [
+    {
+      "repeat_id": "repeat_1",
+      "result_round": 1,
+      "equivalent_ground_truth": false,
+      "challenge_grid_normalized_rmse": 0.062467451294454475,
+      "variable_precision": 1.0,
+      "variable_recall": 0.75
+    },
+    {
+      "repeat_id": "repeat_2",
+      "result_round": 3,
+      "equivalent_ground_truth": false,
+      "challenge_grid_normalized_rmse": 0.0622541804211408,
+      "variable_precision": 1.0,
+      "variable_recall": 0.75
+    },
+    {
+      "repeat_id": "repeat_3",
+      "result_round": 3,
+      "equivalent_ground_truth": false,
+      "challenge_grid_normalized_rmse": 0.04637067016211901,
+      "variable_precision": 1.0,
+      "variable_recall": 1.0
+    }
+  ]
+}

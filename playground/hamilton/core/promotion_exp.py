@@ -95,6 +95,14 @@ class PromotionExp(BaseExp):
         if state.get("status") == "completed":
             return state.get("result", {})
         attempts = int(state.get("attempts", 0) or 0)
+        completed_result_paths = [item["path"] for item in promotion_input["results"]]
+        if attempts >= 1 and self._existing_artifacts_fast_finish_eligible(
+            completed_result_paths
+        ):
+            return self._complete_deterministic_recovery(
+                attempts=attempts,
+                completed_results=completed_result_paths,
+            )
         if attempts >= self.max_attempts:
             return {
                 "round": self.round_num,
@@ -131,11 +139,8 @@ class PromotionExp(BaseExp):
         # A missing error list is not proof that an audit ran: an interrupted LLM
         # request leaves a pending state with no errors. Only a completed closure
         # audit may explicitly authorize the bounded fast-finish path.
-        fast_finish_recovery = attempts >= 1 and (
-            state.get("fast_finish_eligible") is True
-            or self._existing_artifacts_fast_finish_eligible(
-                [item["path"] for item in promotion_input["results"]]
-            )
+        fast_finish_recovery = attempts >= 1 and self._existing_artifacts_fast_finish_eligible(
+            [item["path"] for item in promotion_input["results"]]
         )
         if fast_finish_recovery:
             recovery_feedback += self._fast_finish_feedback(
@@ -224,6 +229,66 @@ class PromotionExp(BaseExp):
                 else None
             ),
         })
+        return result
+
+    def _complete_deterministic_recovery(
+        self,
+        *,
+        attempts: int,
+        completed_results: list[str],
+    ) -> dict:
+        """Close an audited Promotion without another model turn.
+
+        This path is available only after a previous attempt produced artifacts
+        that pass the deterministic scientific and structural audits.  It writes
+        an explicit controller marker, records a real controller finish signal,
+        and never fabricates an LLM trajectory.
+        """
+        before = self._snapshot_closure_artifacts()
+        marker = (
+            f"<!-- EVO_DETERMINISTIC_FINISH_RECOVERY_ROUND_{self.round_num}"
+            f"_ATTEMPT_{attempts + 1} -->"
+        )
+        round_trace = self.run_dir / "history" / f"round{self.round_num}" / "trace.md"
+        for path in (round_trace, self.run_dir / "findings.md", self.run_dir / "plan.md"):
+            content = path.read_text(encoding="utf-8")
+            if marker not in content:
+                path.write_text(content.rstrip() + "\n\n" + marker + "\n", encoding="utf-8")
+
+        task_completed = "true" if self._is_final_round() else "false"
+        closure = self._check_round_closure(
+            before,
+            None,
+            completed_results=completed_results,
+            task_completed_override=task_completed,
+        )
+        signal = {
+            "round": self.round_num,
+            "satisfied": task_completed == "true",
+            "task_completed": task_completed,
+            "closed": closure["closed"],
+            "closure": closure,
+            "deterministic_finish_recovery": True,
+            "notes": "Controller closed already-audited Promotion artifacts without an LLM call.",
+        }
+        result = {
+            "round": self.round_num,
+            "agent_result": "",
+            "signal": signal,
+            "findings": self._read_findings(),
+            "trajectory": None,
+        }
+        self._write_promotion_state(
+            {
+                "status": "completed" if closure["closed"] else "pending",
+                "attempts": attempts,
+                "input_sha256": self._file_digest(self._promotion_input_path()),
+                "errors": closure.get("scientific_decision", {}).get("errors", []),
+                "fast_finish_eligible": False,
+                "deterministic_finish_recovery": True,
+                "result": result if closure["closed"] else None,
+            }
+        )
         return result
 
     def _fast_finish_eligible(self, closure: dict) -> bool:
@@ -1325,6 +1390,7 @@ class PromotionExp(BaseExp):
         before: dict,
         trajectory,
         completed_results: list[str] | None = None,
+        task_completed_override: str | None = None,
     ) -> dict:
         """Return machine-readable proof that all phases of the round completed."""
         if not self.run_dir or not before:
@@ -1343,7 +1409,11 @@ class PromotionExp(BaseExp):
         round_dir = self.run_dir / "history" / f"round{self.round_num}"
         if completed_results is None:
             completed_results = self._completed_result_files(before)
-        task_completed = self._extract_task_completed(trajectory)
+        task_completed = (
+            task_completed_override
+            if task_completed_override is not None
+            else self._extract_task_completed(trajectory)
+        )
         continuing = (
             task_completed in {"false", "partial"}
             and not self._is_final_round()

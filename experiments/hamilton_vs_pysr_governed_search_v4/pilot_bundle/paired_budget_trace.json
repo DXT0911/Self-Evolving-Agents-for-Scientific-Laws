@@ -1,0 +1,105 @@
+{
+  "experiment_id": "hamilton-vs-pysr-governed-search-v4-pilot-01",
+  "pairs": [
+    {
+      "actual_total_requested_evals": 3000,
+      "attempts": [
+        {
+          "config_sha256": "f68ef11d24fa547e8c7f0adc9ae58493606e6b1a857603fe7cd42142dd3a0211",
+          "engine_measured_evaluations": 1522.0,
+          "requested_evals": 1000,
+          "result_sha256": "b4befd7d908da4475ba8573fbbac66aed09151032783fd0c5fd77695db034c44",
+          "round": 1,
+          "round_action": "initialize"
+        },
+        {
+          "config_sha256": "85605d176e997b9bce983c08e2b87db74ff8cd03ddd02f61f1b431d8525fde15",
+          "engine_measured_evaluations": 1439.0,
+          "requested_evals": 1000,
+          "result_sha256": "93176c0b9dd1abe5bbd599d97a0378b6d4a1bc76509cde4b9747fc067ce4c385",
+          "round": 2,
+          "round_action": "continue"
+        },
+        {
+          "config_sha256": "7d939578155742939c8e7e2d09e4a58287646930f8ffbcb064620bb199332852",
+          "engine_measured_evaluations": 1432.0,
+          "requested_evals": 1000,
+          "result_sha256": "36a1014aa2b58c3717b6a81a1415d11cf7cec3b64892a47b998a614bd1bab047",
+          "round": 3,
+          "round_action": "continue"
+        }
+      ],
+      "failed_attempts": 0,
+      "hamilton_ledger_sha256": "6cd23db71e02c0cdfa7c6f88fc235062ed032e0fa07644fd40f4a3c0dbf5576a",
+      "repeat_id": "repeat_1",
+      "seed": 8201
+    },
+    {
+      "actual_total_requested_evals": 3000,
+      "attempts": [
+        {
+          "config_sha256": "d8df90d27ecdf7b79e05b02ae64bc72bf0d4de3337dc02580b24d6d57354335a",
+          "engine_measured_evaluations": 1452.0,
+          "requested_evals": 1000,
+          "result_sha256": "a7a274b93401057ef063532635cd5661e9cc867684b4fef59fc40d7dd8a193c0",
+          "round": 1,
+          "round_action": "initialize"
+        },
+        {
+          "config_sha256": "eab5eb4a361f18484ece1ab8bdc0e7503a43cc59529765ca5dd6f78367491a65",
+          "engine_measured_evaluations": 1525.0,
+          "requested_evals": 1000,
+          "result_sha256": "b2f3cd12679cceb8440e1095c20e108b3189975cad3e86e9756bfa43b7115e7b",
+          "round": 2,
+          "round_action": "continue"
+        },
+        {
+          "config_sha256": "0d3bf3b158d5e1c410226b630f16b6ba7efac2390615cc2305ad7e7dd73396c6",
+          "engine_measured_evaluations": 1301.0,
+          "requested_evals": 1000,
+          "result_sha256": "7b3deec000504d5877f7e906a3cc2a8350e64d4413c65823bb26b8eea2c3f9f6",
+          "round": 3,
+          "round_action": "continue"
+        }
+      ],
+      "failed_attempts": 0,
+      "hamilton_ledger_sha256": "a933423dd639f7fed8249858a62815e3b069f310f79e6b0d58baa29269fd4de7",
+      "repeat_id": "repeat_2",
+      "seed": 8202
+    },
+    {
+      "actual_total_requested_evals": 3000,
+      "attempts": [
+        {
+          "config_sha256": "a528bcb744ccd684e04c7262c7e766820f82d55bb747558cddf74c134b549f9e",
+          "engine_measured_evaluations": 1840.0,
+          "requested_evals": 1000,
+          "result_sha256": "4fce71c3be9a4099766bab6a949706ceefe7c2194b0aabfc60bb47faacbb8eb3",
+          "round": 1,
+          "round_action": "initialize"
+        },
+        {
+          "config_sha256": "18c5afadafb53e0b1e45283e25a3c951c44e0a0161d68283cbb82530713b2252",
+          "engine_measured_evaluations": 1235.0,
+          "requested_evals": 1000,
+          "result_sha256": "163c8c90554419278d32b5905bac1fdcdf152490ddac2b67717b2cb2f6613f43",
+          "round": 2,
+          "round_action": "continue"
+        },
+        {
+          "config_sha256": "31ff21686f3f4e60651e20869d79555a2ebd1486843b0e8781b719ad5586dabd",
+          "engine_measured_evaluations": 1287.0,
+          "requested_evals": 1000,
+          "result_sha256": "b4f6688e11420345d908a46c61c624e48920322a26b9847d4d0557f0813b7031",
+          "round": 3,
+          "round_action": "continue"
+        }
+      ],
+      "failed_attempts": 0,
+      "hamilton_ledger_sha256": "c11bd00cc519ff19f36783162d5036d768cf7bf67198c1121d9c883ad8507d5a",
+      "repeat_id": "repeat_3",
+      "seed": 8203
+    }
+  ],
+  "schema_version": 1
+}

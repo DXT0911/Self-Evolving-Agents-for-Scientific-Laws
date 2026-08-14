@@ -1,0 +1,266 @@
+{
+  "execution_order": "hamilton_serial_then_freeze_then_controls_serial",
+  "execution_permitted": true,
+  "experiment_id": "hamilton-vs-pysr-governed-search-v5-pilot-01",
+  "jobs": [
+    {
+      "arm": "governed_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v5/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_1/workspaces/task_0"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "state": "completed",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_1/workspaces/task_0"
+    },
+    {
+      "arm": "ordinary_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "experiment.json"
+        ]
+      ],
+      "repeat_id": "repeat_1",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/ordinary_pysr/static_s02/repeat_1/workspace"
+    },
+    {
+      "arm": "fixed_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_1",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/fixed_schedule_pysr/static_s02/repeat_1/workspace"
+    },
+    {
+      "arm": "union_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_1",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/union_schedule_pysr/static_s02/repeat_1/workspace"
+    },
+    {
+      "arm": "governed_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v5/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_2/workspaces/task_0"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "state": "completed",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_2/workspaces/task_0"
+    },
+    {
+      "arm": "ordinary_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "experiment.json"
+        ]
+      ],
+      "repeat_id": "repeat_2",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/ordinary_pysr/static_s02/repeat_2/workspace"
+    },
+    {
+      "arm": "fixed_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_2",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/fixed_schedule_pysr/static_s02/repeat_2/workspace"
+    },
+    {
+      "arm": "union_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_2",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/union_schedule_pysr/static_s02/repeat_2/workspace"
+    },
+    {
+      "arm": "governed_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v5/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_3/workspaces/task_0"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "state": "completed",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/governed_hamilton/static_s02/repeat_3/workspaces/task_0"
+    },
+    {
+      "arm": "ordinary_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "experiment.json"
+        ]
+      ],
+      "repeat_id": "repeat_3",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/ordinary_pysr/static_s02/repeat_3/workspace"
+    },
+    {
+      "arm": "fixed_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_3",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/fixed_schedule_pysr/static_s02/repeat_3/workspace"
+    },
+    {
+      "arm": "union_schedule_pysr",
+      "commands": [
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_1.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_2.json"
+        ],
+        [
+          "python",
+          "evomaster/skills/run-sr-experiment/scripts/run_experiment.py",
+          "--config",
+          "episodes/episode_3.json"
+        ]
+      ],
+      "repeat_id": "repeat_3",
+      "state": "ready_from_frozen_hamilton_trace",
+      "task_id": "static_s02",
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v5/pilot_bundle/union_schedule_pysr/static_s02/repeat_3/workspace"
+    }
+  ],
+  "schema_version": 1
+}

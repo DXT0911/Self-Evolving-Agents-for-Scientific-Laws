@@ -1,0 +1,12 @@
+{
+  "controller_owned": true,
+  "repeat_id": "repeat_1",
+  "round_seeds": [
+    8201,
+    8201,
+    8201
+  ],
+  "schema_version": 1,
+  "task_id": "static_s01",
+  "warm_start_seed_policy": "retain_initial_seed"
+}

@@ -26,6 +26,29 @@ import numpy as np
 import pandas as pd
 
 try:
+    from playground.hamilton.core.structural_diagnostics import (
+        additive_term_influence,
+    )
+except ImportError:
+    import importlib.util as _importlib_util
+
+    _structural_path = (
+        Path(__file__).resolve().parents[4]
+        / "playground"
+        / "hamilton"
+        / "core"
+        / "structural_diagnostics.py"
+    )
+    _structural_spec = _importlib_util.spec_from_file_location(
+        "hamilton_structural_diagnostics", _structural_path
+    )
+    if _structural_spec is None or _structural_spec.loader is None:
+        raise ImportError("could not load structural_diagnostics.py")
+    _structural_module = _importlib_util.module_from_spec(_structural_spec)
+    _structural_spec.loader.exec_module(_structural_module)
+    additive_term_influence = _structural_module.additive_term_influence
+
+try:
     from .engine_telemetry import make_logger_spec, validation_curve
 except ImportError:
     import importlib.util
@@ -816,6 +839,22 @@ def adaptive_round_number(config_path: Path, workspace: Path) -> int | None:
 
 def expected_adaptive_config_patch(workspace: Path) -> dict[str, Any] | None:
     """Read the governed next-round patch when a scientific decision is present."""
+    state = read_search_state(workspace)
+    controller_policy = state.get("next_round", {}).get("controller_policy")
+    if isinstance(controller_policy, dict) and controller_policy.get("binding"):
+        decision = controller_policy.get("action")
+        if not isinstance(decision, dict):
+            raise ConfigError("binding controller policy is missing its action")
+        action = decision.get("action")
+        patch = decision.get("config_patch")
+        if action == "continue" and patch == {}:
+            return {}
+        if action == "modify" and isinstance(patch, dict) and len(patch) == 1:
+            return patch
+        raise ConfigError(
+            "binding controller action is not executable in a live warm session: "
+            f"action={action!r}, patch={patch!r}"
+        )
     plan_path = workspace / "plan.md"
     if not plan_path.is_file():
         return None
@@ -923,6 +962,15 @@ def audit_single_field_adaptation(
         .get("max_step_changes", 1)
     )
     expected_patch = expected_adaptive_config_patch(workspace)
+    binding_policy = state.get("next_round", {}).get("controller_policy")
+    if isinstance(binding_policy, dict) and binding_policy.get("binding"):
+        expected_action = binding_policy.get("action", {}).get("action")
+        actual_action = config.get("search_session", {}).get("round_action")
+        if actual_action != expected_action:
+            raise ConfigError(
+                "adaptive round_action must match the binding controller policy before "
+                f"PySR; expected={expected_action!r}, actual={actual_action!r}"
+            )
     allow_noop = bool(
         (control or {}).get("trust_region", {}).get("allow_noop_continue", False)
     )
@@ -1181,6 +1229,21 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
             )
         residual["high_frequency_fraction"] = float(high_frequency_fraction)
 
+    structural = require_dict(
+        verification.get("structural_diagnostics", {"enabled": False}),
+        "verification.structural_diagnostics",
+    )
+    if not isinstance(structural.get("enabled"), bool):
+        raise ConfigError("verification.structural_diagnostics.enabled must be boolean")
+    structural["max_terms"] = positive_int(
+        structural.get("max_terms", 12),
+        "verification.structural_diagnostics.max_terms",
+    )
+    if structural["max_terms"] > 32:
+        raise ConfigError(
+            "verification.structural_diagnostics.max_terms must be at most 32"
+        )
+
     output = require_dict(config.get("output"), "output")
     result_path = resolve_inside(workspace, output.get("result_file"), "output.result_file")
     run_directory = resolve_inside(workspace, output.get("run_directory"), "output.run_directory")
@@ -1197,6 +1260,7 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["data"]["validation_fraction"] = float(validation_fraction)
     normalized["verification"]["candidate_ranking"] = ranking
     normalized["verification"]["residual_diagnostics"] = residual
+    normalized["verification"]["structural_diagnostics"] = structural
     normalized["verification"]["long_horizon_dynamics"] = long_horizon
     apply_controller_seed(
         workspace,
@@ -2573,6 +2637,29 @@ def _run_experiment_with_model(
             "enabled": config["verification"]["residual_diagnostics"]["enabled"],
             "status": "failed",
             "reason": str(exc),
+        }
+
+    structural_config = config["verification"]["structural_diagnostics"]
+    if structural_config["enabled"]:
+        try:
+            selected_verification["term_influence"] = additive_term_influence(
+                selected["simplified_equation"],
+                train=train,
+                validation=validation,
+                feature_columns=features,
+                target_column=target,
+                max_terms=structural_config["max_terms"],
+            )
+        except Exception as exc:
+            selected_verification["term_influence"] = {
+                "enabled": True,
+                "status": "failed",
+                "reason": str(exc),
+            }
+    else:
+        selected_verification["term_influence"] = {
+            "enabled": False,
+            "status": "disabled",
         }
 
     result = {
