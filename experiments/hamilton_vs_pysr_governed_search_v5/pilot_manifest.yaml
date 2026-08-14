@@ -1,0 +1,56 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v5-pilot-01
+status: frozen_pre_execution
+interpretation: development_pilot_only_not_confirmatory
+frozen_at: 2026-08-14
+viv_in_scope: false
+
+task: static_s02
+repeats:
+  - {repeat_id: repeat_1, seed: 8301}
+  - {repeat_id: repeat_2, seed: 8302}
+  - {repeat_id: repeat_3, seed: 8303}
+episodes: 3
+requested_evaluations_per_episode: 1500
+requested_evaluations_per_arm_per_seed: 4500
+requested_evaluations_total: 54000
+hamilton_ledger_ceiling_per_seed: 6000
+max_hamilton_tokens_per_seed: 60000
+max_hamilton_tokens_total: 180000
+expected_planner_calls: 9
+retry_policy:
+  maximum_retries_per_arm_seed: 1
+  allowed_only_when_engine_measured_evaluations: 0
+  no_top_up_after_engine_consumption: true
+
+planner:
+  model: deepseek-v4-flash
+  thinking: disabled
+  response_format: json_object
+  calls_per_round: 1
+  max_output_tokens_per_call: 800
+  authority: advisory_only
+  official_price_snapshot_cny_per_million_tokens:
+    input_cache_miss: 1.0
+    output: 2.0
+
+arms:
+  ids: [ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr, governed_hamilton]
+  ordinary: one_continuous_search
+  fixed: three_same_seed_restarts
+  union: three_same_seed_restarts_with_union_operator_envelope
+  governed_hamilton: three_round_persistent_warm_start_with_one_shot_planner
+
+search:
+  initial_unary_operators: [sin, cos, exp]
+  union_unary_operators: [sin, cos, exp, tanh]
+  compatible_warm_changes: [search.parsimony]
+
+success_gates:
+  all_arm_results_completed: true
+  planner_called_once_per_hamilton_round: true
+  evidence_memory_updated_after_every_round: true
+  binding_action_enforced_before_every_adaptive_run: true
+  warm_start_state_preserved_all_rounds: true
+  token_ceiling_respected_per_seed: true
+  performance_claims_permitted: false

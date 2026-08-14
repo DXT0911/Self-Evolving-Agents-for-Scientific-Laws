@@ -947,6 +947,53 @@ class HamiltonSearchControlTests(unittest.TestCase):
         self.assertTrue(directive["rollback_required"])
         self.assertEqual(directive["baseline_mode"], "rollback_to_incumbent")
 
+    def test_binding_policy_is_persisted_from_frozen_result_diagnostics(self) -> None:
+        controlled = copy.deepcopy(self.experiment)
+        controlled["search_control"]["deterministic_policy"] = {
+            "enabled": True,
+            "binding": True,
+            "warm_compatible_fields": ["search.parsimony"],
+            "thresholds": {
+                "min_score_improvement": 0.0001,
+                "stale_rounds_before_intervention": 2,
+                "high_complexity_fraction": 0.8,
+                "low_complexity_fraction": 0.25,
+                "material_residual_correlation": 0.3,
+                "parsimony_multiplier": 2.0,
+                "min_parsimony": 1e-8,
+                "max_parsimony": 1.0,
+            },
+        }
+        (self.workspace / ".hamilton_search_control.json").unlink()
+        initialize_control(self.workspace, controlled)
+        result_path = self.workspace / "history/round1/results/r1.json"
+        result_path.parent.mkdir(parents=True)
+        config = self.config(parsimony=0.01)
+        result_path.write_text(
+            json.dumps({
+                "status": "completed",
+                "config": config,
+                "selected": {"scientific_score": 0.4, "complexity": 10},
+                "verification": {"residual_diagnostics": {"validation": {}}},
+            }),
+            encoding="utf-8",
+        )
+        state = update_state(
+            self.workspace,
+            round_num=1,
+            current_result_file="history/round1/results/r1.json",
+            incumbent_result_file="history/round1/results/r1.json",
+            incumbent_action="initialize",
+            incumbent_score=0.4,
+            incumbent_equation="x",
+            incumbent_config=config,
+        )
+        policy = state["next_round"]["controller_policy"]
+        self.assertTrue(policy["binding"])
+        self.assertEqual(policy["action"]["action"], "continue")
+        self.assertEqual(RUNNER.expected_adaptive_config_patch(self.workspace), {})
+        self.assertTrue(round_directive(self.workspace, 2)["controller_policy"]["binding"])
+
     def test_runner_enforces_rollback_baseline_instead_of_latest_failed_config(self) -> None:
         baseline_path = self.workspace / "baseline.json"
         baseline_path.write_text(
@@ -1384,6 +1431,45 @@ class RoundAndPromotionPhaseTests(unittest.TestCase):
                     ["history/round1/results/result.json"]
                 )
             )
+
+    def test_audited_recovery_closes_without_another_agent_call(self) -> None:
+        result_path = self.round_dir / "results" / "result.json"
+        result_path.write_text(json.dumps({"status": "completed"}), encoding="utf-8")
+        (self.round_dir / "trace.md").write_text("# trace\n", encoding="utf-8")
+
+        class FailingAgent:
+            def run(self, _task):
+                raise AssertionError("audited deterministic recovery must not call the agent")
+
+        exp = PromotionExp(
+            FailingAgent(),
+            SimpleNamespace(experiment={"max_rounds": 1}),
+            1,
+            result_files=["history/round1/results/result.json"],
+        )
+        exp.set_run_dir(self.workspace)
+        exp._load_or_create_promotion_input()
+        exp._write_promotion_state(
+            {
+                "status": "pending",
+                "attempts": 1,
+                "input_sha256": exp._file_digest(exp._promotion_input_path()),
+                "fast_finish_eligible": True,
+            }
+        )
+
+        with patch.object(
+            exp,
+            "_audit_scientific_decision",
+            return_value={"valid": True, "errors": []},
+        ):
+            result = exp.run("promote")
+        self.assertTrue(result["signal"]["closed"])
+        self.assertTrue(result["signal"]["deterministic_finish_recovery"])
+        self.assertIsNone(result["trajectory"])
+        state = exp._load_promotion_state()
+        self.assertEqual(state["status"], "completed")
+        self.assertTrue(state["deterministic_finish_recovery"])
 
 
 class HamiltonPromotionOrchestrationTests(unittest.TestCase):
@@ -1875,6 +1961,65 @@ class RoundClosureContractTests(unittest.TestCase):
             closure["changed_config_fields"],
             ["verification.short_ode.duration"],
         )
+
+    def test_round_two_accepts_authorized_warm_start_noop_continue(self) -> None:
+        previous_config = {
+            "data": {"train_file": "input/train.csv"},
+            "search": {"niterations": 10, "parsimony": 0.001},
+            "verification": {"short_ode": {"duration": 1.0}},
+        }
+        (self.round_dir / "results" / "previous.json").write_text(
+            json.dumps({"status": "completed", "config": previous_config}),
+            encoding="utf-8",
+        )
+        (self.workspace / ".hamilton_search_control.json").write_text(
+            json.dumps({
+                "schema_version": 1,
+                "search_advancement": {"min_score_improvement": 0.0},
+                "trust_region": {
+                    "allow_noop_continue": True,
+                    "max_anchor_distance": 2,
+                    "max_step_changes": 1,
+                    "rollback_after_stale_rounds": 2,
+                },
+                "dynamic_budget": {
+                    "enabled": False,
+                    "base_evals": 100,
+                    "min_evals": 100,
+                    "max_evals": 100,
+                    "rounding_quantum": 100,
+                },
+                "max_rounds": 3,
+            }),
+            encoding="utf-8",
+        )
+        self.exp.round_num = 2
+        round_two = self.workspace / "history" / "round2"
+        (round_two / "results").mkdir(parents=True)
+        (round_two / "trace.md").write_text("initial trace", encoding="utf-8")
+        before = self.exp._snapshot_closure_artifacts()
+        (round_two / "trace.md").write_text("updated trace", encoding="utf-8")
+        (self.workspace / "findings.md").write_text("updated findings", encoding="utf-8")
+        (self.workspace / "plan.md").write_text(
+            self.continuation_contract(), encoding="utf-8"
+        )
+        current_config = copy.deepcopy(previous_config)
+        current_config["search_session"] = {
+            "mode": "warm_start",
+            "round": 2,
+            "round_action": "continue",
+        }
+        (round_two / "results" / "continued.json").write_text(
+            json.dumps({"status": "completed", "config": current_config}),
+            encoding="utf-8",
+        )
+        closure = self.exp._check_round_closure(
+            before, self.finish_trajectory("false")
+        )
+        self.assertTrue(closure["closed"])
+        self.assertTrue(closure["meaningful_config_change"])
+        self.assertTrue(closure["single_config_change"])
+        self.assertEqual(closure["changed_config_fields"], [])
 
     def test_round_two_rejects_multiple_config_changes(self) -> None:
         previous_config = {

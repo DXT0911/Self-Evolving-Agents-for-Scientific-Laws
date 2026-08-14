@@ -1,6 +1,7 @@
 # Adaptive rounds
 
-For round N > 1, change one primary factor supported by `config_schema.md`. Keep controls
+For round N > 1, either continue the warm-start search unchanged or change one primary
+factor supported by `config_schema.md`. Keep controls
 unchanged relative to the controller-declared trust-region baseline and write outputs
 under `history/roundN/`. The baseline can be the prior round or the stored incumbent
 configuration after an automatic rollback.
@@ -24,10 +25,12 @@ When continuing, maintain this block in `plan.md`:
 <!-- EVO_NEXT_ROUND_END -->
 ```
 
-The primary variable must identify an actual JSON field. State a directional change and
-an observable expected effect. Do not count experiment IDs, seeds, or output paths as the
-primary adaptation. Use exactly one leaf path; comma-separated fields or multiple changed
-configuration leaves invalidate the round.
+For `action=modify`, the primary variable must identify an actual JSON field. State a
+directional change and an observable expected effect. Do not count experiment IDs, seeds,
+or output paths as the primary adaptation. Use exactly one leaf path; comma-separated
+fields or multiple changed configuration leaves invalidate the round. When the controller
+enables no-op continuation, `action=continue`, `config_field=null`, and `config_patch={}`
+are valid and preserve every scientific configuration leaf.
 
 The runner enforces this before PySR. For `history/roundN/experiment.json`, `N > 1`,
 it compares `data`, `search`, and `verification` with the baseline named in
@@ -35,6 +38,11 @@ it compares `data`, `search`, and `verification` with the baseline named in
 anchor. Validation fails outside the configured trust region. When dynamic budgeting is
 enabled, `search.max_evals` is excluded from this scientific comparison and assigned by
 the controller from the cumulative ledger.
+
+Warm-start sessions keep one PySR model in a workspace-local worker. All rounds retain the
+initial random seed and share one `output.run_directory`; `max_evals` remains the current
+round's requested allowance in the ledger while the worker converts it to a cumulative
+engine limit. Losing the worker after round 1 is a hard failure, never a silent restart.
 
 After execution:
 

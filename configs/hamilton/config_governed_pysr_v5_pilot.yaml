@@ -1,0 +1,69 @@
+llm:
+  deepseek:
+    provider: "openai"
+    model: "deepseek-v4-flash"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    temperature: 0.0
+    max_tokens: 800
+    timeout: 120
+    max_retries: 2
+    retry_delay: 1.0
+    thinking: false
+  default: "deepseek"
+
+agents:
+  hamilton:
+    llm: "deepseek"
+    max_turns: 1
+    enable_tools: false
+    context: {max_tokens: 60000}
+    skills: []
+    tools: {builtin: []}
+
+session:
+  type: "local"
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 21600
+    blocked_read_extensions: [.csv, .tsv, .parquet, .feather]
+
+experiment:
+  max_rounds: 3
+  max_total_tokens: 60000
+  max_total_evals: 6000
+  compressed_planner:
+    enabled: true
+    calls_per_round: 1
+    max_output_tokens: 800
+    thinking: false
+  search_control:
+    search_advancement: {min_score_improvement: 0.0}
+    trust_region:
+      enabled: true
+      allow_noop_continue: true
+      max_anchor_distance: 2
+      max_step_changes: 1
+      rollback_after_stale_rounds: 3
+    dynamic_budget:
+      enabled: true
+      base_evals: 1500
+      min_evals: 1500
+      max_evals: 1500
+      rounding_quantum: 500
+    deterministic_policy:
+      enabled: true
+      binding: true
+      warm_compatible_fields: [search.parsimony]
+      thresholds:
+        min_score_improvement: 0.0001
+        stale_rounds_before_intervention: 3
+        high_complexity_fraction: 0.8
+        low_complexity_fraction: 0.25
+        material_residual_correlation: 0.3
+        min_validation_nrmse_for_residual_intervention: 0.02
+        parsimony_multiplier: 2.0
+        min_parsimony: 1.0e-8
+        max_parsimony: 1.0
+project_root: "."
+debug: false

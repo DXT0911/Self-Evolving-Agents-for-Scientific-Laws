@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-14T08:22:41.312663+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "42e544a06b65c68a07de4985f46ec758f0815b9482fbfb21008dd229b6af9579",
+      "usage": {
+        "prompt_tokens": 363,
+        "completion_tokens": 155,
+        "total_tokens": 518
+      },
+      "proposal": {
+        "hypothesis": "The target function can be expressed as a sum of a term involving x1 and x2 through multiplication and a term involving x3 and x4 through division, with the overall expression modulated by an exponential decay of x1, suggesting a separable multiplicative structure in the variables.",
+        "candidate_variables": [
+          "x1",
+          "x2",
+          "x3",
+          "x4"
+        ],
+        "candidate_operators": [
+          "*",
+          "+",
+          "/",
+          "exp"
+        ],
+        "requested_action": "continue",
+        "falsification": "If the residual correlation with the material variable remains above 0.5 after fitting a model with this structure, or if the validation NRMSE does not improve by at least 0.05 compared to the current score, the hypothesis is falsified.",
+        "authority": "advisory_only"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-14T08:22:54.221378+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "f9ec0d142745efad6b24f05407e7e5041ac210493c64b03a97b046bbce5861b2",
+      "usage": {
+        "prompt_tokens": 429,
+        "completion_tokens": 176,
+        "total_tokens": 605
+      },
+      "proposal": {
+        "hypothesis": "The target function can be modeled as a sum of two terms: one term is the product of x1 and x2 divided by the sum of x3 and x4, and the other term is the exponential of the sine of x1 minus the cosine of x2, with the entire expression scaled by a constant factor.",
+        "candidate_variables": [
+          "x1",
+          "x2",
+          "x3",
+          "x4"
+        ],
+        "candidate_operators": [
+          "*",
+          "+",
+          "-",
+          "/",
+          "cos",
+          "exp",
+          "sin"
+        ],
+        "requested_action": "continue",
+        "falsification": "If the validation NRMSE does not improve by at least 5% relative to the current best score of 0.453598 within the next 3 rounds, or if the material residual correlation remains above 0.5, then this hypothesis is falsified.",
+        "authority": "advisory_only"
+      }
+    },
+    {
+      "round": 3,
+      "called_at": "2026-08-14T08:23:04.097828+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "9377b9345ef583d820a73791c4f5db8fa4897e11acbfd6cb917664606dc6f746",
+      "usage": {
+        "prompt_tokens": 509,
+        "completion_tokens": 165,
+        "total_tokens": 674
+      },
+      "proposal": {
+        "hypothesis": "The target function can be expressed as a sum of two terms: one term is the product of x1 and x2 divided by the sum of x3 and x4, and the other term is the exponential of the sine of x1 minus the cosine of x2, with the entire expression scaled by a constant factor.",
+        "candidate_variables": [
+          "x1",
+          "x2",
+          "x3",
+          "x4"
+        ],
+        "candidate_operators": [
+          "*",
+          "+",
+          "-",
+          "/",
+          "cos",
+          "exp",
+          "sin"
+        ],
+        "requested_action": "continue",
+        "falsification": "If the residual correlation with material variables remains above 0.5 after testing this hypothesis, or if the validation NRMSE does not improve by at least 0.05, then the hypothesis is falsified.",
+        "authority": "advisory_only"
+      }
+    }
+  ],
+  "total_token_usage": 1797
+}

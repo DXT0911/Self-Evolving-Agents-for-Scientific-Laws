@@ -90,6 +90,20 @@ workspace/
 
 ## TODO
 
+### Hamilton v4：确定性治理优化（2026-08-14）
+
+- [x] 收缩 LLM 权限为受限结构假设；controller 负责动作、候选保留、回滚和预算
+- [x] 增加 additive term leave-one-out 重拟合信用诊断
+- [x] 将 L2 controller memory 分为 elite、motifs、failures、diagnostics 并按状态路由
+- [x] 增加不调用 PySR/LLM 的冻结结果 decision replay
+- [x] 在 v3 三轮结果上完成 replay；冻结 policy 三轮均建议 `continue`
+- [x] 修复 Promotion 过早退出：已通过审计的 artifacts 由 controller 确定性 finish，
+  不再进入第二次 LLM token preflight
+- [ ] 冻结 v4 binding policy、三 paired seeds、四臂预算后再请求用户授权新实验
+
+完整任务和证据见
+`../../docs/sragent/HAMILTON_V4_OPTIMIZATION_TASKS_2026-08-14.zh-CN.md`。
+
 - [x] **P0：将 Promotion 做成确定性、可恢复且有独立预算的阶段（合约实现）**
 - [x] P0：用真实对话验收 PromotionExp 的冻结、恢复和 Finish 闭环
 - [x] P0：严格治理下完成一次不使用私有 test/OOD 的多轮闭环验收

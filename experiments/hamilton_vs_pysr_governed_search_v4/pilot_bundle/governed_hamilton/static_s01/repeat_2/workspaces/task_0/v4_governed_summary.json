@@ -1,0 +1,248 @@
+{
+  "completed_at": "2026-08-14T07:18:55.476582+00:00",
+  "execution_mode": "binding_controller_with_llm_advisory_authority_disabled",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round2/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1000,
+          "anchor_weight": 434.0,
+          "consumed_before": 1000,
+          "current_weight": 434.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 1000,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1000,
+          "remaining_before": 3000,
+          "round": 2,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 4000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8202,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8202,
+          "round": 2
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 10,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v4_pilot_hamilton__static_s01__repeat_2__round2",
+      "output": {
+        "result_file": "history/round2/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1000,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8202,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 2,
+        "round_action": "continue",
+        "session_id": "v4-pilot-static_s01-repeat_2"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "(x1 + cos(x2 - 5.7447248))*(2.64667544480689*x2 - 3.0453086) + 1.9699903",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.13779532043911863
+  },
+  "llm_tokens": 0,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "initialize",
+        "authority": "controller",
+        "config_patch": {}
+      },
+      "engine_measured_evaluations": 1452.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.17833167093718097,
+      "next_controller_policy": {
+        "action": {
+          "action": "continue",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "insufficient evidence of sustained stagnation",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "stagnant_structured",
+        "snapshot": {
+          "complexity_fraction": 0.5161290322580645,
+          "improved": false,
+          "material_residual_correlation": 0.6842374328629944,
+          "parsimony": 0.001,
+          "positive_influence_terms": 2,
+          "rollback_required": false,
+          "scientific_score": 0.17833167093718097,
+          "score_improvement": 0.0,
+          "stale_rounds_before": 0,
+          "state_residual_correlation": 0.6842374328629944,
+          "temporal_residual_correlation": 0.020258945586106414
+        }
+      },
+      "round": 1,
+      "selected_score": 0.17833167093718097
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "insufficient evidence of sustained stagnation",
+        "requires_restart": false
+      },
+      "engine_measured_evaluations": 1525.0,
+      "incumbent_action": "promote",
+      "incumbent_score": 0.13779532043911863,
+      "next_controller_policy": {
+        "action": {
+          "action": "continue",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "incumbent is still improving",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "improving",
+        "snapshot": {
+          "complexity_fraction": 0.45161290322580644,
+          "improved": true,
+          "material_residual_correlation": 0.21158245260134032,
+          "parsimony": 0.001,
+          "positive_influence_terms": 5,
+          "rollback_required": false,
+          "scientific_score": 0.13779532043911863,
+          "score_improvement": 0.04053635049806234,
+          "stale_rounds_before": 0,
+          "state_residual_correlation": 0.21158245260134032,
+          "temporal_residual_correlation": 0.0184347440053265
+        }
+      },
+      "round": 2,
+      "selected_score": 0.13779532043911863
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "incumbent is still improving",
+        "requires_restart": false
+      },
+      "engine_measured_evaluations": 1301.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.13779532043911863,
+      "next_controller_policy": {
+        "action": {
+          "action": "continue",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "insufficient evidence of sustained stagnation",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "stagnant_unstructured",
+        "snapshot": {
+          "complexity_fraction": 0.45161290322580644,
+          "improved": false,
+          "material_residual_correlation": 0.21158245260134032,
+          "parsimony": 0.001,
+          "positive_influence_terms": 5,
+          "rollback_required": false,
+          "scientific_score": 0.13779532043911863,
+          "score_improvement": 0.0,
+          "stale_rounds_before": 0,
+          "state_residual_correlation": 0.21158245260134032,
+          "temporal_residual_correlation": 0.0184347440053265
+        }
+      },
+      "round": 3,
+      "selected_score": 0.13779532043911863
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

@@ -1,0 +1,41 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v3
+status: development_pilot_completed_with_operational_audit_failures
+inherits_dataset_split_from: ../hamilton_vs_pysr_governed_search_v2/dataset_split.yaml
+viv_in_scope: false
+
+arms:
+  ids: [ordinary_pysr, fixed_schedule_pysr, union_schedule_pysr, governed_hamilton]
+  continuation_schedule_is_formal_arm: false
+  rationale: unchanged_warm_start_segmentation_is_an_implementation_equivalence_test
+
+hamilton:
+  persistent_pysr_worker: true
+  warm_start: true
+  preserve_initial_seed_across_rounds: true
+  allow_noop_continue: true
+  compatible_change_fields: [search.parsimony]
+  maxsize_policy: fixed_for_session
+  lost_worker_policy: fail_without_silent_restart
+  per_round_requested_evaluations_remain_ledger_accounting_unit: true
+  engine_efficiency_axis: incremental_SearchState_num_evals
+
+development_smoke:
+  task: static_s01
+  total_requested_evaluations: 2000
+  warm_start_allowances: [1000, 1000]
+  seed: 6101
+  scientific_claims_permitted: false
+  equivalence_endpoint_exact_match: true
+  segmented_engine_evaluation_overhead_fraction: 0.009996552912788694
+  parsimony_hot_change_state_preserved: true
+  evidence_file: warm_start_smoke_evidence.json
+
+development_pilot:
+  task: static_s01
+  repeats: 1
+  successful_requested_evaluations_per_arm: 3000
+  status: completed_with_operational_audit_failures
+  performance_claims_permitted: false
+  evidence_file: pilot_evidence.json
+  human_summary: PILOT_RESULTS.zh-CN.md

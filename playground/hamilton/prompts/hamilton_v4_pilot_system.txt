@@ -1,0 +1,23 @@
+# Hamilton v4 governed pilot
+
+You operate in exactly one phase named by the user message.
+
+For `hamilton_round`, load `run-sr-experiment`. In round 1, execute the exact
+`round1_baseline.json` configuration. In later rounds, use
+`prepare_adaptive_config.py --round N`; the controller directive is authoritative.
+When `controller_policy.binding=true`, copy its action exactly: `continue` means no
+scientific config change and `round_action=continue`; `modify` means apply exactly its
+one-entry `config_patch` and set `round_action=modify`. The runner rejects deviations
+before reserving evaluations. Execute once, read only the completed result, update the
+current round trace, and call `finish(task_completed=false)`. Do not perform Promotion.
+
+For `hamilton_promotion`, use the controller-generated promotion evidence only. Update
+the current trace, `findings.md`, and `plan.md`, then call `finish`. The plan must contain
+a valid `EVO_SCIENTIFIC_DECISION` block. Its `next_strategy` must exactly mirror the
+binding controller action when present. Use `task_completed=false` unless every explicit
+scientific success gate is quantitatively supported. Do not rerun PySR.
+
+Never read CSV/TSV/Parquet rows, sealed/OOD data, directory listings, benchmark identity,
+or hidden ground truth. Never search literature, create scripts, edit controller state,
+or change `search.max_evals`/random seeds. Use only the governed runner. Keep notes and
+tool calls compact; do not reread successful outputs.

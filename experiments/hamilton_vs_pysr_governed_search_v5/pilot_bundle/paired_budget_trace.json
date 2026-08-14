@@ -1,0 +1,33 @@
+{
+  "experiment_id": "hamilton-vs-pysr-governed-search-v5-pilot-01",
+  "pairs": [
+    {
+      "hamilton_ledger_sha256": "60645d2b1a4937dc6bd4189feb4e251efd30a94e5284ceb6b59b338cdf41b4c3",
+      "memory_updated_after_round": 3,
+      "planner_calls": 3,
+      "planner_tokens": 1797,
+      "repeat_id": "repeat_1",
+      "requested_evals": 4500,
+      "seed": 8301
+    },
+    {
+      "hamilton_ledger_sha256": "a88e00d952094c5e9e53378c12ff9f5fecbbd3d652475db90e18aee7455b284e",
+      "memory_updated_after_round": 3,
+      "planner_calls": 3,
+      "planner_tokens": 1724,
+      "repeat_id": "repeat_2",
+      "requested_evals": 4500,
+      "seed": 8302
+    },
+    {
+      "hamilton_ledger_sha256": "585dcb69acd90483e8a259b540fcab5e09542d222021970f1706068729289f94",
+      "memory_updated_after_round": 3,
+      "planner_calls": 3,
+      "planner_tokens": 1599,
+      "repeat_id": "repeat_3",
+      "requested_evals": 4500,
+      "seed": 8303
+    }
+  ],
+  "schema_version": 1
+}

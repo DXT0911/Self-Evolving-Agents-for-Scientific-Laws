@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "experiment_id": "hamilton-vs-pysr-governed-search-v3-pilot-01",
+  "status": "completed_with_operational_audit_failures",
+  "interpretation": "development_pilot_only_not_confirmatory",
+  "scope": {
+    "task": "static_s01",
+    "repeat": "repeat_1",
+    "arms": [
+      "ordinary_pysr",
+      "fixed_schedule_pysr",
+      "union_schedule_pysr",
+      "governed_hamilton"
+    ]
+  },
+  "result_gates": {
+    "four_arms_present": true,
+    "all_requested_evaluations_equal_3000": true,
+    "hamilton_state_preserved": true,
+    "engine_telemetry_present": true
+  },
+  "operational_audit_gates": {
+    "hamilton_final_promotion_closed": false,
+    "no_orphaned_reserved_attempts": true,
+    "no_failed_execution_attempts": false
+  },
+  "hamilton_final_closure": {
+    "closed": false,
+    "finish_called": false,
+    "scientific_decision_valid": true,
+    "record": "experiment_20260814_104608.json"
+  },
+  "attempt_ledgers": {
+    "ordinary_pysr": {
+      "status_counts": {
+        "completed": 1,
+        "failed": 2
+      },
+      "reserved_evaluations_by_status": {
+        "completed": 3000,
+        "failed": 6000
+      },
+      "ledger_sha256": "d2c5d9ed1c1e8231813e128c41d8eb3702c97909e3b45e333c5e7080f49e2560"
+    },
+    "fixed_schedule_pysr": {
+      "status_counts": {
+        "completed": 3,
+        "failed": 2
+      },
+      "reserved_evaluations_by_status": {
+        "completed": 3000,
+        "failed": 2000
+      },
+      "ledger_sha256": "bb1c746bbeab903f6a926065ab3b375d721cf350c56531e2b6859f523930652e"
+    },
+    "union_schedule_pysr": {
+      "status_counts": {
+        "completed": 3,
+        "failed": 2
+      },
+      "reserved_evaluations_by_status": {
+        "completed": 3000,
+        "failed": 2000
+      },
+      "ledger_sha256": "223bd1b26a0474745b978f09ddc3d2fbba4f4583e3f2098112186e37af5a4db8"
+    },
+    "governed_hamilton": {
+      "status_counts": {
+        "completed": 3,
+        "failed": 2
+      },
+      "reserved_evaluations_by_status": {
+        "completed": 3000,
+        "failed": 2000
+      },
+      "ledger_sha256": "fae5f717ba0edd29b00f69223e8a58f9fa4aaaba74f0a534bfc35cbe0f587fb3"
+    }
+  },
+  "arm_results": [
+    {
+      "arm": "ordinary_pysr",
+      "result_count": 1,
+      "winning_result": 1,
+      "equation": "x1*(2*x2 + exp(cos(x2 + 1.22479)) - 1.8904947) + x2 - 2.9949458",
+      "scientific_score": 0.11187729141489303,
+      "validation_nrmse": 0.08123213012457044,
+      "validation_r2": 0.9934013410354249,
+      "ground_truth_equivalent": false,
+      "ground_truth_challenge_nrmse": 0.050436294725538434,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 3876.0,
+      "runtime_seconds": 37.23134280000522,
+      "llm_tokens": 0,
+      "warm_start_state_preserved": null,
+      "warm_round_engine_evaluations": [],
+      "result_sha256": [
+        "2291ff30c0daad525bd53d2e854b82c1ca6e830ad22f76e06afa3894ba47ed52"
+      ]
+    },
+    {
+      "arm": "fixed_schedule_pysr",
+      "result_count": 3,
+      "winning_result": 1,
+      "equation": "-x1*sin(x2) + 4.33760383386556*x1 + 7.04233570267646*x2 - 18.1959004",
+      "scientific_score": 0.338434002676826,
+      "validation_nrmse": 0.29649851880585826,
+      "validation_r2": 0.9120886283459321,
+      "ground_truth_equivalent": false,
+      "ground_truth_challenge_nrmse": 0.18332869667582577,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 3903.0,
+      "runtime_seconds": 88.33834319999733,
+      "llm_tokens": 0,
+      "warm_start_state_preserved": null,
+      "warm_round_engine_evaluations": [],
+      "result_sha256": [
+        "eb962e6bb5ae6b6b9dfb990991c93be335e162f1f3b8aed76f5aaf355ea6c471",
+        "3fcbcf5b27984deb9a8932b70402997406930dcfe36aec48fb49177f9fb3b1d8",
+        "e9fbc49bf18d049ca060370381f02375f1303aaab4a453d525b988df28769562"
+      ]
+    },
+    {
+      "arm": "union_schedule_pysr",
+      "result_count": 3,
+      "winning_result": 1,
+      "equation": "x2*(1.5516168*x1 - cos(x1 + x2 + 0.31689045) + 4.3480067) - 10.905765",
+      "scientific_score": 0.15569106314583442,
+      "validation_nrmse": 0.1266588050813183,
+      "validation_r2": 0.9839575470953726,
+      "ground_truth_equivalent": false,
+      "ground_truth_challenge_nrmse": 0.0785892634797509,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4539.0,
+      "runtime_seconds": 83.61507129999518,
+      "llm_tokens": 0,
+      "warm_start_state_preserved": null,
+      "warm_round_engine_evaluations": [],
+      "result_sha256": [
+        "4229097175405aa9904832572fece3c54d80c71cfab919b2e8d6484bc8af311f",
+        "8787ed318f226cf6f268cdb5770d4be9fc332b432ebba04d6578db3bd0e9bf01",
+        "7ed1db0ed3f3c3e1b6a157ed572b9a09fc1ab8a08f63bdfdab6288ec9c9b3f36"
+      ]
+    },
+    {
+      "arm": "governed_hamilton",
+      "result_count": 3,
+      "winning_result": 3,
+      "equation": "5.30336691165575*x1 + 6.01743334684648*x2 + (1.5376313 - 2*x1)*sin(x2) + cos(x2) - 18.4077427",
+      "scientific_score": 0.2683150448605128,
+      "validation_nrmse": 0.21831504486051279,
+      "validation_r2": 0.9523385411875522,
+      "ground_truth_equivalent": false,
+      "ground_truth_challenge_nrmse": 0.13437170611321927,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4306.0,
+      "runtime_seconds": 43.56493609998142,
+      "llm_tokens": 541751,
+      "warm_start_state_preserved": true,
+      "warm_round_engine_evaluations": [
+        1301.0,
+        1578.0,
+        1427.0
+      ],
+      "result_sha256": [
+        "900313a8f37944ffee44c0117da87adb7320d2e57dd39f60c28ef0b59a1ccd21",
+        "75d3b5e179408ef39005c2c466c4e07f67ed32d320e5a65b4ffe6a33749beb9b",
+        "f83efe86988f067ef1e9250f96b783174ee9185211805321c6388daf82d35cde"
+      ]
+    }
+  ],
+  "comparisons": {
+    "rank_by_scientific_score": [
+      "ordinary_pysr",
+      "union_schedule_pysr",
+      "governed_hamilton",
+      "fixed_schedule_pysr"
+    ],
+    "hamilton_minus_baseline": {
+      "ordinary_pysr": {
+        "scientific_score": 0.15643775344561975,
+        "validation_nrmse": 0.13708291473594236,
+        "engine_measured_evaluations": 430.0
+      },
+      "fixed_schedule_pysr": {
+        "scientific_score": -0.07011895781631322,
+        "validation_nrmse": -0.07818347394534547,
+        "engine_measured_evaluations": 403.0
+      },
+      "union_schedule_pysr": {
+        "scientific_score": 0.11262398171467836,
+        "validation_nrmse": 0.09165623977919449,
+        "engine_measured_evaluations": -233.0
+      }
+    }
+  },
+  "paired_budget_trace_sha256": "cfdb45d61d5ba9d5ae966b57886e6927c880fa77dc85f26af3fdc2e48ef1c35a"
+}

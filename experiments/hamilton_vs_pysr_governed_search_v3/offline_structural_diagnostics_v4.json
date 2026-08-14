@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "mode": "offline_frozen_result_diagnostics",
+  "scientific_boundary": "Term influence is conditional on additive decomposition and the frozen public validation split; it does not identify a unique physical cause.",
+  "records": [
+    {
+      "schema_version": 1,
+      "mode": "offline_frozen_result_diagnostic",
+      "result_file": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round1/results/result.json",
+      "result_status": "completed",
+      "diagnostic": {
+        "enabled": true,
+        "status": "completed",
+        "method": "additive_leave_one_term_out_with_linear_refit",
+        "selection_boundary": "Diagnostic credit is conditional on this additive decomposition; it is not proof of a unique physical mechanism.",
+        "term_count": 4,
+        "full_refit_validation_nrmse": 0.18723621368408988,
+        "intercept": -0.01724327067125513,
+        "terms": [
+          {
+            "term": "4.33760383386556*x1",
+            "refit_weight": 1.2458500487667992,
+            "validation_nrmse_without_term": 0.5249932611718664,
+            "validation_nrmse_delta": 0.3377570474877765
+          },
+          {
+            "term": "-x1*sin(x2)",
+            "refit_weight": 3.6571944420705575,
+            "validation_nrmse_without_term": 0.34805254517081985,
+            "validation_nrmse_delta": 0.16081633148672997
+          },
+          {
+            "term": "7.04233570267646*x2",
+            "refit_weight": 0.2711142013879314,
+            "validation_nrmse_without_term": 0.20071395587266072,
+            "validation_nrmse_delta": 0.01347774218857084
+          },
+          {
+            "term": "-18.1959004000000",
+            "refit_weight": 0.3137568357043962,
+            "validation_nrmse_without_term": 0.1872362136840899,
+            "validation_nrmse_delta": 2.7755575615628914e-17
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "mode": "offline_frozen_result_diagnostic",
+      "result_file": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round2/results/result.json",
+      "result_status": "completed",
+      "diagnostic": {
+        "enabled": true,
+        "status": "completed",
+        "method": "additive_leave_one_term_out_with_linear_refit",
+        "selection_boundary": "Diagnostic credit is conditional on this additive decomposition; it is not proof of a unique physical mechanism.",
+        "term_count": 4,
+        "full_refit_validation_nrmse": 0.18723621368408988,
+        "intercept": -0.023229451592350164,
+        "terms": [
+          {
+            "term": "5.34886986424312*x1",
+            "refit_weight": 1.010307613591039,
+            "validation_nrmse_without_term": 0.5249932611718664,
+            "validation_nrmse_delta": 0.3377570474877765
+          },
+          {
+            "term": "-2.0*x1*sin(x2)",
+            "refit_weight": 1.828597221035282,
+            "validation_nrmse_without_term": 0.3480525451708201,
+            "validation_nrmse_delta": 0.16081633148673025
+          },
+          {
+            "term": "5.23834736325205*x2",
+            "refit_weight": 0.3644808348012142,
+            "validation_nrmse_without_term": 0.20071395587266072,
+            "validation_nrmse_delta": 0.01347774218857084
+          },
+          {
+            "term": "-15.6688127000000",
+            "refit_weight": 0.36397792612424984,
+            "validation_nrmse_without_term": 0.1872362136840899,
+            "validation_nrmse_delta": 2.7755575615628914e-17
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "mode": "offline_frozen_result_diagnostic",
+      "result_file": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round3/results/result.json",
+      "result_status": "completed",
+      "diagnostic": {
+        "enabled": true,
+        "status": "completed",
+        "method": "additive_leave_one_term_out_with_linear_refit",
+        "selection_boundary": "Diagnostic credit is conditional on this additive decomposition; it is not proof of a unique physical mechanism.",
+        "term_count": 6,
+        "full_refit_validation_nrmse": 0.07362306134194921,
+        "intercept": -0.0765313770178543,
+        "terms": [
+          {
+            "term": "5.30336691165575*x1",
+            "refit_weight": 1.0280846510019477,
+            "validation_nrmse_without_term": 0.49911117152098056,
+            "validation_nrmse_delta": 0.4254881101790313
+          },
+          {
+            "term": "-2*x1*sin(x2)",
+            "refit_weight": 2.2358535146850524,
+            "validation_nrmse_without_term": 0.3194633724541958,
+            "validation_nrmse_delta": 0.2458403111122466
+          },
+          {
+            "term": "6.01743334684648*x2",
+            "refit_weight": 1.4941673258509613,
+            "validation_nrmse_without_term": 0.1866673539493265,
+            "validation_nrmse_delta": 0.11304429260737728
+          },
+          {
+            "term": "1.5376313*sin(x2)",
+            "refit_weight": 8.348916710042468,
+            "validation_nrmse_without_term": 0.16216088794986463,
+            "validation_nrmse_delta": 0.08853782660791543
+          },
+          {
+            "term": "cos(x2)",
+            "refit_weight": 3.9597512432524677,
+            "validation_nrmse_without_term": 0.14932624901571281,
+            "validation_nrmse_delta": 0.0757031876737636
+          },
+          {
+            "term": "-18.4077427000000",
+            "refit_weight": 1.4087698966213718,
+            "validation_nrmse_without_term": 0.07362306134194925,
+            "validation_nrmse_delta": 4.163336342344337e-17
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "controller_authority": [
+    "action_selection",
+    "config_sanitization",
+    "candidate_retention",
+    "rollback",
+    "budget"
+  ],
+  "llm_authority": "advisory_structural_hypothesis_only",
+  "schema_version": 1,
+  "thresholds": {
+    "high_complexity_fraction": 0.8,
+    "low_complexity_fraction": 0.25,
+    "material_residual_correlation": 0.3,
+    "max_parsimony": 1.0,
+    "min_parsimony": 1e-08,
+    "min_score_improvement": 0.0001,
+    "parsimony_multiplier": 2.0,
+    "stale_rounds_before_intervention": 2
+  }
+}

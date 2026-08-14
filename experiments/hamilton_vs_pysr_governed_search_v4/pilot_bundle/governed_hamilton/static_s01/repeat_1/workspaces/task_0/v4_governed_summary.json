@@ -1,0 +1,248 @@
+{
+  "completed_at": "2026-08-14T07:17:29.539383+00:00",
+  "execution_mode": "binding_controller_with_llm_advisory_authority_disabled",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round1/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1000,
+          "anchor_weight": 434.0,
+          "consumed_before": 0,
+          "current_weight": 434.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 2000,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1000,
+          "remaining_before": 4000,
+          "round": 1,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 4000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8201,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8201,
+          "round": 1
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 10,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v4_pilot_hamilton__static_s01__repeat_1__round1",
+      "output": {
+        "result_file": "history/round1/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1000,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8201,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 1,
+        "round_action": "initialize",
+        "session_id": "v4-pilot-static_s01-repeat_1"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "-x1 + (x2 - 0.6638357)*(2.70866982912898*x1 - sin(x2) + cos(x2 - 0.15204631))",
+    "result_file": "history/round1/results/result.json",
+    "score": 0.09897139416162332
+  },
+  "llm_tokens": 0,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "initialize",
+        "authority": "controller",
+        "config_patch": {}
+      },
+      "engine_measured_evaluations": 1522.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.09897139416162332,
+      "next_controller_policy": {
+        "action": {
+          "action": "continue",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "insufficient evidence of sustained stagnation",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "stagnant_unstructured",
+        "snapshot": {
+          "complexity_fraction": 0.5483870967741935,
+          "improved": false,
+          "material_residual_correlation": 0.20066930385633797,
+          "parsimony": 0.001,
+          "positive_influence_terms": 6,
+          "rollback_required": false,
+          "scientific_score": 0.09897139416162332,
+          "score_improvement": 0.0,
+          "stale_rounds_before": 0,
+          "state_residual_correlation": 0.20066930385633797,
+          "temporal_residual_correlation": 0.022060885361365534
+        }
+      },
+      "round": 1,
+      "selected_score": 0.09897139416162332
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "insufficient evidence of sustained stagnation",
+        "requires_restart": false
+      },
+      "engine_measured_evaluations": 1439.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.09897139416162332,
+      "next_controller_policy": {
+        "action": {
+          "action": "continue",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "insufficient evidence of sustained stagnation",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "stagnant_unstructured",
+        "snapshot": {
+          "complexity_fraction": 0.5483870967741935,
+          "improved": false,
+          "material_residual_correlation": 0.20066930385633797,
+          "parsimony": 0.001,
+          "positive_influence_terms": 6,
+          "rollback_required": false,
+          "scientific_score": 0.09897139416162332,
+          "score_improvement": 0.0,
+          "stale_rounds_before": 0,
+          "state_residual_correlation": 0.20066930385633797,
+          "temporal_residual_correlation": 0.022060885361365534
+        }
+      },
+      "round": 2,
+      "selected_score": 0.09897139416162332
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "insufficient evidence of sustained stagnation",
+        "requires_restart": false
+      },
+      "engine_measured_evaluations": 1432.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.09897139416162332,
+      "next_controller_policy": {
+        "action": {
+          "action": "rollback",
+          "authority": "deterministic_controller",
+          "config_field": null,
+          "config_patch": {},
+          "reason": "trust-region rollback gate is active",
+          "requires_restart": false
+        },
+        "binding": true,
+        "enabled": true,
+        "process_state": "rollback",
+        "snapshot": {
+          "complexity_fraction": 0.5483870967741935,
+          "improved": false,
+          "material_residual_correlation": 0.20066930385633797,
+          "parsimony": 0.001,
+          "positive_influence_terms": 6,
+          "rollback_required": true,
+          "scientific_score": 0.09897139416162332,
+          "score_improvement": 0.0,
+          "stale_rounds_before": 1,
+          "state_residual_correlation": 0.20066930385633797,
+          "temporal_residual_correlation": 0.022060885361365534
+        }
+      },
+      "round": 3,
+      "selected_score": 0.09897139416162332
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

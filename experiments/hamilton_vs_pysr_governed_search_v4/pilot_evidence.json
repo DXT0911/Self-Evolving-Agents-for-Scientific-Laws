@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "experiment_id": "hamilton-vs-pysr-governed-search-v4-pilot-01",
+  "status": "completed",
+  "interpretation": "development_pilot_only_not_confirmatory",
+  "audit": {
+    "result_rows": 12,
+    "all_results_completed": true,
+    "successful_requested_evaluations": 36000,
+    "authorized_requested_evaluations": 36000,
+    "requested_budget_reconciles": true,
+    "failed_attempts": 0,
+    "hamilton_llm_tokens": 0,
+    "authorized_hamilton_llm_tokens": 90000,
+    "all_hamilton_actions_binding_continue": true,
+    "warm_state_preserved_all_rounds": true
+  },
+  "arm_summaries": {
+    "governed_hamilton": {
+      "mean_scientific_score": 0.08269058358461906,
+      "median_scientific_score": 0.09897139416162332,
+      "min_scientific_score": 0.011305036153115216,
+      "max_scientific_score": 0.13779532043911863,
+      "mean_engine_measured_evaluations": 4344.333333333333
+    },
+    "ordinary_pysr": {
+      "mean_scientific_score": 0.09837729147601922,
+      "median_scientific_score": 0.09897139416162332,
+      "min_scientific_score": 0.017828809329253344,
+      "max_scientific_score": 0.17833167093718097,
+      "mean_engine_measured_evaluations": 3510.0
+    },
+    "fixed_schedule_pysr": {
+      "mean_scientific_score": 0.09837729147601922,
+      "median_scientific_score": 0.09897139416162332,
+      "min_scientific_score": 0.017828809329253344,
+      "max_scientific_score": 0.17833167093718097,
+      "mean_engine_measured_evaluations": 4814.0
+    },
+    "union_schedule_pysr": {
+      "mean_scientific_score": 0.24216269678534386,
+      "median_scientific_score": 0.19416393133082255,
+      "min_scientific_score": 0.07845626813757478,
+      "max_scientific_score": 0.45386789088763424,
+      "mean_engine_measured_evaluations": 4260.0
+    }
+  },
+  "paired_comparisons": {
+    "ordinary_pysr": {
+      "pairs": [
+        {
+          "repeat_id": "repeat_1",
+          "hamilton_score": 0.09897139416162332,
+          "control_score": 0.09897139416162332,
+          "absolute_delta_hamilton_minus_control": 0.0,
+          "relative_improvement": 0.0,
+          "outcome": "tie",
+          "engine_eval_ratio_hamilton_over_control": 1.0476985451943717
+        },
+        {
+          "repeat_id": "repeat_2",
+          "hamilton_score": 0.13779532043911863,
+          "control_score": 0.17833167093718097,
+          "absolute_delta_hamilton_minus_control": -0.04053635049806234,
+          "relative_improvement": 0.22730875724448102,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 1.372473532242541
+        },
+        {
+          "repeat_id": "repeat_3",
+          "hamilton_score": 0.011305036153115216,
+          "control_score": 0.017828809329253344,
+          "absolute_delta_hamilton_minus_control": -0.0065237731761381285,
+          "relative_improvement": 0.3659118820365633,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 1.3546583850931677
+        }
+      ],
+      "wins": 2,
+      "ties": 1,
+      "losses": 0,
+      "median_relative_improvement": 0.22730875724448102,
+      "mean_absolute_delta": -0.015686707891400156
+    },
+    "fixed_schedule_pysr": {
+      "pairs": [
+        {
+          "repeat_id": "repeat_1",
+          "hamilton_score": 0.09897139416162332,
+          "control_score": 0.09897139416162332,
+          "absolute_delta_hamilton_minus_control": 0.0,
+          "relative_improvement": 0.0,
+          "outcome": "tie",
+          "engine_eval_ratio_hamilton_over_control": 0.9621112571178274
+        },
+        {
+          "repeat_id": "repeat_2",
+          "hamilton_score": 0.13779532043911863,
+          "control_score": 0.17833167093718097,
+          "absolute_delta_hamilton_minus_control": -0.04053635049806234,
+          "relative_improvement": 0.22730875724448102,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 0.9820936639118457
+        },
+        {
+          "repeat_id": "repeat_3",
+          "hamilton_score": 0.011305036153115216,
+          "control_score": 0.017828809329253344,
+          "absolute_delta_hamilton_minus_control": -0.0065237731761381285,
+          "relative_improvement": 0.3659118820365633,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 0.7902173913043479
+        }
+      ],
+      "wins": 2,
+      "ties": 1,
+      "losses": 0,
+      "median_relative_improvement": 0.22730875724448102,
+      "mean_absolute_delta": -0.015686707891400156
+    },
+    "union_schedule_pysr": {
+      "pairs": [
+        {
+          "repeat_id": "repeat_1",
+          "hamilton_score": 0.09897139416162332,
+          "control_score": 0.19416393133082255,
+          "absolute_delta_hamilton_minus_control": -0.09519253716919923,
+          "relative_improvement": 0.4902689007002399,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 1.1018309505894155
+        },
+        {
+          "repeat_id": "repeat_2",
+          "hamilton_score": 0.13779532043911863,
+          "control_score": 0.07845626813757478,
+          "absolute_delta_hamilton_minus_control": 0.05933905230154385,
+          "relative_improvement": -0.7563328426161122,
+          "outcome": "loss",
+          "engine_eval_ratio_hamilton_over_control": 0.9253731343283582
+        },
+        {
+          "repeat_id": "repeat_3",
+          "hamilton_score": 0.011305036153115216,
+          "control_score": 0.45386789088763424,
+          "absolute_delta_hamilton_minus_control": -0.442562854734519,
+          "relative_improvement": 0.9750917912897389,
+          "outcome": "win",
+          "engine_eval_ratio_hamilton_over_control": 1.0460431654676259
+        }
+      ],
+      "wins": 2,
+      "ties": 0,
+      "losses": 1,
+      "median_relative_improvement": 0.4902689007002399,
+      "mean_absolute_delta": -0.1594721132007248
+    }
+  },
+  "rows": [
+    {
+      "repeat_id": "repeat_1",
+      "seed": 8201,
+      "arm": "governed_hamilton",
+      "scientific_score": 0.09897139416162332,
+      "winning_result": 1,
+      "equation": "-x1 + (x2 - 0.6638357)*(2.70866982912898*x1 - sin(x2) + cos(x2 - 0.15204631))",
+      "validation_nrmse": 0.07155203932291364,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4393.0,
+      "runtime_seconds": 44.107880399999885,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_1",
+      "seed": 8201,
+      "arm": "ordinary_pysr",
+      "scientific_score": 0.09897139416162332,
+      "winning_result": 1,
+      "equation": "-x1 + (x2 - 0.6638357)*(2.70866982912898*x1 - sin(x2) + cos(x2 - 0.15204631))",
+      "validation_nrmse": 0.07155203932291364,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4193.0,
+      "runtime_seconds": 33.35648760000004,
+      "result_count": 1,
+      "ledger_status_counts": {
+        "completed": 1
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_1",
+      "seed": 8201,
+      "arm": "fixed_schedule_pysr",
+      "scientific_score": 0.09897139416162332,
+      "winning_result": 1,
+      "equation": "-x1 + (x2 - 0.6638357)*(2.70866982912898*x1 - sin(x2) + cos(x2 - 0.15204631))",
+      "validation_nrmse": 0.07155203932291364,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4566.0,
+      "runtime_seconds": 96.1955880000005,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_1",
+      "seed": 8201,
+      "arm": "union_schedule_pysr",
+      "scientific_score": 0.19416393133082255,
+      "winning_result": 1,
+      "equation": "x2*(0.40495127*x1*x2 + 1.6544607) + x2 - exp(exp(1.0265701/x1))",
+      "validation_nrmse": 0.16674457649211286,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 3987.0,
+      "runtime_seconds": 95.32279709999784,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_2",
+      "seed": 8202,
+      "arm": "governed_hamilton",
+      "scientific_score": 0.13779532043911863,
+      "winning_result": 2,
+      "equation": "(x1 + cos(x2 - 5.7447248))*(2.64667544480689*x2 - 3.0453086) + 1.9699903",
+      "validation_nrmse": 0.11521467527782832,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4278.0,
+      "runtime_seconds": 42.062608700000055,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_2",
+      "seed": 8202,
+      "arm": "ordinary_pysr",
+      "scientific_score": 0.17833167093718097,
+      "winning_result": 1,
+      "equation": "x1*(0.398376558495748*x2**2 - sin(x2)) + x2",
+      "validation_nrmse": 0.15252521932427773,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 3117.0,
+      "runtime_seconds": 30.72848189999968,
+      "result_count": 1,
+      "ledger_status_counts": {
+        "completed": 1
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_2",
+      "seed": 8202,
+      "arm": "fixed_schedule_pysr",
+      "scientific_score": 0.17833167093718097,
+      "winning_result": 1,
+      "equation": "x1*(0.398376558495748*x2**2 - sin(x2)) + x2",
+      "validation_nrmse": 0.15252521932427773,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4356.0,
+      "runtime_seconds": 90.83318940000026,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_2",
+      "seed": 8202,
+      "arm": "union_schedule_pysr",
+      "scientific_score": 0.07845626813757478,
+      "winning_result": 1,
+      "equation": "x1*(x2 + 0.426476502975247*exp(0.615371*x2)) - x1 - tanh(x1) + 0.14861107",
+      "validation_nrmse": 0.051036913298865096,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4623.0,
+      "runtime_seconds": 102.19942249999986,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_3",
+      "seed": 8203,
+      "arm": "governed_hamilton",
+      "scientific_score": 0.011305036153115216,
+      "winning_result": 3,
+      "equation": "0.49999532*x1*x2**2",
+      "validation_nrmse": 1.4713572470053817e-05,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4362.0,
+      "runtime_seconds": 38.56309730000066,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_3",
+      "seed": 8203,
+      "arm": "ordinary_pysr",
+      "scientific_score": 0.017828809329253344,
+      "winning_result": 1,
+      "equation": "x1*(0.499995333849721*x2**2 - 0.0002944999396368)",
+      "validation_nrmse": 8.687384538237743e-05,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 3220.0,
+      "runtime_seconds": 30.40837189999911,
+      "result_count": 1,
+      "ledger_status_counts": {
+        "completed": 1
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_3",
+      "seed": 8203,
+      "arm": "fixed_schedule_pysr",
+      "scientific_score": 0.017828809329253344,
+      "winning_result": 1,
+      "equation": "x1*(0.499995333849721*x2**2 - 0.0002944999396368)",
+      "validation_nrmse": 8.687384538237743e-05,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 5520.0,
+      "runtime_seconds": 89.23483870000018,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    },
+    {
+      "repeat_id": "repeat_3",
+      "seed": 8203,
+      "arm": "union_schedule_pysr",
+      "scientific_score": 0.45386789088763424,
+      "winning_result": 1,
+      "equation": "3*x1 + 0.266433845689995*exp(x2) - sin(x1) - 3.2131614",
+      "validation_nrmse": 0.4264485360489246,
+      "requested_evaluations": 3000,
+      "engine_measured_evaluations": 4170.0,
+      "runtime_seconds": 91.25078379999832,
+      "result_count": 3,
+      "ledger_status_counts": {
+        "completed": 3
+      },
+      "llm_tokens": 0
+    }
+  ]
+}

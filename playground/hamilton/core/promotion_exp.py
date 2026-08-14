@@ -95,6 +95,14 @@ class PromotionExp(BaseExp):
         if state.get("status") == "completed":
             return state.get("result", {})
         attempts = int(state.get("attempts", 0) or 0)
+        completed_result_paths = [item["path"] for item in promotion_input["results"]]
+        if attempts >= 1 and self._existing_artifacts_fast_finish_eligible(
+            completed_result_paths
+        ):
+            return self._complete_deterministic_recovery(
+                attempts=attempts,
+                completed_results=completed_result_paths,
+            )
         if attempts >= self.max_attempts:
             return {
                 "round": self.round_num,
@@ -131,11 +139,8 @@ class PromotionExp(BaseExp):
         # A missing error list is not proof that an audit ran: an interrupted LLM
         # request leaves a pending state with no errors. Only a completed closure
         # audit may explicitly authorize the bounded fast-finish path.
-        fast_finish_recovery = attempts >= 1 and (
-            state.get("fast_finish_eligible") is True
-            or self._existing_artifacts_fast_finish_eligible(
-                [item["path"] for item in promotion_input["results"]]
-            )
+        fast_finish_recovery = attempts >= 1 and self._existing_artifacts_fast_finish_eligible(
+            [item["path"] for item in promotion_input["results"]]
         )
         if fast_finish_recovery:
             recovery_feedback += self._fast_finish_feedback(
@@ -226,6 +231,66 @@ class PromotionExp(BaseExp):
         })
         return result
 
+    def _complete_deterministic_recovery(
+        self,
+        *,
+        attempts: int,
+        completed_results: list[str],
+    ) -> dict:
+        """Close an audited Promotion without another model turn.
+
+        This path is available only after a previous attempt produced artifacts
+        that pass the deterministic scientific and structural audits.  It writes
+        an explicit controller marker, records a real controller finish signal,
+        and never fabricates an LLM trajectory.
+        """
+        before = self._snapshot_closure_artifacts()
+        marker = (
+            f"<!-- EVO_DETERMINISTIC_FINISH_RECOVERY_ROUND_{self.round_num}"
+            f"_ATTEMPT_{attempts + 1} -->"
+        )
+        round_trace = self.run_dir / "history" / f"round{self.round_num}" / "trace.md"
+        for path in (round_trace, self.run_dir / "findings.md", self.run_dir / "plan.md"):
+            content = path.read_text(encoding="utf-8")
+            if marker not in content:
+                path.write_text(content.rstrip() + "\n\n" + marker + "\n", encoding="utf-8")
+
+        task_completed = "true" if self._is_final_round() else "false"
+        closure = self._check_round_closure(
+            before,
+            None,
+            completed_results=completed_results,
+            task_completed_override=task_completed,
+        )
+        signal = {
+            "round": self.round_num,
+            "satisfied": task_completed == "true",
+            "task_completed": task_completed,
+            "closed": closure["closed"],
+            "closure": closure,
+            "deterministic_finish_recovery": True,
+            "notes": "Controller closed already-audited Promotion artifacts without an LLM call.",
+        }
+        result = {
+            "round": self.round_num,
+            "agent_result": "",
+            "signal": signal,
+            "findings": self._read_findings(),
+            "trajectory": None,
+        }
+        self._write_promotion_state(
+            {
+                "status": "completed" if closure["closed"] else "pending",
+                "attempts": attempts,
+                "input_sha256": self._file_digest(self._promotion_input_path()),
+                "errors": closure.get("scientific_decision", {}).get("errors", []),
+                "fast_finish_eligible": False,
+                "deterministic_finish_recovery": True,
+                "result": result if closure["closed"] else None,
+            }
+        )
+        return result
+
     def _fast_finish_eligible(self, closure: dict) -> bool:
         """Allow fast finish only after all scientific/structural gates were audited."""
         if closure.get("closed"):
@@ -258,13 +323,16 @@ class PromotionExp(BaseExp):
         allowing the LLM to rewrite the already-valid decision again.
         """
         grounding_required = self.round_num == 1 and self._literature_grounding_enabled()
+        noop_continue = self._round_used_noop_continue(completed_results)
         closure = {
             "closed": False,
             "completed_result_files": completed_results,
             "continuation_contract_valid": (
                 None if self._is_final_round() else self._continuation_contract_valid()
             ),
-            "meaningful_config_change": self._meaningful_config_changed(completed_results),
+            "meaningful_config_change": (
+                True if noop_continue else self._meaningful_config_changed(completed_results)
+            ),
             "single_config_change": self._single_config_change(completed_results)[0],
             "initial_priors": (
                 self._audit_initial_priors()
@@ -687,6 +755,17 @@ class PromotionExp(BaseExp):
         ]
         return any(config and config not in previous for config in current)
 
+    def _round_used_noop_continue(self, completed_results: list[str]) -> bool:
+        if len(completed_results) != 1:
+            return False
+        config = self._read_result_payload(completed_results[0]).get("config", {})
+        session = config.get("search_session") if isinstance(config, dict) else None
+        return (
+            isinstance(session, dict)
+            and session.get("mode") == "warm_start"
+            and session.get("round_action") == "continue"
+        )
+
     def _single_config_change(self, completed_results: list[str]) -> tuple[bool | None, list[str]]:
         if self.round_num <= 1:
             return None, []
@@ -706,6 +785,13 @@ class PromotionExp(BaseExp):
                 "max_step_changes", 1
             )
         )
+        if not changed and self._round_used_noop_continue(completed_results):
+            allow_noop = bool(
+                (control or {}).get("trust_region", {}).get(
+                    "allow_noop_continue", False
+                )
+            )
+            return allow_noop, changed
         return 1 <= len(changed) <= max_step_changes, changed
 
     def _continuation_contract_valid(self) -> bool:
@@ -1123,7 +1209,6 @@ class PromotionExp(BaseExp):
             required = (
                 "diagnosed_failure",
                 "evidence",
-                "config_field",
                 "expected_effect",
                 "alternative_explanation",
                 "expected_residual_change",
@@ -1133,28 +1218,37 @@ class PromotionExp(BaseExp):
                 isinstance(strategy.get(field), str) and bool(strategy[field].strip())
                 for field in required
             )
+            action = strategy.get("action", "modify") if isinstance(strategy, dict) else None
             strategy_valid = (
                 strategy_valid
+                and action in {"continue", "modify"}
                 and isinstance(strategy.get("risks"), list)
                 and bool(strategy["risks"])
                 and all(isinstance(risk, str) and risk.strip() for risk in strategy["risks"])
-                and re.fullmatch(
-                    r"(?:data|search|verification)(?:\.[A-Za-z0-9_]+)+",
-                    strategy.get("config_field", ""),
-                )
-                is not None
             )
             config_patch = (
                 strategy.get("config_patch")
                 if isinstance(strategy, dict)
                 else None
             )
-            strategy_valid = (
-                strategy_valid
-                and isinstance(config_patch, dict)
-                and len(config_patch) == 1
-                and next(iter(config_patch), None) == strategy.get("config_field")
-            )
+            if action == "continue":
+                strategy_valid = (
+                    strategy_valid
+                    and strategy.get("config_field") in {None, ""}
+                    and config_patch == {}
+                )
+            else:
+                strategy_valid = (
+                    strategy_valid
+                    and re.fullmatch(
+                        r"(?:data|search|verification)(?:\.[A-Za-z0-9_]+)+",
+                        strategy.get("config_field", ""),
+                    )
+                    is not None
+                    and isinstance(config_patch, dict)
+                    and len(config_patch) == 1
+                    and next(iter(config_patch), None) == strategy.get("config_field")
+                )
             residual_evidence = (
                 strategy.get("residual_evidence")
                 if isinstance(strategy, dict)
@@ -1296,6 +1390,7 @@ class PromotionExp(BaseExp):
         before: dict,
         trajectory,
         completed_results: list[str] | None = None,
+        task_completed_override: str | None = None,
     ) -> dict:
         """Return machine-readable proof that all phases of the round completed."""
         if not self.run_dir or not before:
@@ -1314,13 +1409,20 @@ class PromotionExp(BaseExp):
         round_dir = self.run_dir / "history" / f"round{self.round_num}"
         if completed_results is None:
             completed_results = self._completed_result_files(before)
-        task_completed = self._extract_task_completed(trajectory)
+        task_completed = (
+            task_completed_override
+            if task_completed_override is not None
+            else self._extract_task_completed(trajectory)
+        )
         continuing = (
             task_completed in {"false", "partial"}
             and not self._is_final_round()
         )
         continuation_contract_valid = self._continuation_contract_valid() if continuing else None
-        meaningful_config_change = self._meaningful_config_changed(completed_results)
+        noop_continue = self._round_used_noop_continue(completed_results)
+        meaningful_config_change = (
+            True if noop_continue else self._meaningful_config_changed(completed_results)
+        )
         single_config_change, changed_config_fields = self._single_config_change(completed_results)
         governance_enabled = self._scientific_governance_enabled()
         grounding_required = self.round_num == 1 and self._literature_grounding_enabled()

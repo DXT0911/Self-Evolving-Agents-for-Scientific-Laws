@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "max_total_evals": null,
+  "created_at": "2026-08-14T07:20:41.546047+00:00",
+  "attempts": [
+    {
+      "attempt_id": "7515bec5-0c4c-4ca1-9687-d400c79f93eb",
+      "experiment_id": "v4_pilot_ordinary__static_s01__repeat_1",
+      "config_sha256": "44d795c9a1d8e8efe1134f58737af3622f2c046ea9806185e48a86d543556f5d",
+      "result_file": "results/result.json",
+      "requested_evals": 3000,
+      "status": "completed",
+      "reserved_at": "2026-08-14T07:20:41.547376+00:00",
+      "finished_at": "2026-08-14T07:21:15.036288+00:00",
+      "result_sha256": "01b9371173d521df4c894124b48a25b0c2e41e90feaec2fbbccdb8d631e994f0"
+    }
+  ]
+}

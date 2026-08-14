@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "mode": "offline_decision_replay",
+  "scientific_boundary": "Recommendations use frozen observed outcomes only. This replay does not estimate the performance of unexecuted counterfactual actions.",
+  "policy": {
+    "schema_version": 1,
+    "thresholds": {
+      "min_score_improvement": 0.0001,
+      "stale_rounds_before_intervention": 2,
+      "high_complexity_fraction": 0.8,
+      "low_complexity_fraction": 0.25,
+      "material_residual_correlation": 0.3,
+      "parsimony_multiplier": 2.0,
+      "min_parsimony": 1e-08,
+      "max_parsimony": 1.0
+    },
+    "llm_authority": "advisory_structural_hypothesis_only",
+    "controller_authority": [
+      "action_selection",
+      "config_sanitization",
+      "candidate_retention",
+      "rollback",
+      "budget"
+    ]
+  },
+  "summary": {
+    "input_records": 3,
+    "replayed_records": 3,
+    "action_counts": {
+      "continue": 3
+    },
+    "final_observed_incumbent_score": 0.2683150448605128
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "source": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round1/results/result.json",
+      "status": "replayed",
+      "observed_incumbent_advanced": true,
+      "snapshot": {
+        "scientific_score": 0.338434002676826,
+        "score_improvement": 0.0,
+        "improved": false,
+        "complexity_fraction": 0.8387096774193549,
+        "parsimony": 0.001,
+        "state_residual_correlation": 0.2804570412003171,
+        "temporal_residual_correlation": 0.01973296967290542,
+        "material_residual_correlation": 0.2804570412003171,
+        "positive_influence_terms": 0,
+        "stale_rounds_before": 0,
+        "rollback_required": false
+      },
+      "process_state": "complex_valid",
+      "recommended_action": {
+        "action": "continue",
+        "reason": "insufficient evidence of sustained stagnation",
+        "config_field": null,
+        "config_patch": {},
+        "requires_restart": false,
+        "authority": "deterministic_controller"
+      }
+    },
+    {
+      "round": 2,
+      "source": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round2/results/result.json",
+      "status": "replayed",
+      "observed_incumbent_advanced": true,
+      "snapshot": {
+        "scientific_score": 0.2790414733560145,
+        "score_improvement": 0.059392529320811516,
+        "improved": true,
+        "complexity_fraction": 0.967741935483871,
+        "parsimony": 0.001,
+        "state_residual_correlation": 0.04945239013127227,
+        "temporal_residual_correlation": 0.014680179815796982,
+        "material_residual_correlation": 0.04945239013127227,
+        "positive_influence_terms": 0,
+        "stale_rounds_before": 0,
+        "rollback_required": false
+      },
+      "process_state": "improving",
+      "recommended_action": {
+        "action": "continue",
+        "reason": "incumbent is still improving",
+        "config_field": null,
+        "config_patch": {},
+        "requires_restart": false,
+        "authority": "deterministic_controller"
+      }
+    },
+    {
+      "round": 3,
+      "source": "experiments/hamilton_vs_pysr_governed_search_v3/pilot_bundle/governed_hamilton/static_s01/repeat_1/workspaces/task_0/history/round3/results/result.json",
+      "status": "replayed",
+      "observed_incumbent_advanced": true,
+      "snapshot": {
+        "scientific_score": 0.2683150448605128,
+        "score_improvement": 0.010726428495501705,
+        "improved": true,
+        "complexity_fraction": 1.0,
+        "parsimony": 0.001,
+        "state_residual_correlation": 0.19818910416201976,
+        "temporal_residual_correlation": 0.013545837186006274,
+        "material_residual_correlation": 0.19818910416201976,
+        "positive_influence_terms": 0,
+        "stale_rounds_before": 0,
+        "rollback_required": false
+      },
+      "process_state": "improving",
+      "recommended_action": {
+        "action": "continue",
+        "reason": "incumbent is still improving",
+        "config_field": null,
+        "config_patch": {},
+        "requires_restart": false,
+        "authority": "deterministic_controller"
+      }
+    }
+  ]
+}

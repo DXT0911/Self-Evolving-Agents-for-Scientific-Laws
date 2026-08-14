@@ -35,7 +35,7 @@ def load_json(path: Path, label: str) -> dict[str, Any]:
     return payload
 
 
-def decision_patch(workspace: Path) -> tuple[str, Any]:
+def decision_patch(workspace: Path) -> tuple[str | None, Any]:
     content = (workspace / "plan.md").read_text(encoding="utf-8")
     start = content.find(DECISION_BEGIN)
     stop = content.find(DECISION_END, start + len(DECISION_BEGIN))
@@ -45,6 +45,15 @@ def decision_patch(workspace: Path) -> tuple[str, Any]:
     strategy = decision.get("next_strategy")
     if not isinstance(strategy, dict):
         raise ValueError("scientific decision lacks next_strategy")
+    action = strategy.get("action", "modify")
+    if action == "continue":
+        if strategy.get("config_field") not in {None, ""}:
+            raise ValueError("continue action must not declare config_field")
+        if strategy.get("config_patch") != {}:
+            raise ValueError("continue action requires an empty config_patch")
+        return None, None
+    if action != "modify":
+        raise ValueError("next_strategy.action must be 'continue' or 'modify'")
     field = strategy.get("config_field")
     patch = strategy.get("config_patch")
     if not isinstance(field, str) or not field:
@@ -84,13 +93,21 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
     config.pop("_controller", None)
 
     field, value = decision_patch(workspace)
-    set_existing_leaf(config, field, value)
+    if field is not None:
+        set_existing_leaf(config, field, value)
 
     seed_plan = load_json(workspace / ".hamilton_seed_plan.json", "seed plan")
     seeds = seed_plan.get("round_seeds")
     if not isinstance(seeds, list) or round_number > len(seeds):
         raise ValueError(f"seed plan lacks round {round_number}")
-    config["search"]["random_state"] = seeds[round_number - 1]
+    session = config.get("search_session")
+    warm_start = isinstance(session, dict) and session.get("mode") == "warm_start"
+    if not warm_start:
+        config["search"]["random_state"] = seeds[round_number - 1]
+    else:
+        session["round"] = round_number
+        session["final_round"] = round_number == len(seeds)
+        session["round_action"] = "continue" if field is None else "modify"
 
     prior_id = str(baseline.get("experiment_id") or config.get("experiment_id") or "")
     if re.search(r"__round\d+$", prior_id):
@@ -98,9 +115,14 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
     else:
         experiment_id = f"{prior_id or 'governed_hamilton'}__round{round_number}"
     config["experiment_id"] = experiment_id
+    run_directory = (
+        config["output"]["run_directory"]
+        if warm_start
+        else f"history/round{round_number}/results/result-pysr"
+    )
     config["output"] = {
         "result_file": f"history/round{round_number}/results/result.json",
-        "run_directory": f"history/round{round_number}/results/result-pysr",
+        "run_directory": run_directory,
     }
 
     output = workspace / "history" / f"round{round_number}" / "experiment.json"
@@ -115,9 +137,10 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
         "status": "materialized",
         "round": round_number,
         "baseline_result_file": baseline_rel,
+        "action": "continue" if field is None else "modify",
         "config_field": field,
         "config_value": value,
-        "assigned_seed": seeds[round_number - 1],
+        "assigned_seed": config["search"]["random_state"],
         "config_file": output.relative_to(workspace).as_posix(),
     }
 

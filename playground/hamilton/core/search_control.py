@@ -15,6 +15,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .governed_policy import (
+    PolicyThresholds,
+    choose_action,
+    diagnostic_snapshot,
+    infer_process_state,
+    route_memory,
+)
+
 
 CONTROL_FILE = ".hamilton_search_control.json"
 STATE_FILE = ".hamilton_search_state.json"
@@ -97,6 +105,11 @@ def default_control_config(experiment: dict[str, Any]) -> dict[str, Any]:
     trust = trust if isinstance(trust, dict) else {}
     budget = raw.get("dynamic_budget")
     budget = budget if isinstance(budget, dict) else {}
+    deterministic = raw.get("deterministic_policy")
+    deterministic = deterministic if isinstance(deterministic, dict) else {}
+    thresholds = deterministic.get("thresholds")
+    thresholds = thresholds if isinstance(thresholds, dict) else {}
+    defaults = PolicyThresholds()
     max_rounds = int(experiment.get("max_rounds", 1) or 1)
     max_total_evals = experiment.get("max_total_evals")
     return {
@@ -112,6 +125,7 @@ def default_control_config(experiment: dict[str, Any]) -> dict[str, Any]:
         },
         "trust_region": {
             "enabled": bool(trust.get("enabled", True)),
+            "allow_noop_continue": bool(trust.get("allow_noop_continue", False)),
             "max_anchor_distance": int(trust.get("max_anchor_distance", 2) or 2),
             "max_step_changes": int(trust.get("max_step_changes", 1) or 1),
             "rollback_after_stale_rounds": int(
@@ -129,6 +143,19 @@ def default_control_config(experiment: dict[str, Any]) -> dict[str, Any]:
                 budget.get("rounding_quantum", 500) or 500
             ),
         },
+        "deterministic_policy": {
+            "enabled": bool(deterministic.get("enabled", False)),
+            "binding": bool(deterministic.get("binding", False)),
+            "warm_compatible_fields": list(
+                deterministic.get(
+                    "warm_compatible_fields", ["search.parsimony"]
+                )
+            ),
+            "thresholds": {
+                name: thresholds.get(name, getattr(defaults, name))
+                for name in defaults.__dataclass_fields__
+            },
+        },
         "max_rounds": max_rounds,
     }
 
@@ -143,6 +170,8 @@ def validate_control_config(control: dict[str, Any]) -> None:
         raise ValueError("Hamilton search-control sections must be objects")
     if not isinstance(advancement, dict):
         raise ValueError("Hamilton search advancement section must be an object")
+    if not isinstance(trust.get("allow_noop_continue", False), bool):
+        raise ValueError("trust_region.allow_noop_continue must be boolean")
     if float(advancement.get("min_score_improvement", -1)) < 0:
         raise ValueError("min_score_improvement must be non-negative")
     for name in (
@@ -161,6 +190,41 @@ def validate_control_config(control: dict[str, Any]) -> None:
         raise ValueError("dynamic_budget.base_evals cannot exceed max_evals")
     if int(control.get("max_rounds", 0) or 0) <= 0:
         raise ValueError("search-control max_rounds must be positive")
+    deterministic = control.get("deterministic_policy")
+    if deterministic is not None:
+        if not isinstance(deterministic, dict):
+            raise ValueError("deterministic_policy must be an object")
+        if not isinstance(deterministic.get("enabled", False), bool):
+            raise ValueError("deterministic_policy.enabled must be boolean")
+        if not isinstance(deterministic.get("binding", False), bool):
+            raise ValueError("deterministic_policy.binding must be boolean")
+        fields = deterministic.get("warm_compatible_fields", [])
+        if not isinstance(fields, list) or not all(
+            isinstance(item, str) and item for item in fields
+        ):
+            raise ValueError(
+                "deterministic_policy.warm_compatible_fields must be a string list"
+            )
+        raw_thresholds = deterministic.get("thresholds", {})
+        if not isinstance(raw_thresholds, dict):
+            raise ValueError("deterministic_policy.thresholds must be an object")
+        try:
+            PolicyThresholds(**raw_thresholds)
+        except TypeError as exc:
+            raise ValueError(f"invalid deterministic policy thresholds: {exc}") from exc
+
+
+def _policy_settings(control: dict[str, Any]) -> tuple[bool, bool, PolicyThresholds, list[str]]:
+    raw = control.get("deterministic_policy")
+    raw = raw if isinstance(raw, dict) else {}
+    thresholds = raw.get("thresholds")
+    thresholds = thresholds if isinstance(thresholds, dict) else {}
+    return (
+        bool(raw.get("enabled", False)),
+        bool(raw.get("binding", False)),
+        PolicyThresholds(**thresholds),
+        list(raw.get("warm_compatible_fields", ["search.parsimony"])),
+    )
 
 
 def initialize_control(workspace: Path, experiment: dict[str, Any]) -> dict[str, Any]:
@@ -209,11 +273,34 @@ def read_evidence_memory(workspace: Path) -> dict[str, Any]:
                 "near_miss_candidates": [],
             },
             "invalidated": [],
+            "routed": {
+                "elite": [],
+                "motifs": [],
+                "failures": [],
+                "diagnostics": [],
+            },
         }
     memory = json.loads(path.read_text(encoding="utf-8"))
     if memory.get("schema_version") != 1:
         raise ValueError("Hamilton evidence-memory schema_version must be 1")
+    routed = memory.setdefault("routed", {})
+    for name in ("elite", "motifs", "failures", "diagnostics"):
+        routed.setdefault(name, [])
     return memory
+
+
+def _append_bounded(
+    memory: dict[str, Any],
+    partition: str,
+    record: dict[str, Any],
+    *,
+    limit: int,
+) -> None:
+    entries = memory["routed"][partition]
+    memory_id = record.get("memory_id")
+    entries[:] = [item for item in entries if item.get("memory_id") != memory_id]
+    entries.append(record)
+    del entries[:-limit]
 
 
 def _read_latest_scientific_decision(workspace: Path) -> dict[str, Any]:
@@ -374,6 +461,38 @@ def update_evidence_memory(
             ),
         },
     )
+    _append_bounded(
+        memory,
+        "diagnostics",
+        {
+            **common,
+            "memory_id": f"round:{round_num}:diagnostics",
+            "state_dependence": state_dependence,
+            "temporal_dependence": temporal_dependence,
+            "scientific_score": score,
+        },
+        limit=12,
+    )
+
+    term_influence = result.get("verification", {}).get("term_influence", {})
+    if isinstance(term_influence, dict) and term_influence.get("status") == "completed":
+        for index, term in enumerate(term_influence.get("terms", [])[:8]):
+            if not isinstance(term, dict):
+                continue
+            if float(term.get("validation_nrmse_delta", 0.0) or 0.0) <= 0:
+                continue
+            _append_bounded(
+                memory,
+                "motifs",
+                {
+                    **common,
+                    "memory_id": f"round:{round_num}:motif:{index}",
+                    "term": term.get("term"),
+                    "validation_nrmse_delta": term.get("validation_nrmse_delta"),
+                    "scope": "conditional_additive_ablation",
+                },
+                limit=24,
+            )
 
     if incumbent_action in {"initialize", "promote"}:
         incumbent_path = (workspace / incumbent_result_file).resolve()
@@ -398,6 +517,20 @@ def update_evidence_memory(
                     "simplified_equation"
                 ),
             },
+        )
+        _append_bounded(
+            memory,
+            "elite",
+            {
+                "memory_id": f"round:{round_num}:elite",
+                "round": int(round_num),
+                "result_file": incumbent_result_file.replace("\\", "/"),
+                "scientific_score": float(incumbent_score),
+                "equation": incumbent_payload.get("selected", {}).get(
+                    "simplified_equation"
+                ),
+            },
+            limit=8,
         )
 
     strategy = decision.get("next_strategy")
@@ -449,6 +582,19 @@ def update_evidence_memory(
                 ),
             },
         )
+        _append_bounded(
+            memory,
+            "failures",
+            {
+                **common,
+                "memory_id": f"round:{round_num}:retained_failure",
+                "failure_type": "did_not_advance_incumbent",
+                "scientific_score": score,
+                "score_gap": score - float(incumbent_score),
+                "changed_fields": list(changed_fields),
+            },
+            limit=16,
+        )
 
     memory["updated_after_round"] = max(
         int(memory.get("updated_after_round", 0) or 0),
@@ -475,6 +621,12 @@ def compact_evidence_memory(workspace: Path) -> dict[str, Any]:
                 "near_miss_candidates"
             ][-6:],
         },
+        "routed": {
+            "elite": memory["routed"]["elite"][-3:],
+            "motifs": memory["routed"]["motifs"][-8:],
+            "failures": memory["routed"]["failures"][-5:],
+            "diagnostics": memory["routed"]["diagnostics"][-4:],
+        },
     }
 
 
@@ -494,6 +646,13 @@ def update_state(
     if control is None:
         return {}
     state = read_state(workspace)
+    prior_incumbent = state.get("incumbent")
+    prior_score = (
+        float(prior_incumbent["score"])
+        if isinstance(prior_incumbent, dict) and "score" in prior_incumbent
+        else None
+    )
+    stale_rounds_before = int(state.get("stale_rounds", 0) or 0)
     if incumbent_action in {"initialize", "promote"}:
         stale_rounds = 0
     else:
@@ -505,6 +664,27 @@ def update_state(
     baseline_result = (
         incumbent_result_file if rollback_required else current_result_file
     )
+    policy_enabled, policy_binding, policy_thresholds, warm_fields = _policy_settings(
+        control
+    )
+    policy_snapshot: dict[str, Any] = {}
+    policy_decision: dict[str, Any] = {}
+    process_state = "unknown"
+    current_path = workspace / current_result_file
+    if policy_enabled and current_path.is_file():
+        current_result = json.loads(current_path.read_text(encoding="utf-8"))
+        policy_snapshot = diagnostic_snapshot(
+            current_result,
+            incumbent_score_before=prior_score,
+            stale_rounds_before=stale_rounds_before,
+            rollback_required=rollback_required,
+        )
+        policy_decision = choose_action(
+            policy_snapshot,
+            thresholds=policy_thresholds,
+            warm_compatible_fields=warm_fields,
+        )
+        process_state = infer_process_state(policy_snapshot)
     payload = {
         "schema_version": 1,
         "updated_at": utc_now(),
@@ -531,6 +711,13 @@ def update_state(
             "max_anchor_distance": int(
                 control["trust_region"]["max_anchor_distance"]
             ),
+            "controller_policy": {
+                "enabled": policy_enabled,
+                "binding": policy_binding,
+                "process_state": process_state,
+                "snapshot": policy_snapshot,
+                "action": policy_decision,
+            },
         },
     }
     atomic_write_json(workspace / STATE_FILE, payload)
@@ -542,6 +729,26 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
     state = read_state(workspace)
     if control is None or round_num <= 1 or not state.get("incumbent"):
         return None
+    evidence_memory = compact_evidence_memory(workspace)
+    incumbent_result_path = workspace / state["incumbent"]["result_file"]
+    policy_snapshot: dict[str, Any] = {}
+    policy_decision: dict[str, Any] = {}
+    process_state = "unknown"
+    persisted_policy = state.get("next_round", {}).get("controller_policy")
+    if isinstance(persisted_policy, dict) and persisted_policy.get("enabled"):
+        policy_snapshot = persisted_policy.get("snapshot", {})
+        policy_decision = persisted_policy.get("action", {})
+        process_state = str(persisted_policy.get("process_state", "unknown"))
+    elif incumbent_result_path.is_file():
+        incumbent_result = json.loads(incumbent_result_path.read_text(encoding="utf-8"))
+        policy_snapshot = diagnostic_snapshot(
+            incumbent_result,
+            incumbent_score_before=state["incumbent"]["score"],
+            stale_rounds_before=state["stale_rounds"],
+            rollback_required=state["rollback_required"],
+        )
+        policy_decision = choose_action(policy_snapshot)
+        process_state = infer_process_state(policy_snapshot)
     return {
         "round": round_num,
         "baseline_result_file": state["next_round"]["baseline_result_file"],
@@ -559,5 +766,19 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
                 "deterministically from the cumulative ledger"
             ),
         },
-        "evidence_memory": compact_evidence_memory(workspace),
+        "evidence_memory": evidence_memory,
+        "routed_memory_view": route_memory(evidence_memory, process_state),
+        "controller_policy": {
+            "process_state": process_state,
+            "snapshot": policy_snapshot,
+            "recommended_action": policy_decision,
+            "binding": bool(
+                isinstance(persisted_policy, dict)
+                and persisted_policy.get("binding")
+            ),
+            "note": (
+                "When binding is true, the standard runner enforces this action and "
+                "config patch before reserving evaluations."
+            ),
+        },
     }
