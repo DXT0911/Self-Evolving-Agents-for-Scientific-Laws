@@ -93,6 +93,7 @@ workspace/
 ### Hamilton v6：LLM 因果消融（2026-08-16 起）
 
 设计文档：`../../docs/sragent/HAMILTON_V6_CAUSAL_ABLATION_DESIGN_2026-08-16.zh-CN.md`
+运行清单：`../../docs/sragent/HAMILTON_V6_RUN_CHECKLIST_2026-08-17.zh-CN.md`
 
 - [x] 打通 LLM 因果路径：原子动作白名单（continue_warm / adjust_parsimony /
   add_operator / remove_operator / restart_same）
