@@ -81,6 +81,16 @@ def parse_args() -> argparse.Namespace:
 
 WARM_START_DIR = ".hws"
 
+# Scientific search fields a restart round may change.  Warm rounds (continue/modify)
+# may only change search.parsimony; restart rounds rebuild the model, so they may also
+# change the operator set or the complexity ceiling.
+RESTART_COMPATIBLE_FIELDS = {
+    "search.parsimony",
+    "search.unary_operators",
+    "search.binary_operators",
+    "search.maxsize",
+}
+
 
 def warm_start_state_dir(workspace: Path, session_id: str) -> Path:
     """Use a short stable directory to stay below legacy Windows path limits."""
@@ -105,16 +115,26 @@ def warm_start_session(config: dict[str, Any]) -> dict[str, Any] | None:
     round_action = session.get(
         "round_action", "initialize" if round_number == 1 else "modify"
     )
-    if round_action not in {"initialize", "continue", "modify"}:
+    if round_action not in {"initialize", "continue", "modify", "restart"}:
         raise ConfigError(
-            "search_session.round_action must be initialize, continue, or modify"
+            "search_session.round_action must be initialize, continue, modify, or restart"
         )
     allowed = session.get("compatible_change_fields", ["search.parsimony"])
     if not isinstance(allowed, list) or not all(
-        field == "search.parsimony" for field in allowed
+        isinstance(field, str) and field for field in allowed
     ):
         raise ConfigError(
-            "search_session.compatible_change_fields may contain only "
+            "search_session.compatible_change_fields must be a string list"
+        )
+    if round_action == "restart":
+        if not all(field in RESTART_COMPATIBLE_FIELDS for field in allowed):
+            raise ConfigError(
+                "search_session.compatible_change_fields on a restart round may only "
+                f"contain {sorted(RESTART_COMPATIBLE_FIELDS)}"
+            )
+    elif not all(field == "search.parsimony" for field in allowed):
+        raise ConfigError(
+            "warm search_session.compatible_change_fields may contain only "
             "search.parsimony"
         )
     return {
@@ -850,6 +870,8 @@ def expected_adaptive_config_patch(workspace: Path) -> dict[str, Any] | None:
         if action == "continue" and patch == {}:
             return {}
         if action == "modify" and isinstance(patch, dict) and len(patch) == 1:
+            return patch
+        if action == "restart" and isinstance(patch, dict) and len(patch) <= 1:
             return patch
         raise ConfigError(
             "binding controller action is not executable in a live warm session: "
