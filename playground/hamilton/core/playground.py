@@ -302,6 +302,11 @@ class HamiltonPlayground(BasePlayground):
                         )
                     elif per_round_tokens:
                         self.agent.config.max_total_tokens = per_round_tokens
+                    else:
+                        # No per-phase discovery token ceiling is configured. Reset to
+                        # the agent's original limit so a previous Promotion phase's
+                        # allowance does not leak into Discovery and preempt it.
+                        self.agent.config.max_total_tokens = original_agent_token_limit
 
                     controller_directive = round_directive(
                         self.workspace_dir,
