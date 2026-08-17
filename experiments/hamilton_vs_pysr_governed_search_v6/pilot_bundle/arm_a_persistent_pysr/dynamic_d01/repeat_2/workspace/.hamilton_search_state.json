@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:01:09.133823+00:00",
+  "updated_at": "2026-08-17T02:20:31.811124+00:00",
   "last_closed_round": 3,
   "stale_rounds": 2,
   "rollback_required": false,
@@ -97,11 +97,11 @@
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
+        "action": "branch",
+        "reason": "material residual structure remains but no warm-safe intervention is justified",
         "config_field": null,
         "config_patch": {},
-        "requires_restart": false,
+        "requires_restart": true,
         "authority": "deterministic_controller"
       }
     }

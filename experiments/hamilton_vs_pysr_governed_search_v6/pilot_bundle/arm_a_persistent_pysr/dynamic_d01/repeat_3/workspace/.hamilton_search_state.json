@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:02:14.738518+00:00",
+  "updated_at": "2026-08-17T02:21:20.552787+00:00",
   "last_closed_round": 3,
   "stale_rounds": 1,
   "rollback_required": false,
@@ -97,10 +97,12 @@
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
-        "config_field": null,
-        "config_patch": {},
+        "action": "modify",
+        "reason": "search is stagnant and the incumbent is near the complexity ceiling",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.002
+        },
         "requires_restart": false,
         "authority": "deterministic_controller"
       }

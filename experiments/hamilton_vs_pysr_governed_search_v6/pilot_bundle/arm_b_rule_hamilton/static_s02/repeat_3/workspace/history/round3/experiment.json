@@ -42,9 +42,10 @@
     "top_k": 10,
     "tournament_selection_n": 12,
     "unary_operators": [
-      "sin",
       "cos",
-      "exp"
+      "exp",
+      "sin",
+      "tanh"
     ]
   },
   "search_session": {

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T16:52:33.424223+00:00",
+  "updated_at": "2026-08-17T02:40:38.466023+00:00",
   "last_closed_round": 3,
   "stale_rounds": 0,
   "rollback_required": false,
   "incumbent": {
     "result_file": "history/round3/results/result.json",
-    "score": 0.24538379778797867,
-    "equation": "0.0053520258468288*x2*(0.71234137*x1 - x4 + 2.9870393)*(x1 - x3 - x4 + 8.793964)/(x3*x4)",
+    "score": 0.33662207119769694,
+    "equation": "sin(tanh(exp(-0.5263905*x4 + tanh((0.25699246*x2*(x1 + 0.654443837265995*x3 - x4) - x3*x4)/x3))*tanh(1.019085*x3)/x3))",
     "config": {
       "data": {
         "allowed_files": [
@@ -42,9 +42,10 @@
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -85,16 +86,16 @@
       "binding": true,
       "process_state": "improving",
       "snapshot": {
-        "scientific_score": 0.24538379778797867,
-        "validation_nrmse": 0.20183541069120448,
-        "score_improvement": 0.2915766620152813,
+        "scientific_score": 0.33662207119769694,
+        "validation_nrmse": 0.28662207119769695,
+        "score_improvement": 0.14736914269056695,
         "improved": true,
-        "complexity_fraction": 0.8709677419354839,
+        "complexity_fraction": 1.0,
         "parsimony": 0.001,
-        "state_residual_correlation": 0.31024219380397017,
-        "temporal_residual_correlation": 0.02350235437558198,
-        "material_residual_correlation": 0.31024219380397017,
-        "positive_influence_terms": 8,
+        "state_residual_correlation": 0.41417919176058665,
+        "temporal_residual_correlation": 0.014377950616305436,
+        "material_residual_correlation": 0.41417919176058665,
+        "positive_influence_terms": 1,
         "stale_rounds_before": 0,
         "rollback_required": false
       },

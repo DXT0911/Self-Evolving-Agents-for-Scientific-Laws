@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:07:20.470064+00:00",
+  "updated_at": "2026-08-17T03:32:02.060773+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 1,
+  "stale_rounds": 2,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round2/results/result.json",
-    "score": 0.31480893172747054,
-    "equation": "4*x2 + 3.13137430381721*(-x1 + x2 + sin(x1 + sin(x1)))*exp(x1*x2) - 0.0911641052084157",
+    "result_file": "history/round1/results/result.json",
+    "score": 0.5921970471234722,
+    "equation": "4.6848991*x2 + (-2.9523833266358*x1 + 1.72958654614124*x2 + 2.9523833266358*sin(x1 + sin(x1)))*exp(1.324798*x2) + 0.29774415",
     "config": {
       "data": {
         "allowed_files": [
@@ -81,27 +81,27 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "complex_valid",
+      "process_state": "stagnant_structured",
       "snapshot": {
-        "scientific_score": 0.3219476291956282,
-        "validation_nrmse": 0.28001214532466046,
-        "score_improvement": -0.007138697468157651,
+        "scientific_score": 1.0354260509162312,
+        "validation_nrmse": 1.0080066960775216,
+        "score_improvement": -0.443229003792759,
         "improved": false,
-        "complexity_fraction": 0.8387096774193549,
+        "complexity_fraction": 0.5483870967741935,
         "parsimony": 0.001,
-        "state_residual_correlation": 0.5906293618828328,
-        "temporal_residual_correlation": 0.971226284498371,
-        "material_residual_correlation": 0.971226284498371,
-        "positive_influence_terms": 5,
-        "stale_rounds_before": 0,
+        "state_residual_correlation": 0.42140154178569433,
+        "temporal_residual_correlation": 0.9145182575985529,
+        "material_residual_correlation": 0.9145182575985529,
+        "positive_influence_terms": 2,
+        "stale_rounds_before": 1,
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
+        "action": "branch",
+        "reason": "material residual structure remains but no warm-safe intervention is justified",
         "config_field": null,
         "config_patch": {},
-        "requires_restart": false,
+        "requires_restart": true,
         "authority": "deterministic_controller"
       }
     }

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:04:27.732969+00:00",
+  "updated_at": "2026-08-17T02:43:18.480263+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 2,
+  "stale_rounds": 0,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round1/results/result.json",
-    "score": 0.689142424100474,
-    "equation": "0.21050662/x4**2 + 0.192705002280004/(x3*x4)",
+    "result_file": "history/round3/results/result.json",
+    "score": 0.3582572742636959,
+    "equation": "x2*sin(sin(0.18418409076525/(x3*x4**2*tanh(2*x3/x1))))",
     "config": {
       "data": {
         "allowed_files": [
@@ -42,9 +42,10 @@
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -83,24 +84,24 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "stagnant_structured",
+      "process_state": "improving",
       "snapshot": {
-        "scientific_score": 0.689142424100474,
-        "validation_nrmse": 0.6714004886166031,
-        "score_improvement": 0.0,
-        "improved": false,
-        "complexity_fraction": 0.3548387096774194,
+        "scientific_score": 0.3582572742636959,
+        "validation_nrmse": 0.3259992097475669,
+        "score_improvement": 0.19325628357134617,
+        "improved": true,
+        "complexity_fraction": 0.6451612903225806,
         "parsimony": 0.001,
-        "state_residual_correlation": 0.3859283722494494,
-        "temporal_residual_correlation": 0.023929385878907205,
-        "material_residual_correlation": 0.3859283722494494,
-        "positive_influence_terms": 2,
-        "stale_rounds_before": 1,
+        "state_residual_correlation": 0.5186501310578984,
+        "temporal_residual_correlation": 0.015062226347785616,
+        "material_residual_correlation": 0.5186501310578984,
+        "positive_influence_terms": 1,
+        "stale_rounds_before": 0,
         "rollback_required": false
       },
       "action": {
         "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
+        "reason": "incumbent is still improving",
         "config_field": null,
         "config_patch": {},
         "requires_restart": false,

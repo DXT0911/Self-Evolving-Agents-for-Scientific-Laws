@@ -1,0 +1,90 @@
+{
+  "_config_file": "history/round2/experiment.json",
+  "data": {
+    "allowed_files": [
+      "input/data.csv"
+    ],
+    "feature_columns": [
+      "x1",
+      "x2",
+      "x3",
+      "x4"
+    ],
+    "max_rows": null,
+    "search_stride": 10,
+    "standardize_search": false,
+    "target_column": "y",
+    "time_column": "t",
+    "train_file": "input/data.csv",
+    "validation_fraction": 0.2
+  },
+  "experiment_id": "v6_pilot_arm_a_persistent_pysr__static_s05__repeat_3__round3",
+  "output": {
+    "result_file": "history/round3/results/result.json",
+    "run_directory": "session/pysr"
+  },
+  "schema_version": 1,
+  "search": {
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "engine": "pysr",
+    "max_evals": 1500,
+    "maxsize": 31,
+    "niterations": 1000,
+    "parsimony": 0.001,
+    "population_size": 32,
+    "populations": 8,
+    "random_state": 8403,
+    "top_k": 10,
+    "tournament_selection_n": 12,
+    "unary_operators": [
+      "sin",
+      "cos",
+      "exp"
+    ]
+  },
+  "search_session": {
+    "compatible_change_fields": [
+      "search.parsimony"
+    ],
+    "final_round": true,
+    "mode": "warm_start",
+    "round": 3,
+    "round_action": "continue",
+    "session_id": "v6-pilot-static_s05-repeat_3-arm_a_persistent_pysr"
+  },
+  "verification": {
+    "candidate_ranking": {
+      "enabled": true,
+      "failure_penalty": 100.0,
+      "max_candidates": 10,
+      "weights": {
+        "complexity": 0.05,
+        "long_horizon_penalty": 0.0,
+        "trajectory_nrmse": 0.0,
+        "validation_nrmse": 1.0
+      }
+    },
+    "long_horizon_dynamics": {
+      "enabled": false
+    },
+    "residual_diagnostics": {
+      "enabled": true,
+      "feature_bins": 4,
+      "high_frequency_fraction": 0.25,
+      "max_lag": 50,
+      "phase_bins": 8
+    },
+    "short_ode": {
+      "enabled": false
+    },
+    "structural_diagnostics": {
+      "enabled": true,
+      "max_terms": 12
+    }
+  }
+}

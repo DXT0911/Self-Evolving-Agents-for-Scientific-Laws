@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "max_total_evals": 6000,
+  "created_at": "2026-08-17T03:56:04.114322+00:00",
+  "attempts": [
+    {
+      "attempt_id": "030902c7-99f7-4c23-8c6d-014a58b2e981",
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__static_s05__repeat_2__round1",
+      "config_sha256": "f784190e0f49e17d43b1f5ecbd6b0c5bcfc5e6e4ccde649cdaa6a29412824cac",
+      "result_file": "history/round1/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:56:04.115610+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 1,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 0,
+        "total_limit": 6000,
+        "remaining_before": 6000,
+        "future_minimum_reserve": 3000,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 868.0,
+        "current_weight": 868.0
+      },
+      "finished_at": "2026-08-17T03:56:32.068067+00:00",
+      "result_sha256": "c70028211e42c89f73397ff059bd7f9cce9ac529b3c28626fbaa2d1d8acba679"
+    },
+    {
+      "attempt_id": "30546d92-9a42-4e7a-a952-3bba5cb82da5",
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__static_s05__repeat_2__round2",
+      "config_sha256": "353afa5da9bb66e4256bb27060406529e165d68672e964a18b9fe3895864f624",
+      "result_file": "history/round2/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:56:39.336535+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 2,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 1500,
+        "total_limit": 6000,
+        "remaining_before": 4500,
+        "future_minimum_reserve": 1500,
+        "space_factor": 1.0690449676496976,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 868.0,
+        "current_weight": 992.0
+      },
+      "finished_at": "2026-08-17T03:56:46.424354+00:00",
+      "result_sha256": "81b3bbea9c010e6f840185f55bd27b40c72d061ad570fffa0080ded85dfa218c"
+    },
+    {
+      "attempt_id": "be66fd8b-7761-4c1d-be62-0f79379ccbaf",
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__static_s05__repeat_2__round3",
+      "config_sha256": "fc15f20fbfed405b1c427863c08ce83ce67b9e2d444045553f99a1d76dc63ec4",
+      "result_file": "history/round3/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:56:54.201458+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 3,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 3000,
+        "total_limit": 6000,
+        "remaining_before": 3000,
+        "future_minimum_reserve": 0,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 992.0,
+        "current_weight": 992.0
+      },
+      "finished_at": "2026-08-17T03:56:58.771079+00:00",
+      "result_sha256": "35bf3d94c2cb9136795f594df15318d7c1c03b62249afef149b13f1332e1ea82"
+    }
+  ]
+}

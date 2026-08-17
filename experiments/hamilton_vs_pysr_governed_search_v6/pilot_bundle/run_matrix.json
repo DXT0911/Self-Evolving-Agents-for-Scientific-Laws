@@ -1,6 +1,6 @@
 {
   "execution_order": "arms_independent",
-  "execution_permitted": true,
+  "execution_permitted": false,
   "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
   "jobs": [
     {
@@ -211,6 +211,1145 @@
           "python",
           "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
           "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_4/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_4/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_4/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_5/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_5/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_5/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_6/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_6/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_6/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_7/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_7/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_7/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_8/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_8/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_8/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_9/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_9/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_9/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_10/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s02/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_10/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s02/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_10/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s02/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_1/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_1/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_1/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_2/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_2/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_2/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_3/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_3/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_3/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_4/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_4/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_4/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_5/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_5/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_5/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_6/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_6/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_6/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_7/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_7/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_7/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_8/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_8/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_8/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_9/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_9/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_9/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_10/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/static_s05/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_10/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/static_s05/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_10/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "static_s05",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/static_s05/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
           "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_1/workspace",
           "--arm",
           "arm_a_persistent_pysr"
@@ -404,6 +1543,1145 @@
       "task_id": "dynamic_d01",
       "token_ceiling": 60000,
       "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_4/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_4/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_4/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_5/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_5/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_5/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_6/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_6/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_6/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_7/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_7/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_7/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_8/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_8/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_8/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_9/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_9/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_9/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_10/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d01/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_10/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d01/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_10/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d01",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d01/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_1/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_1/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_1/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_1",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_1/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_2/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_2/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_2/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_2",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_2/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_3/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_3/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_3/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_3",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_3/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_4/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_4/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_4/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_4",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_4/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_5/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_5/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_5/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_5",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_5/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_6/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_6/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_6/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_6",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_6/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_7/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_7/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_7/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_7",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_7/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_8/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_8/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_8/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_8",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_8/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_9/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_9/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_9/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_9",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_9/workspace"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_10/workspace",
+          "--arm",
+          "arm_a_persistent_pysr"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_a_persistent_pysr/dynamic_d02/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_10/workspace",
+          "--arm",
+          "arm_b_rule_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 0,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_b_rule_hamilton/dynamic_d02/repeat_10/workspace"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "commands": [
+        [
+          "python",
+          "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py",
+          "--workspace",
+          "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_10/workspace",
+          "--arm",
+          "arm_c_llm_hamilton"
+        ]
+      ],
+      "evaluation_ceiling": 6000,
+      "repeat_id": "repeat_10",
+      "requires": [
+        "deepseek_authorization",
+        "pysr_julia_authorization"
+      ],
+      "state": "ready_waiting_runtime_authorizations",
+      "task_id": "dynamic_d02",
+      "token_ceiling": 60000,
+      "workspace": "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/arm_c_llm_hamilton/dynamic_d02/repeat_10/workspace"
     }
   ],
   "schema_version": 1

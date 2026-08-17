@@ -1,6 +1,6 @@
 {
   "arm": "arm_a_persistent_pysr",
-  "completed_at": "2026-08-16T16:58:30.163926+00:00",
+  "completed_at": "2026-08-17T02:05:22.258315+00:00",
   "execution_mode": "three_arm_governed_ablation",
   "incumbent": {
     "config": {

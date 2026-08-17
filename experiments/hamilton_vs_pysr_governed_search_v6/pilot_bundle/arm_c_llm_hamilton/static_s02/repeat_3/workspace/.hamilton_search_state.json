@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:09:13.765190+00:00",
+  "updated_at": "2026-08-17T03:48:37.537309+00:00",
   "last_closed_round": 3,
   "stale_rounds": 0,
   "rollback_required": false,
   "incumbent": {
     "result_file": "history/round3/results/result.json",
-    "score": 0.6153989320302825,
-    "equation": "-sin((0.15361647 - 0.73620373/x4)/x3)",
+    "score": 0.4911446340673282,
+    "equation": "sin(sin(0.0982052569637307*x1/(x3*x4*tanh(x4 - 0.6460116))))",
     "config": {
       "data": {
         "allowed_files": [
@@ -36,15 +36,16 @@
         "engine": "pysr",
         "maxsize": 31,
         "niterations": 1000,
-        "parsimony": 0.01,
+        "parsimony": 0.0001,
         "population_size": 32,
         "populations": 8,
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -85,15 +86,15 @@
       "binding": true,
       "process_state": "improving",
       "snapshot": {
-        "scientific_score": 0.6153989320302825,
-        "validation_nrmse": 0.6024957062238309,
-        "score_improvement": 0.04811933934388668,
+        "scientific_score": 0.4911446340673282,
+        "validation_nrmse": 0.4621123760028121,
+        "score_improvement": 0.060368923767713856,
         "improved": true,
-        "complexity_fraction": 0.25806451612903225,
-        "parsimony": 0.01,
-        "state_residual_correlation": 0.41655492655647874,
-        "temporal_residual_correlation": 0.015120828019643066,
-        "material_residual_correlation": 0.41655492655647874,
+        "complexity_fraction": 0.5806451612903226,
+        "parsimony": 0.0001,
+        "state_residual_correlation": 0.5530172533966431,
+        "temporal_residual_correlation": 0.014634657902049163,
+        "material_residual_correlation": 0.5530172533966431,
         "positive_influence_terms": 1,
         "stale_rounds_before": 0,
         "rollback_required": false

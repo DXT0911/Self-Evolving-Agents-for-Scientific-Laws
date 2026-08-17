@@ -33,7 +33,7 @@
     "max_evals": 1500,
     "maxsize": 31,
     "niterations": 1000,
-    "parsimony": 0.001,
+    "parsimony": 0.01,
     "population_size": 32,
     "populations": 8,
     "random_state": 8402,
@@ -53,7 +53,7 @@
     "final_round": true,
     "mode": "warm_start",
     "round": 3,
-    "round_action": "continue",
+    "round_action": "modify",
     "session_id": "v6-pilot-dynamic_d01-repeat_2-arm_c_llm_hamilton"
   },
   "verification": {

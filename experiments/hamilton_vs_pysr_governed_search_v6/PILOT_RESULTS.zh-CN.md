@@ -1,100 +1,82 @@
-# Hamilton v6 三臂因果消融开发试验结果
+# Hamilton v6 三臂因果消融结果（10 seed × 4 task）
 
 日期：2026-08-17
-性质：开发集 dev pilot（3 seeds），不是确认性结论
+性质：确认性 dev 试验（10 paired seeds × 4 任务）
 
 ## 结论先行
 
-v6 首次给 LLM 一个受控但真实的原子动作空间（continue_warm / adjust_parsimony /
-add_operator / remove_operator / restart_same），controller 审核后采纳/拒绝。结果：
+v6 给 LLM 一个受控但真实的原子动作空间，controller 审核后采纳/拒绝。在
+**4 任务 × 10 seed = 40 个配对**上的结果：
 
-- **C（LLM Hamilton）相对 A（persistent PySR）：5 胜 1 负**；
-- **C 相对 B（rule Hamilton）：5 胜 1 负**；
-- **B 相对 A：6 平**——规则在三轮内从未触发干预。
+- **C（LLM Hamilton）vs A（persistent PySR）：12 胜 25 负 3 平（符号检验 p=0.047）**——
+  LLM **显著更差**；
+- **C vs B（rule Hamilton）：5 胜 19 负 16 平（p=0.007）**——LLM **显著差于规则**；
+- **B vs A：17 胜 18 负 5 平（p=1.000）**——规则中性（无增量）。
 
-跨 v1–v5 第一次观察到 LLM 的一致正向增益，且**不能用更多 engine-measured evaluations
-解释**。但两个重要限制：一是 3-seed dev pilot（非确认性），二是 B 与 A 完全一致（规则
-baseline 退化），因此只能下「LLM > 什么都不做」的结论，还不足以说「LLM > 最佳规则」。
+**结论：当前 LLM 干预策略没有增量价值，反而有害。** 3-seed pilot 的「5/6 正向」是
+小样本噪声；扩到 10 seed 后反转。这正是交接文档 §13 预注册的诚实结论。
 
-## 归因
+## 从 3-seed 到 40-pair 的反转
 
-scientific score 越低越好。
+3-seed pilot（static_s02 + dynamic_d01 × 8401–8403）曾显示 C 对 A 5 胜 1 负。
+扩到 10 seed × 4 任务后：
 
-| 任务 | seed | A | B | C | 胜者 |
-|---|---|---:|---:|---:|---|
-| dynamic_d01 | 8401 | 0.70664 | 0.70664 | **0.64750** | C |
-| dynamic_d01 | 8402 | 0.87247 | 0.87247 | **0.64166** | C |
-| dynamic_d01 | 8403 | 0.31481 | 0.31481 | **0.30346** | C |
-| static_s02 | 8401 | **0.24538** | 0.24538 | 0.38645 | A |
-| static_s02 | 8402 | 0.54069 | 0.54069 | **0.37060** | C |
-| static_s02 | 8403 | 0.68914 | 0.68914 | **0.61540** | C |
+| 任务 | C vs A（3 seed）| C vs A（10 seed）|
+|---|---|---|
+| static_s02 | 2 胜 1 负 | 4 胜 6 负 |
+| dynamic_d01 | 3 胜 0 负 | 4 胜 5 负 1 平 |
+| static_s05 | — | 1 胜 7 负 2 平 |
+| dynamic_d02 | — | 3 胜 7 负 0 平 |
 
-head-to-head（wins/losses/ties）：
+四个任务上 C 对 A 全部负多胜少。3-seed 的 5/6 在 40-pair 规模下是噪声。
 
-- C vs A：5 / 1 / 0
-- C vs B：5 / 1 / 0
-- B vs A：0 / 0 / 6
+## 归因（40 pairs，scientific score 越低越好）
+
+| 对比 | 胜 | 负 | 平 | 符号检验 p |
+|---|---:|---:|---:|---:|
+| C vs A | 12 | 25 | 3 | **0.047** |
+| C vs B | 5 | 19 | 16 | **0.007** |
+| B vs A | 17 | 18 | 5 | 1.000 |
 
 ## 计算量混杂检查
 
-| 任务 | seed | A engine evals | C engine evals | C−A |
-|---|---|---:|---:|---:|
-| dynamic_d01 | 8401 | 8768 | 8862 | +1.1% |
-| dynamic_d01 | 8402 | 6842 | 6970 | +1.9% |
-| dynamic_d01 | 8403 | 6836 | 7425 | +8.6% |
-| static_s02 | 8401 | 7841 | 7568 | −3.5% |
-| static_s02 | 8402 | 7883 | 8025 | +1.8% |
-| static_s02 | 8403 | 7560 | 7453 | −1.4% |
+C 相对 A 的 engine evals 均值差异在 ±4% 内，无系统性计算优势：
 
-C 相对 A 的 engine evals 差异在 ±9% 内，方向不固定，无系统性的计算优势。特别是
-dynamic_d01/8402 上 C 只多用 1.9% 计算却把 score 从 0.872 降到 0.642（约 26% 改善），
-不能用计算量解释。
+| 任务 | A 均值 | C 均值 | C−A |
+|---|---:|---:|---:|
+| dynamic_d01 | 7207 | 7495 | +4.0% |
+| dynamic_d02 | 7690 | 7600 | −1.2% |
+| static_s02 | 7653 | 7606 | −0.6% |
+| static_s05 | 7498 | 7489 | −0.1% |
 
-## LLM 动作机制（arm C 逐 seed）
+C 的差成绩**不能归因于计算量**——它和 A 用差不多同样的计算，却得到更差的结果。
 
-| 任务 | seed | LLM round 1 | LLM round 2 |
-|---|---|---|---|
-| dynamic_d01 | 8401 | add_operator tanh（重启） | adjust_parsimony 0.0001 |
-| dynamic_d01 | 8402 | add_operator tanh（重启） | continue_warm |
-| dynamic_d01 | 8403 | adjust_parsimony 0.01 | add_operator tanh（重启） |
-| static_s02 | 8401 | adjust_parsimony 0.01 | add_operator tanh（重启） |
-| static_s02 | 8402 | continue_warm | add_operator tanh（重启） |
-| static_s02 | 8403 | adjust_parsimony 0.01 | continue_warm |
+## 机制：为什么 LLM 有害
 
-- 6 个 seed 中 5 个 LLM 提议了 `add_operator tanh`（触发冷重启），这正是 v1 唯一一次
-  正信号的方向；其余为 `adjust_parsimony` 或 `continue_warm`。
-- 12 次 LLM 提议全部被 controller 采纳（0 拒绝），全部落在冻结 envelope 内。
-- restart 路径（算子变更 → warm worker 重建模型）在 5/6 seed 上端到端跑通。
+arm C 的 80 次 LLM 提议分布：
 
-## B==A 的原因（规则基线退化）
+- `add_operator`（tanh）：39 次
+- `adjust_parsimony`：37 次
+- `continue_warm`：3 次
+- `restart_same`：1 次
 
-arm B 的规则 `choose_atomic_action` 复用 `choose_action` 的阈值：
-`stale_rounds_before_intervention = 3`，且「incumbent 仍在改善就 continue」。在只有 3 轮的
-pilot 里，规则需要 2 轮以上的停滞才会干预，而绝大多数 seed 的 incumbent 持续改善，于是规则
-每一轮都返回 `continue_warm`，与 A 的「always continue」完全一致。
+80 次提议全部被 controller 采纳（0 拒绝），其中 40 次 binding 触发**冷重启**。
 
-后果：`C − B` 目前约等于 `C − A`，只能测「LLM 比什么都不做」，不能测「LLM 比最佳规则」。
-要让 B 成为有意义的对照，需要降低停滞阈值，或给规则加一条确定性的算子变更规则。
+问题在于：`add_operator` 触发冷重启（丢弃 warm 种群、前几轮搜索进度作废），而
+`tanh` 并不总是值得这个代价。LLM 只看脱敏诊断快照 + 算子名，**看不到方程和原始数据，
+也感知不到重启的代价**，于是过度使用「加算子重启」这一动作。重启代价压过了更宽算子集
+带来的任何收益，导致净负。
 
-## 操作偏差披露
+规则臂 B 同样做「残差有结构就加算子」的确定性干预，结果也是中性（17 胜 18 负），
+说明「加 tanh」这一策略本身在当前任务上无增量，无论由 LLM 还是规则执行。
 
-- 首次运行中，arm C 的 restart 轮暴露了一个 bug：`warm_start_worker.py` 的
-  `_scientific_projection` 未剔除 `search_session.compatible_change_fields`，导致 restart 轮
-  把该字段从 `["search.parsimony"]` 切到 `["search.unary_operators"]` 时被误判为「不兼容字段
-  变更」。已修复（`fix(sragent): allow restart rounds to switch compatible_change_fields`），
-  并新增回归测试。5 个受影响的 arm C job 已重置并重跑成功。
-- 授权开关 `execution_permitted` 已在运行前翻为 `true`。
+## 对最初研究问题的判断
 
-## 解释边界与下一步
+v6 完成了它该做的事：**把「LLM 是否提升 PySR」变成一个可证伪的因果问题，并给出了
+干净的回答**。答案是：在当前设计下（LLM 从脱敏快照提一个原子动作），**LLM 不提升、
+反而有害**。这不是失败，而是第一次拿到可靠的阴性结论——此前 v1–v5 从未在冻结标准下
+测出 LLM 的因果效应。
 
-本次是 dev pilot（3 seeds），按交接文档 §13 的最低要求，确认性结论需要 ≥10 paired seeds。
-当前证据支持：**打通因果路径后，LLM 的结构干预（加 tanh、调 parsimony）在多数 seed 上稳定
-优于 persistent PySR，且增益不能归因于更多计算**。
-
-下一步（确认性）应：
-
-1. 扩到 ≥10 paired seeds；
-2. 修复 B 基线（降 `stale_rounds_before_intervention`，或加确定性算子规则），使
-   `C − B` 成为有意义的「LLM vs 规则」对照；
-3. 继续匹配 requested 与 engine-measured evaluations；
-4. 预注册成功判据后执行，不可事后放宽。
+下一步若继续此方向，应针对「重启代价」做设计（例如给 LLM 的重启动作加显式代价、限制
+动作空间为 warm-safe-only、或让 LLM 看到足以判断 tanh 是否值得的信息），而不是继续加
+token 或自由度。

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T05:12:24.449772+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "072f6d57a41b8ff333aaf99589f79d4eeb52d0e8329005b86ee0483f1466ded8",
+      "usage": {
+        "prompt_tokens": 517,
+        "completion_tokens": 173,
+        "total_tokens": 690
+      },
+      "proposal": {
+        "hypothesis": "The search is stuck in a local optimum with a simple model that leaves material residual structure, and the current parsimony is too low to encourage exploration of more complex expressions. Increasing parsimony will penalize complexity more, pushing the search to explore simpler models, but since the current model is already simple and residual correlation is high, a better approach is to add the tanh operator to expand the function space and allow the search to capture nonlinear saturation patterns that sin, cos, and exp cannot represent.",
+        "falsification": "If adding tanh does not lead to a model with lower validation NRMSE or higher scientific score within a few rounds, then the residual structure is not due to missing tanh-like nonlinearity, and the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T05:12:33.591583+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "9649011b73bdc8906ee8e389f38135d06a05a6902704dee252c7a47df224b28a",
+      "usage": {
+        "prompt_tokens": 514,
+        "completion_tokens": 92,
+        "total_tokens": 606
+      },
+      "proposal": {
+        "hypothesis": "The model is still improving and the material residual correlation is very high, indicating that the current expression is capturing the target well. Continuing warm may allow further refinement without risking disruption.",
+        "falsification": "If continuing warm does not yield a score improvement within the next round, or if the validation NRMSE increases, then the hypothesis is falsified and a different action should be considered.",
+        "atomic_action": {
+          "action": "continue_warm"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1296
+}

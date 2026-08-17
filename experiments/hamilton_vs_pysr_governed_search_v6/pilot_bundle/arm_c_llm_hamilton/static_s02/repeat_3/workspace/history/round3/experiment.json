@@ -35,16 +35,17 @@
     "max_evals": 1500,
     "maxsize": 31,
     "niterations": 1000,
-    "parsimony": 0.01,
+    "parsimony": 0.0001,
     "population_size": 32,
     "populations": 8,
     "random_state": 8403,
     "top_k": 10,
     "tournament_selection_n": 12,
     "unary_operators": [
-      "sin",
       "cos",
-      "exp"
+      "exp",
+      "sin",
+      "tanh"
     ]
   },
   "search_session": {
@@ -54,7 +55,7 @@
     "final_round": true,
     "mode": "warm_start",
     "round": 3,
-    "round_action": "continue",
+    "round_action": "modify",
     "session_id": "v6-pilot-static_s02-repeat_3-arm_c_llm_hamilton"
   },
   "verification": {

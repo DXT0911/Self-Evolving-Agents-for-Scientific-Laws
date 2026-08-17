@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T18:00:14.435488+00:00",
+  "updated_at": "2026-08-17T04:06:52.695833+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 1,
+  "stale_rounds": 2,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round2/results/result.json",
-    "score": 0.3034567953420766,
-    "equation": "6.4597993*x2 + (-3.95526331508261*x1 + 1.60061540461076*x2 + 3.95526331508261*sin(x1 + sin(x1)))*exp(1.1395117*x2) + sin(x2)",
+    "result_file": "history/round1/results/result.json",
+    "score": 0.5921970471234722,
+    "equation": "4.6848991*x2 + (-2.9523833266358*x1 + 1.72958654614124*x2 + 2.9523833266358*sin(x1 + sin(x1)))*exp(1.324798*x2) + 0.29774415",
     "config": {
       "data": {
         "allowed_files": [
@@ -34,7 +34,7 @@
         "engine": "pysr",
         "maxsize": 31,
         "niterations": 1000,
-        "parsimony": 0.01,
+        "parsimony": 0.001,
         "population_size": 32,
         "populations": 8,
         "top_k": 10,
@@ -83,24 +83,26 @@
       "binding": true,
       "process_state": "stagnant_structured",
       "snapshot": {
-        "scientific_score": 1.0687592690600816,
-        "validation_nrmse": 1.067146365834275,
-        "score_improvement": -0.765302473718005,
+        "scientific_score": 1.0053753998991437,
+        "validation_nrmse": 0.9973108837701115,
+        "score_improvement": -0.4131783527756715,
         "improved": false,
-        "complexity_fraction": 0.03225806451612903,
-        "parsimony": 0.01,
-        "state_residual_correlation": 0.45352591435424916,
-        "temporal_residual_correlation": 0.915157402097403,
-        "material_residual_correlation": 0.915157402097403,
-        "positive_influence_terms": 1,
-        "stale_rounds_before": 0,
+        "complexity_fraction": 0.16129032258064516,
+        "parsimony": 0.1,
+        "state_residual_correlation": 0.2732100464765724,
+        "temporal_residual_correlation": 0.9084628712959003,
+        "material_residual_correlation": 0.9084628712959003,
+        "positive_influence_terms": 2,
+        "stale_rounds_before": 1,
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
-        "config_field": null,
-        "config_patch": {},
+        "action": "modify",
+        "reason": "search is stagnant, simple, and leaves material residual structure",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.05
+        },
         "requires_restart": false,
         "authority": "deterministic_controller"
       }

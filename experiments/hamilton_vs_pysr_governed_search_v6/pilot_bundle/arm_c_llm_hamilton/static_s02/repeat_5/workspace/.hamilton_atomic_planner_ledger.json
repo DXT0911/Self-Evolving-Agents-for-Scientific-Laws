@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T03:50:20.543529+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "d109367827192db3880468fb0c0f50bbab58d586273393c687a4482a2c4e8d1f",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 135,
+        "total_tokens": 651
+      },
+      "proposal": {
+        "hypothesis": "The material residual correlation of 0.43 indicates that the current model has not captured all structure, and the high complexity fraction (0.32) suggests overfitting. Reducing parsimony (making it stricter) could simplify the model and improve generalization, as the current parsimony is at its minimum bound (0.001), which is too lenient.",
+        "falsification": "If increasing parsimony does not improve validation NRMSE or scientific score, or if the model becomes too simple and loses important terms, then the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.1
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T03:50:30.027482+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "f8c16ea8e22e59ff554e7238eecc2967d1021a90edc6b2e9bfc5e4273ed4378a",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 115,
+        "total_tokens": 626
+      },
+      "proposal": {
+        "hypothesis": "The model is still improving slightly, but the high material residual correlation (0.4309) suggests that the current operator set may be missing a functional form that captures residual structure. Adding the tanh operator could provide a new nonlinearity to reduce this correlation and improve the scientific score.",
+        "falsification": "If adding tanh does not reduce the material residual correlation or improve the scientific score within a few rounds, the hypothesis is falsified and the operator should be removed.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1277
+}

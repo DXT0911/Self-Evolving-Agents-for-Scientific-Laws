@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:59:15.664213+00:00",
+  "updated_at": "2026-08-17T04:05:59.407722+00:00",
   "last_closed_round": 3,
   "stale_rounds": 1,
   "rollback_required": false,
@@ -89,7 +89,7 @@
         "score_improvement": 0.0,
         "improved": false,
         "complexity_fraction": 0.6129032258064516,
-        "parsimony": 0.001,
+        "parsimony": 0.01,
         "state_residual_correlation": 0.18830101072647654,
         "temporal_residual_correlation": 0.9547218375160014,
         "material_residual_correlation": 0.9547218375160014,
@@ -98,11 +98,11 @@
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
+        "action": "branch",
+        "reason": "material residual structure remains but no warm-safe intervention is justified",
         "config_field": null,
         "config_patch": {},
-        "requires_restart": false,
+        "requires_restart": true,
         "authority": "deterministic_controller"
       }
     }

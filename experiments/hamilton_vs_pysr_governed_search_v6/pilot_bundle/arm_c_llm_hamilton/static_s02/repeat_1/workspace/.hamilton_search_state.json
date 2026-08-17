@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:56:19.230794+00:00",
+  "updated_at": "2026-08-17T03:46:26.862782+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 1,
+  "stale_rounds": 0,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round2/results/result.json",
-    "score": 0.3864531006571092,
-    "equation": "(x1 + 2.2939901)*sin(0.0031632969353438*(x1 - x4 + 2.2939901)*(x2 - x3 - x4 + 4.44152774)/x4)",
+    "result_file": "history/round3/results/result.json",
+    "score": 0.456467407089721,
+    "equation": "exp(-0.43283027*x4 + tanh(0.38630244*x1 - x4 + 0.229536003807012))*sin(tanh(tanh(x2)))/x3",
     "config": {
       "data": {
         "allowed_files": [
@@ -36,15 +36,16 @@
         "engine": "pysr",
         "maxsize": 31,
         "niterations": 1000,
-        "parsimony": 0.01,
+        "parsimony": 0.0001,
         "population_size": 32,
         "populations": 8,
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -83,24 +84,24 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "stagnant_structured",
+      "process_state": "improving",
       "snapshot": {
-        "scientific_score": 0.7501163490218818,
-        "validation_nrmse": 0.7388260264412367,
-        "score_improvement": -0.36366324836477265,
-        "improved": false,
-        "complexity_fraction": 0.22580645161290322,
-        "parsimony": 0.01,
-        "state_residual_correlation": 0.3950339359598048,
-        "temporal_residual_correlation": 0.01688362992806596,
-        "material_residual_correlation": 0.3950339359598048,
+        "scientific_score": 0.456467407089721,
+        "validation_nrmse": 0.4225964393477855,
+        "score_improvement": 0.027523806798542882,
+        "improved": true,
+        "complexity_fraction": 0.6774193548387096,
+        "parsimony": 0.0001,
+        "state_residual_correlation": 0.5603794312202515,
+        "temporal_residual_correlation": 0.016664815745865577,
+        "material_residual_correlation": 0.5603794312202515,
         "positive_influence_terms": 1,
         "stale_rounds_before": 0,
         "rollback_required": false
       },
       "action": {
         "action": "continue",
-        "reason": "insufficient evidence of sustained stagnation",
+        "reason": "incumbent is still improving",
         "config_field": null,
         "config_patch": {},
         "requires_restart": false,

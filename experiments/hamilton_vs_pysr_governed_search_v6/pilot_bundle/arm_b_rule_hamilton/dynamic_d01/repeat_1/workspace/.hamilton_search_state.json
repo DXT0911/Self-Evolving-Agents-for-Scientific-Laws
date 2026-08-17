@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:05:20.198407+00:00",
+  "updated_at": "2026-08-17T03:30:37.208694+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 0,
+  "stale_rounds": 1,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round3/results/result.json",
-    "score": 0.7066441254340071,
-    "equation": "(2.17379064961342*x2*(x2 + 3.25263618844642*cos(x1*(x1 - 0.36569703))) - (x2 + 0.13451928)*cos(x2))/cos(x2)",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.647504948690569,
+    "equation": "x2*(9.81561562363318*x2*sin(x2*cos(x1)/tanh(tanh(tanh(sin(x2)))))/tanh(tanh(tanh(x2))) - 2.0)",
     "config": {
       "data": {
         "allowed_files": [
@@ -40,9 +40,10 @@
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -81,26 +82,28 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "improving",
+      "process_state": "complex_valid",
       "snapshot": {
-        "scientific_score": 0.7066441254340071,
-        "validation_nrmse": 0.6727731576920717,
-        "score_improvement": 0.026920932233705397,
-        "improved": true,
-        "complexity_fraction": 0.6774193548387096,
+        "scientific_score": 0.6497434863122565,
+        "validation_nrmse": 0.6045821959896759,
+        "score_improvement": -0.002238537621687575,
+        "improved": false,
+        "complexity_fraction": 0.9032258064516129,
         "parsimony": 0.001,
-        "state_residual_correlation": 0.32628777890036403,
-        "temporal_residual_correlation": 0.8868732628372663,
-        "material_residual_correlation": 0.8868732628372663,
+        "state_residual_correlation": 0.26081914769310444,
+        "temporal_residual_correlation": 0.8469383316661709,
+        "material_residual_correlation": 0.8469383316661709,
         "positive_influence_terms": 3,
         "stale_rounds_before": 0,
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "incumbent is still improving",
-        "config_field": null,
-        "config_patch": {},
+        "action": "modify",
+        "reason": "search is stagnant and the incumbent is near the complexity ceiling",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.002
+        },
         "requires_restart": false,
         "authority": "deterministic_controller"
       }

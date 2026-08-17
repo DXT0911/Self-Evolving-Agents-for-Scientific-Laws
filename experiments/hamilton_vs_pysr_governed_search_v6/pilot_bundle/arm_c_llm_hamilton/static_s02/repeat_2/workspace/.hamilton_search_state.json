@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:57:22.048259+00:00",
+  "updated_at": "2026-08-17T03:47:29.486946+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 0,
+  "stale_rounds": 1,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round3/results/result.json",
+    "result_file": "history/round2/results/result.json",
     "score": 0.37060483399995287,
     "equation": "1.4503664*sin((0.0271315722746878*x1 + 0.021522427*x2 - 0.021522427*x3)*exp(1.7438416/x4)/x4)/x3",
     "config": {
@@ -84,14 +84,14 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "improving",
+      "process_state": "stagnant_structured",
       "snapshot": {
         "scientific_score": 0.37060483399995287,
         "validation_nrmse": 0.33350805980640447,
-        "score_improvement": 0.20168555148266482,
-        "improved": true,
+        "score_improvement": 0.0,
+        "improved": false,
         "complexity_fraction": 0.7419354838709677,
-        "parsimony": 0.001,
+        "parsimony": 0.01,
         "state_residual_correlation": 0.433378650930683,
         "temporal_residual_correlation": 0.020392558541918133,
         "material_residual_correlation": 0.433378650930683,
@@ -100,11 +100,11 @@
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "incumbent is still improving",
+        "action": "branch",
+        "reason": "material residual structure remains but no warm-safe intervention is justified",
         "config_field": null,
         "config_patch": {},
-        "requires_restart": false,
+        "requires_restart": true,
         "authority": "deterministic_controller"
       }
     }

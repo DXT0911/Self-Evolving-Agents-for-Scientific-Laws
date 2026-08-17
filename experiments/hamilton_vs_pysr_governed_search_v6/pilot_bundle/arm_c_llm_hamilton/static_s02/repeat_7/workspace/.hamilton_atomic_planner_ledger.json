@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T03:52:03.996578+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "382249a35be810fa66cb694b3575b020245c3eace4a60f24801f224cef3352d8",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 151,
+        "total_tokens": 667
+      },
+      "proposal": {
+        "hypothesis": "The material residual correlation of 0.4424 indicates that the current model has not captured all underlying structure, and the low parsimony (0.001) may be causing overfitting to noise, preventing the model from generalizing. Increasing parsimony could simplify the model and improve its scientific validity by reducing complexity, potentially leading to better validation performance.",
+        "falsification": "If increasing parsimony does not improve the validation NRMSE or scientific score, or if the material residual correlation remains high, then the hypothesis is falsified, indicating that the residual structure is not due to overfitting but rather missing operators or other factors.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.01
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T03:52:12.835968+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "cc617adf75ac0a339d8e5e4458a7e10f14c2fd2138c14746bc5696bb5cf912ca",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 110,
+        "total_tokens": 621
+      },
+      "proposal": {
+        "hypothesis": "The current model is still improving, but the high material residual correlation (0.58) suggests that the model may be missing a nonlinear transformation that could capture remaining structure. Adding the tanh operator could provide a new nonlinearity that helps reduce residual correlation and improve scientific score.",
+        "falsification": "If adding tanh does not lead to a score improvement or a reduction in material residual correlation within the next few rounds, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1288
+}

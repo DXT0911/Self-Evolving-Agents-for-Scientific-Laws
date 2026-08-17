@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "max_total_evals": 6000,
-  "created_at": "2026-08-16T17:01:11.953393+00:00",
+  "created_at": "2026-08-17T02:20:34.315531+00:00",
   "attempts": [
     {
-      "attempt_id": "86ce16ad-af89-49dd-b315-11bbad384a0f",
+      "attempt_id": "7c306ba5-9e1f-467c-91bf-34d9e1c9db82",
       "experiment_id": "v6_pilot_arm_a_persistent_pysr__dynamic_d01__repeat_3__round1",
       "config_sha256": "6c94b07ee57f0dedddc36ef236cd5f40ae4f51e8bcb81a3ec858a74e0c7e0d5f",
       "result_file": "history/round1/results/result.json",
       "requested_evals": 1500,
       "status": "completed",
-      "reserved_at": "2026-08-16T17:01:11.955784+00:00",
+      "reserved_at": "2026-08-17T02:20:34.317060+00:00",
       "budget_allocation": {
         "mode": "dynamic_cumulative_ledger",
         "round": 1,
@@ -26,17 +26,17 @@
         "anchor_weight": 434.0,
         "current_weight": 434.0
       },
-      "finished_at": "2026-08-16T17:01:57.308056+00:00",
-      "result_sha256": "9f5ad8b6b1af3c451627a1ee15d878ccd37dd5ccf8816ca2683ffd9d9849bcc7"
+      "finished_at": "2026-08-17T02:21:07.503047+00:00",
+      "result_sha256": "e5bcbbfb2731c640f31f1e71a3de915af1e207095ac5aa848a8a169f0f9b6794"
     },
     {
-      "attempt_id": "c40e2d12-eaca-4e77-81fe-937cf4a8fa5b",
+      "attempt_id": "09ce60c0-bc20-4519-995f-cafafecc97d4",
       "experiment_id": "v6_pilot_arm_a_persistent_pysr__dynamic_d01__repeat_3__round2",
       "config_sha256": "2fe431525d513ebe2fc950a31490b277b4658ebbce6e6d2006d95e272ff9ed0a",
       "result_file": "history/round2/results/result.json",
       "requested_evals": 1500,
       "status": "completed",
-      "reserved_at": "2026-08-16T17:01:58.592878+00:00",
+      "reserved_at": "2026-08-17T02:21:08.581743+00:00",
       "budget_allocation": {
         "mode": "dynamic_cumulative_ledger",
         "round": 2,
@@ -52,17 +52,17 @@
         "anchor_weight": 434.0,
         "current_weight": 434.0
       },
-      "finished_at": "2026-08-16T17:02:06.022942+00:00",
-      "result_sha256": "6ab2ef4cd2548fd7686da5d5fe35b32eaaf3df44e72aea3fa40112591fc0aa33"
+      "finished_at": "2026-08-17T02:21:14.063687+00:00",
+      "result_sha256": "bed1226e3fabf3127159040077ecfdce9be73be0c88384e178a8171c88e9149c"
     },
     {
-      "attempt_id": "10980d6c-0c70-4dcd-b88b-d09d19381d6a",
+      "attempt_id": "69f22732-4b99-4250-bd8a-84cb6dfce3e8",
       "experiment_id": "v6_pilot_arm_a_persistent_pysr__dynamic_d01__repeat_3__round3",
       "config_sha256": "7e1e9fe0a5186e69c401a5135ef3b4c849fc61b96f11a9e2ebe48a21c0608dc1",
       "result_file": "history/round3/results/result.json",
       "requested_evals": 1500,
       "status": "completed",
-      "reserved_at": "2026-08-16T17:02:07.336346+00:00",
+      "reserved_at": "2026-08-17T02:21:15.149751+00:00",
       "budget_allocation": {
         "mode": "dynamic_cumulative_ledger",
         "round": 3,
@@ -78,8 +78,8 @@
         "anchor_weight": 434.0,
         "current_weight": 434.0
       },
-      "finished_at": "2026-08-16T17:02:14.585632+00:00",
-      "result_sha256": "70a0495b16c2681ddfac18323b13aad5fb79366767ebf318e21b6a1893983861"
+      "finished_at": "2026-08-17T02:21:20.438608+00:00",
+      "result_sha256": "2ed15a4c4c209af4dfa10fac4a7b8626b04f0eab507be0d6bd21972254479d02"
     }
   ]
 }

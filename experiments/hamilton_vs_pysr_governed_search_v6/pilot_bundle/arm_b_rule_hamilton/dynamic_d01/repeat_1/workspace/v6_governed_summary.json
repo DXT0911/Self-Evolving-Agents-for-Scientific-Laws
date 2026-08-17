@@ -1,23 +1,23 @@
 {
   "arm": "arm_b_rule_hamilton",
-  "completed_at": "2026-08-16T17:05:20.199907+00:00",
+  "completed_at": "2026-08-17T03:30:37.210316+00:00",
   "execution_mode": "three_arm_governed_ablation",
   "incumbent": {
     "config": {
-      "_config_file": "history/round3/experiment.json",
+      "_config_file": "history/round2/experiment.json",
       "_controller": {
         "budget_allocation": {
           "allocated_evals": 1500,
           "anchor_weight": 434.0,
-          "consumed_before": 3000,
-          "current_weight": 434.0,
+          "consumed_before": 1500,
+          "current_weight": 496.0,
           "difficulty_factor": 1.0,
-          "future_minimum_reserve": 0,
+          "future_minimum_reserve": 1500,
           "mode": "dynamic_cumulative_ledger",
           "proposed_evals_ignored": 1500,
-          "remaining_before": 3000,
-          "round": 3,
-          "space_factor": 1.0,
+          "remaining_before": 4500,
+          "round": 2,
+          "space_factor": 1.0690449676496976,
           "stale_rounds": 0,
           "total_limit": 6000
         },
@@ -25,7 +25,7 @@
           "assigned_seed": 8401,
           "mode": "controller_frozen_round_seed",
           "proposed_seed_ignored": 8401,
-          "round": 3
+          "round": 2
         }
       },
       "data": {
@@ -44,9 +44,9 @@
         "train_file": "input/data.csv",
         "validation_fraction": 0.2
       },
-      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d01__repeat_1__round3",
+      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d01__repeat_1__round2",
       "output": {
-        "result_file": "history/round3/results/result.json",
+        "result_file": "history/round2/results/result.json",
         "run_directory": "session/pysr"
       },
       "schema_version": 1,
@@ -68,19 +68,20 @@
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "search_session": {
         "compatible_change_fields": [
-          "search.parsimony"
+          "search.unary_operators"
         ],
-        "final_round": true,
+        "final_round": false,
         "mode": "warm_start",
-        "round": 3,
-        "round_action": "continue",
+        "round": 2,
+        "round_action": "restart",
         "session_id": "v6-pilot-dynamic_d01-repeat_1-arm_b_rule_hamilton"
       },
       "verification": {
@@ -114,9 +115,9 @@
         }
       }
     },
-    "equation": "(2.17379064961342*x2*(x2 + 3.25263618844642*cos(x1*(x1 - 0.36569703))) - (x2 + 0.13451928)*cos(x2))/cos(x2)",
-    "result_file": "history/round3/results/result.json",
-    "score": 0.7066441254340071
+    "equation": "x2*(9.81561562363318*x2*sin(x2*cos(x1)/tanh(tanh(tanh(sin(x2)))))/tanh(tanh(tanh(x2))) - 2.0)",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.647504948690569
   },
   "llm_tokens": 0,
   "planner_calls": 0,
@@ -135,13 +136,20 @@
       "incumbent_action": "initialize",
       "incumbent_score": 0.7732480891084702,
       "next_binding_action": {
-        "action": "continue",
+        "action": "restart",
         "adopted": true,
         "authority": "deterministic_controller",
-        "config_field": null,
-        "config_patch": {},
-        "reason": "insufficient evidence of sustained stagnation",
-        "requires_restart": false,
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "reason": "material residual structure remains; add an available operator",
+        "requires_restart": true,
         "source": "rule"
       },
       "round": 1,
@@ -150,18 +158,25 @@
     {
       "attempts": 1,
       "binding_action": {
-        "action": "continue",
+        "action": "restart",
         "adopted": true,
         "authority": "deterministic_controller",
-        "config_field": null,
-        "config_patch": {},
-        "reason": "insufficient evidence of sustained stagnation",
-        "requires_restart": false,
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "reason": "material residual structure remains; add an available operator",
+        "requires_restart": true,
         "source": "rule"
       },
-      "engine_measured_evaluations": 2949.0,
+      "engine_measured_evaluations": 3014.0,
       "incumbent_action": "promote",
-      "incumbent_score": 0.7335650576677125,
+      "incumbent_score": 0.647504948690569,
       "next_binding_action": {
         "action": "continue",
         "adopted": true,
@@ -173,7 +188,7 @@
         "source": "rule"
       },
       "round": 2,
-      "selected_score": 0.7335650576677125
+      "selected_score": 0.647504948690569
     },
     {
       "attempts": 1,
@@ -187,12 +202,12 @@
         "requires_restart": false,
         "source": "rule"
       },
-      "engine_measured_evaluations": 2778.0,
-      "incumbent_action": "promote",
-      "incumbent_score": 0.7066441254340071,
+      "engine_measured_evaluations": 2567.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.647504948690569,
       "next_binding_action": null,
       "round": 3,
-      "selected_score": 0.7066441254340071
+      "selected_score": 0.6497434863122565
     }
   ],
   "schema_version": 1,

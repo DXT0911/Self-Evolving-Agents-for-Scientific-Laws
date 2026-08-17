@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-16T17:03:27.592077+00:00",
+  "updated_at": "2026-08-17T02:41:54.200914+00:00",
   "last_closed_round": 3,
-  "stale_rounds": 0,
+  "stale_rounds": 1,
   "rollback_required": false,
   "incumbent": {
-    "result_file": "history/round3/results/result.json",
-    "score": 0.5406907774765684,
-    "equation": "(0.1350696*x1 + 0.037795562*x3*x4*cos(cos(cos(0.15715021*x1 + 0.15715021*x2))) - 0.1350696*x4)/(x3*x4*cos(cos(cos(0.15715021*x1 + 0.15715021*x2))))",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.37060483399995287,
+    "equation": "1.4503664*sin((0.0271315722746878*x1 + 0.021522427*x2 - 0.021522427*x3)*exp(1.7438416/x4)/x4)/x3",
     "config": {
       "data": {
         "allowed_files": [
@@ -42,9 +42,10 @@
         "top_k": 10,
         "tournament_selection_n": 12,
         "unary_operators": [
-          "sin",
           "cos",
-          "exp"
+          "exp",
+          "sin",
+          "tanh"
         ]
       },
       "verification": {
@@ -83,27 +84,27 @@
     "controller_policy": {
       "enabled": true,
       "binding": true,
-      "process_state": "improving",
+      "process_state": "stagnant_structured",
       "snapshot": {
-        "scientific_score": 0.5406907774765684,
-        "validation_nrmse": 0.5084327129604393,
-        "score_improvement": 0.03159960800604933,
-        "improved": true,
-        "complexity_fraction": 0.6451612903225806,
+        "scientific_score": 0.37060483399995287,
+        "validation_nrmse": 0.33350805980640447,
+        "score_improvement": 0.0,
+        "improved": false,
+        "complexity_fraction": 0.7419354838709677,
         "parsimony": 0.001,
-        "state_residual_correlation": 0.4572606358856689,
-        "temporal_residual_correlation": 0.015849172043949457,
-        "material_residual_correlation": 0.4572606358856689,
-        "positive_influence_terms": 2,
+        "state_residual_correlation": 0.433378650930683,
+        "temporal_residual_correlation": 0.020392558541918133,
+        "material_residual_correlation": 0.433378650930683,
+        "positive_influence_terms": 1,
         "stale_rounds_before": 0,
         "rollback_required": false
       },
       "action": {
-        "action": "continue",
-        "reason": "incumbent is still improving",
+        "action": "branch",
+        "reason": "material residual structure remains but no warm-safe intervention is justified",
         "config_field": null,
         "config_patch": {},
-        "requires_restart": false,
+        "requires_restart": true,
         "authority": "deterministic_controller"
       }
     }

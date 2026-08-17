@@ -1,0 +1,5 @@
+{
+  "max_total_evals": 6000,
+  "retry_policy": "one_retry_only_when_engine_evaluations_zero",
+  "schema_version": 1
+}

@@ -40,19 +40,20 @@
     "top_k": 10,
     "tournament_selection_n": 12,
     "unary_operators": [
-      "sin",
       "cos",
-      "exp"
+      "exp",
+      "sin",
+      "tanh"
     ]
   },
   "search_session": {
     "compatible_change_fields": [
-      "search.parsimony"
+      "search.unary_operators"
     ],
     "final_round": false,
     "mode": "warm_start",
     "round": 2,
-    "round_action": "continue",
+    "round_action": "restart",
     "session_id": "v6-pilot-dynamic_d01-repeat_2-arm_b_rule_hamilton"
   },
   "verification": {
