@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-16T17:32:30.519069+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "4424d30e93ef20558938df145aa98eada1c8b149b9d282e39fbba496554a3685",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 88,
+        "total_tokens": 599
+      },
+      "proposal": {
+        "hypothesis": "The model may be underfitting due to high complexity relative to the data, and the material residual correlation suggests unmodeled structure. Adjusting parsimony could improve generalization.",
+        "falsification": "If increasing parsimony does not improve validation NRMSE or scientific score within a few rounds, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.01
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-16T17:56:13.794784+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "64ae932960ca827cdf53b54e563b0d2f024cf27b655c43305d50f2d4a83b6c44",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 102,
+        "total_tokens": 613
+      },
+      "proposal": {
+        "hypothesis": "The model is still improving and the scientific score is low, suggesting that the current operator set may be insufficient to capture the underlying structure. Adding the tanh operator could provide a new nonlinearity that helps reduce the residual correlation and improve the scientific score.",
+        "falsification": "If adding tanh does not improve the scientific score or reduce the residual correlation within the next few rounds, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1212
+}

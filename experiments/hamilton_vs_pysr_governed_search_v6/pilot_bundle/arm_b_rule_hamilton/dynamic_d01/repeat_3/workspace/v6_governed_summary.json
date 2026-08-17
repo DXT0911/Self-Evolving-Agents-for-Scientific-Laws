@@ -1,0 +1,200 @@
+{
+  "arm": "arm_b_rule_hamilton",
+  "completed_at": "2026-08-16T17:07:20.471738+00:00",
+  "execution_mode": "three_arm_governed_ablation",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round2/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1500,
+          "anchor_weight": 434.0,
+          "consumed_before": 1500,
+          "current_weight": 434.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 1500,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1500,
+          "remaining_before": 4500,
+          "round": 2,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 6000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8403,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8403,
+          "round": 2
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 1,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d01__repeat_3__round2",
+      "output": {
+        "result_file": "history/round2/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1500,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8403,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 2,
+        "round_action": "continue",
+        "session_id": "v6-pilot-dynamic_d01-repeat_3-arm_b_rule_hamilton"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "4*x2 + 3.13137430381721*(-x1 + x2 + sin(x1 + sin(x1)))*exp(x1*x2) - 0.0911641052084157",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.31480893172747054
+  },
+  "llm_tokens": 0,
+  "planner_calls": 0,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_patch": {},
+        "requires_restart": false,
+        "source": "controller"
+      },
+      "engine_measured_evaluations": 2495.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.5921970471234722,
+      "next_binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "insufficient evidence of sustained stagnation",
+        "requires_restart": false,
+        "source": "rule"
+      },
+      "round": 1,
+      "selected_score": 0.5921970471234722
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "insufficient evidence of sustained stagnation",
+        "requires_restart": false,
+        "source": "rule"
+      },
+      "engine_measured_evaluations": 1521.0,
+      "incumbent_action": "promote",
+      "incumbent_score": 0.31480893172747054,
+      "next_binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "incumbent is still improving",
+        "requires_restart": false,
+        "source": "rule"
+      },
+      "round": 2,
+      "selected_score": 0.31480893172747054
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": null,
+        "config_patch": {},
+        "reason": "incumbent is still improving",
+        "requires_restart": false,
+        "source": "rule"
+      },
+      "engine_measured_evaluations": 2820.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.31480893172747054,
+      "next_binding_action": null,
+      "round": 3,
+      "selected_score": 0.3219476291956282
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

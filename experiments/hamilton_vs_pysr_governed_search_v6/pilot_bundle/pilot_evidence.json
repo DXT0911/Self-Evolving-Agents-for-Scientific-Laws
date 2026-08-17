@@ -1,0 +1,398 @@
+{
+  "arm_summaries": {
+    "arm_a_persistent_pysr": {
+      "completed_runs": 6,
+      "median_scientific_score": 0.689142424100474
+    },
+    "arm_b_rule_hamilton": {
+      "completed_runs": 6,
+      "median_scientific_score": 0.689142424100474
+    },
+    "arm_c_llm_hamilton": {
+      "completed_runs": 6,
+      "median_scientific_score": 0.6153989320302825
+    }
+  },
+  "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
+  "head_to_head": {
+    "b_vs_a": {
+      "losses": 0,
+      "ties": 6,
+      "wins": 0
+    },
+    "c_vs_a": {
+      "losses": 1,
+      "ties": 0,
+      "wins": 5
+    },
+    "c_vs_b": {
+      "losses": 1,
+      "ties": 0,
+      "wins": 5
+    }
+  },
+  "interpretation": "development_pilot_only_not_confirmatory",
+  "paired_comparisons": [
+    {
+      "arm_a_engine_evals": 8768.0,
+      "arm_a_score": 0.7066441254340071,
+      "arm_b_engine_evals": 8768.0,
+      "arm_b_score": 0.7066441254340071,
+      "arm_c_engine_evals": 8862.0,
+      "arm_c_score": 0.647504948690569,
+      "repeat_id": "repeat_1",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6842.0,
+      "arm_a_score": 0.8724686598075282,
+      "arm_b_engine_evals": 6842.0,
+      "arm_b_score": 0.8724686598075282,
+      "arm_c_engine_evals": 6970.0,
+      "arm_c_score": 0.6416574199356169,
+      "repeat_id": "repeat_2",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6836.0,
+      "arm_a_score": 0.31480893172747054,
+      "arm_b_engine_evals": 6836.0,
+      "arm_b_score": 0.31480893172747054,
+      "arm_c_engine_evals": 7425.0,
+      "arm_c_score": 0.3034567953420766,
+      "repeat_id": "repeat_3",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 7841.0,
+      "arm_a_score": 0.24538379778797867,
+      "arm_b_engine_evals": 7841.0,
+      "arm_b_score": 0.24538379778797867,
+      "arm_c_engine_evals": 7568.0,
+      "arm_c_score": 0.3864531006571092,
+      "repeat_id": "repeat_1",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7883.0,
+      "arm_a_score": 0.5406907774765684,
+      "arm_b_engine_evals": 7883.0,
+      "arm_b_score": 0.5406907774765684,
+      "arm_c_engine_evals": 8025.0,
+      "arm_c_score": 0.37060483399995287,
+      "repeat_id": "repeat_2",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7560.0,
+      "arm_a_score": 0.689142424100474,
+      "arm_b_engine_evals": 7560.0,
+      "arm_b_score": 0.689142424100474,
+      "arm_c_engine_evals": 7453.0,
+      "arm_c_score": 0.6153989320302825,
+      "repeat_id": "repeat_3",
+      "task_id": "static_s02"
+    }
+  ],
+  "rows": [
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7841.0,
+      "final_scientific_score": 0.24538379778797867,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7841.0,
+      "final_scientific_score": 0.24538379778797867,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7568.0,
+      "final_scientific_score": 0.3864531006571092,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1212,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7883.0,
+      "final_scientific_score": 0.5406907774765684,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7883.0,
+      "final_scientific_score": 0.5406907774765684,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8025.0,
+      "final_scientific_score": 0.37060483399995287,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1244,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7560.0,
+      "final_scientific_score": 0.689142424100474,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7560.0,
+      "final_scientific_score": 0.689142424100474,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "modify": 1
+      },
+      "engine_measured_evaluations_total": 7453.0,
+      "final_scientific_score": 0.6153989320302825,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1175,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 8768.0,
+      "final_scientific_score": 0.7066441254340071,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 8768.0,
+      "final_scientific_score": 0.7066441254340071,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8862.0,
+      "final_scientific_score": 0.647504948690569,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1228,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6842.0,
+      "final_scientific_score": 0.8724686598075282,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6842.0,
+      "final_scientific_score": 0.8724686598075282,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6970.0,
+      "final_scientific_score": 0.6416574199356169,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1198,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6836.0,
+      "final_scientific_score": 0.31480893172747054,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6836.0,
+      "final_scientific_score": 0.31480893172747054,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7425.0,
+      "final_scientific_score": 0.3034567953420766,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1226,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    }
+  ],
+  "schema_version": 1,
+  "status": "collected"
+}

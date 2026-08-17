@@ -1,5 +1,5 @@
 {
-  "execution_permitted": false,
+  "execution_permitted": true,
   "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
   "hashes": {
     "configs/hamilton/config_governed_pysr_v6_pilot.yaml": "1b6d041193b9d2c35832150c19717011a1c21d617e6be6b713c27b231b48213c",

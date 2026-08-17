@@ -1,6 +1,6 @@
 {
   "execution_order": "arms_independent",
-  "execution_permitted": false,
+  "execution_permitted": true,
   "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
   "jobs": [
     {

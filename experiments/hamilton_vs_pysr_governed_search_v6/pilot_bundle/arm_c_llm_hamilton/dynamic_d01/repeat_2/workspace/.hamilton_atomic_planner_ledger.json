@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-16T17:59:00.429690+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "ef409c2b6affac8f7d506da496c869142498d23bcc081a2d50074c65ded974c9",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 94,
+        "total_tokens": 605
+      },
+      "proposal": {
+        "hypothesis": "The model may be underfitting due to high material residual correlation, suggesting the current operator set is insufficient to capture the underlying structure. Adding the tanh operator could introduce nonlinearity that improves the fit.",
+        "falsification": "If adding tanh does not reduce the material residual correlation or improve the validation NRMSE within a few rounds, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-16T17:59:09.960177+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "9a0eba0c0fa767ff2d3e0710977a4c02247c55c9e3156405f5bea7c5c585d4f7",
+      "usage": {
+        "prompt_tokens": 514,
+        "completion_tokens": 79,
+        "total_tokens": 593
+      },
+      "proposal": {
+        "hypothesis": "The model is still improving and the high material residual correlation suggests the current operator set is adequate; continuing warm will allow further refinement without risking disruption.",
+        "falsification": "If the next round shows no improvement or a decrease in scientific score, or if the material residual correlation drops significantly, the continuation hypothesis is falsified.",
+        "atomic_action": {
+          "action": "continue_warm"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1198
+}
