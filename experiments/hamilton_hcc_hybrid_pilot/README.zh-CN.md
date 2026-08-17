@@ -118,6 +118,24 @@ collect 读取 H 臂 `.hamilton_search_state.json` 的 `incumbent.score` 与 B �
   `closure_reliability`、`round1_config_compliance`。
 - 本实验是 development pilot；如需验证性结论，须在观察新结果前冻结事后指标与容差。
 
+### 本次运行结果（2026-08-18，12/12 cells）
+
+主判据（配对符号检验）：**H 胜 2 / 负 0 / 平 4**，n=2，`p_two_sided = 0.5`（不显著）。
+
+| 任务 / seed | H 臂 | B 臂 | 结果 |
+|---|---|---|---|
+| static_s02 / repeat_1 | 0.02419 | 0.02419 | 平 |
+| static_s02 / repeat_2 | 0.02508 | 0.02508 | 平 |
+| static_s02 / repeat_3 | **0.29924** | 0.35061 | **H 胜** |
+| dynamic_d01 / repeat_1 | 0.73408 | 0.73408 | 平 |
+| dynamic_d01 / repeat_2 | 0.82218 | 0.82218 | 平（stale，见注意事项） |
+| dynamic_d01 / repeat_3 | **0.60685** | 0.75157 | **H 胜** |
+
+- H 臂从不劣于 B 臂（0 负）；2 个 seed 严格更优，4 个平局。
+- Round-1 合规：6/6 H 臂 cell 全部 `round1_compliant=true`。
+- H 臂单 run token 成本 1.01M–1.90M（B 臂为 0）。
+- 结论：开发性 pilot，n 太小，无统计显著信号（符合预期定位）。
+
 ## 注意事项
 
 - **不要提交**：`run_bundle/`、`pilot_bundle/`、`cold_pilot_bundle/`、`run_matrix_results.json`、
@@ -128,3 +146,12 @@ collect 读取 H 臂 `.hamilton_search_state.json` 的 `incumbent.score` 与 B �
   `next_strategy`；`search.max_evals` 归 controller 所有，LLM 不得改。
 - **复现性**：seed 由 `.hamilton_seed_plan.json` 注入（同一 repeat 内三轮同 seed），
   任务/seed 不在此目录的 config 中，而在每个 workspace 的 `task.md` + seed plan 里。
+- **promotion token 预算（重要）**：`configs/hamilton/config_hcc_hybrid_pilot.yaml` 的
+  `experiment.promotion.max_tokens: 400000` 对 dynamic_d01 任务偏低。本次
+  `dynamic_d01/repeat_2` 第 3 轮 promotion 阶段因超过 40 万 token 被
+  `Token budget preflight` 截断，round-3 晋升（真实分数 0.54047，已产生并验证于
+  `history/round3/results/result.json`）未写回 `.hamilton_search_state.json`，incumbent
+  停在 round-1 的 0.82218（主判据按平局计）。dynamic 类任务复现时建议把
+  `promotion.max_tokens` 提到 ≥1000000。注意 manifest 的
+  `max_hamilton_tokens_per_run: 3000000` 是每 run 软上限（collect 阶段标记），而
+  `promotion.max_tokens` 是 promotion 阶段的**硬**上限（超限即截断）。
