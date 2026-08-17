@@ -22,7 +22,7 @@ llm:
 agents:
   hamilton:
     llm: "openai"
-    max_turns: 20
+    max_turns: 60
     enable_tools: true
 
     context:
@@ -56,7 +56,7 @@ session:
 
 experiment:
   max_rounds: 3
-  scientific_governance: false
+  governance_mode: slim
   require_literature_grounding: false
   max_total_evals: 4500
   search_control:

@@ -339,7 +339,7 @@ class PromotionExp(BaseExp):
                 if grounding_required
                 else {"valid": True, "enabled": False, "errors": []}
             ),
-            "scientific_decision": self._audit_scientific_decision(None),
+            "scientific_decision": self._audit_scientific_decision(None, mode=self._governance_mode()),
         }
         return self._fast_finish_eligible(closure)
 
@@ -1055,19 +1055,24 @@ class PromotionExp(BaseExp):
             for gate in gates
         )
 
-    def _audit_scientific_decision(self, task_completed: str | None) -> dict:
-        """Audit incumbent retention, claim strength, scaling, planning, and success gates."""
+    def _audit_scientific_decision(self, task_completed: str | None, mode: str = "full") -> dict:
+        """Audit incumbent retention, claim strength, scaling, planning, and success gates.
+
+        In ``slim`` mode the VIV-specific rigor gates (claims, scale, success) are
+        skipped so the audit enforces only cross-round reliability.
+        """
+        slim = mode == "slim"
         decision, parse_error = self._read_scientific_decision()
         audit = {
             "valid": False,
             "errors": [parse_error] if parse_error else [],
             "incumbent_valid": False,
-            "claims_valid": False,
-            "scale_diagnostics_valid": False,
+            "claims_valid": slim,
+            "scale_diagnostics_valid": slim,
             "residual_feedback_valid": False,
             "protocol_evidence_valid": False,
             "plan_quality_valid": False,
-            "success_gates_valid": False,
+            "success_gates_valid": slim,
         }
         if decision is None:
             return audit
@@ -1133,23 +1138,25 @@ class PromotionExp(BaseExp):
                     f"incumbent must {expected_action}: {best['path']}"
                 )
 
-        claims = decision.get("claims")
-        claims_valid = isinstance(claims, list) and bool(claims)
-        if claims_valid:
-            for claim in claims:
-                if not isinstance(claim, dict):
-                    claims_valid = False
-                    break
-                strength = claim.get("strength")
-                evidence = claim.get("evidence")
-                if strength not in ALLOWED_CLAIM_STRENGTHS or not isinstance(evidence, list) or not evidence:
-                    claims_valid = False
-                    break
-                if strength == "confirmed" and (
-                    len(evidence) < 2 or int(claim.get("alternatives_tested", 0) or 0) < 1
-                ):
-                    claims_valid = False
-                    break
+        claims_valid = slim
+        if not slim:
+            claims = decision.get("claims")
+            claims_valid = isinstance(claims, list) and bool(claims)
+            if claims_valid:
+                for claim in claims:
+                    if not isinstance(claim, dict):
+                        claims_valid = False
+                        break
+                    strength = claim.get("strength")
+                    evidence = claim.get("evidence")
+                    if strength not in ALLOWED_CLAIM_STRENGTHS or not isinstance(evidence, list) or not evidence:
+                        claims_valid = False
+                        break
+                    if strength == "confirmed" and (
+                        len(evidence) < 2 or int(claim.get("alternatives_tested", 0) or 0) < 1
+                    ):
+                        claims_valid = False
+                        break
         audit["claims_valid"] = claims_valid
         if not claims_valid:
             audit["errors"].append("claims lack evidence or overstate confirmation")
@@ -1181,14 +1188,16 @@ class PromotionExp(BaseExp):
                 "results and explicitly exclude invalid attempts from scientific evidence"
             )
 
-        scale = decision.get("scale_diagnostics")
-        scale_valid = (
-            isinstance(scale, dict)
-            and scale.get("method") in ALLOWED_SCALE_METHODS
-            and scale.get("raw_coefficient_comparison") is False
-            and isinstance(scale.get("evidence"), str)
-            and bool(scale["evidence"].strip())
-        )
+        scale_valid = slim
+        if not slim:
+            scale = decision.get("scale_diagnostics")
+            scale_valid = (
+                isinstance(scale, dict)
+                and scale.get("method") in ALLOWED_SCALE_METHODS
+                and scale.get("raw_coefficient_comparison") is False
+                and isinstance(scale.get("evidence"), str)
+                and bool(scale["evidence"].strip())
+            )
         audit["scale_diagnostics_valid"] = scale_valid
         if not scale_valid:
             audit["errors"].append("scale diagnostics compare raw cross-unit coefficients")
@@ -1278,13 +1287,15 @@ class PromotionExp(BaseExp):
                 "expected residual change, risk, or falsification"
             )
 
-        gates_valid = self._evidence_gates_valid(gates)
-        if task_completed == "true":
-            gates_valid = (
-                gates_valid
-                and all(gate["passed"] for gate in gates)
-                and decision.get("solver_completion_only") is False
-            )
+        gates_valid = slim
+        if not slim:
+            gates_valid = self._evidence_gates_valid(gates)
+            if task_completed == "true":
+                gates_valid = (
+                    gates_valid
+                    and all(gate["passed"] for gate in gates)
+                    and decision.get("solver_completion_only") is False
+                )
         audit["success_gates_valid"] = gates_valid
         if not gates_valid:
             audit["errors"].append("scientific success gates are missing, unsupported, or solver-only")
@@ -1307,6 +1318,21 @@ class PromotionExp(BaseExp):
     def _scientific_governance_enabled(self) -> bool:
         experiment = getattr(getattr(self, "config", None), "experiment", {})
         return isinstance(experiment, dict) and bool(experiment.get("scientific_governance", False))
+
+    def _governance_mode(self) -> str:
+        """Return 'full', 'slim', or 'off'.
+
+        'slim' keeps the reliability gates (incumbent, residual feedback, protocol,
+        plan quality, search advancement) but skips the VIV-specific rigor gates
+        (claim strength, scale diagnostics, success gates).
+        """
+        experiment = getattr(getattr(self, "config", None), "experiment", {})
+        if not isinstance(experiment, dict):
+            return "off"
+        mode = experiment.get("governance_mode")
+        if mode in ("full", "slim"):
+            return mode
+        return "full" if experiment.get("scientific_governance") else "off"
 
     def _literature_grounding_enabled(self) -> bool:
         experiment = getattr(getattr(self, "config", None), "experiment", {})
@@ -1414,17 +1440,21 @@ class PromotionExp(BaseExp):
             if task_completed_override is not None
             else self._extract_task_completed(trajectory)
         )
+        governance_mode = self._governance_mode()
         continuing = (
             task_completed in {"false", "partial"}
             and not self._is_final_round()
         )
-        continuation_contract_valid = self._continuation_contract_valid() if continuing else None
+        continuation_contract_valid = (
+            self._continuation_contract_valid()
+            if continuing and governance_mode != "slim"
+            else (True if continuing else None)
+        )
         noop_continue = self._round_used_noop_continue(completed_results)
         meaningful_config_change = (
             True if noop_continue else self._meaningful_config_changed(completed_results)
         )
         single_config_change, changed_config_fields = self._single_config_change(completed_results)
-        governance_enabled = self._scientific_governance_enabled()
         grounding_required = self.round_num == 1 and self._literature_grounding_enabled()
         initial_priors = (
             self._audit_initial_priors()
@@ -1432,8 +1462,8 @@ class PromotionExp(BaseExp):
             else {"valid": True, "enabled": False, "errors": []}
         )
         scientific_decision = (
-            self._audit_scientific_decision(task_completed)
-            if governance_enabled
+            self._audit_scientific_decision(task_completed, mode=governance_mode)
+            if governance_mode in ("full", "slim")
             else {"valid": True, "enabled": False, "errors": []}
         )
         closure = {
