@@ -1,0 +1,13 @@
+# Generated launch bundles and run artifacts — rebuilt deterministically by build_pilot.py
+run_bundle/
+pilot_bundle/
+cold_pilot_bundle/
+
+# Collected results and logs
+run_matrix_results.json
+collect.log
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]

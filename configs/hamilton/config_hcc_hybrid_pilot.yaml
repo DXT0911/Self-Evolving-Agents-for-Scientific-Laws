@@ -1,0 +1,114 @@
+# Hamilton HCC 混合线路 pilot 配置（H 臂）
+# = 从 config_hybrid_hcc_smoke.yaml 派生，冻结用于 3 seed × 2 task pilot。
+#   - governance_mode: slim（保留可靠性 gate，砍 VIV 严谨 gate）
+#   - max_turns 60 + tool_result_compaction（控制上下文/成本）
+#   - max_total_evals 4500，dynamic_budget 每轮 1500
+#   - 模型 deepseek-v4-flash（便宜）
+# 任务与 seed 由每个 workspace 的 task.md + .hamilton_seed_plan.json 注入，不在此处。
+
+llm:
+  openai:
+    provider: "openai"
+    model: "deepseek-v4-flash"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    temperature: 0.0
+    max_tokens: 128000
+    timeout: 120
+    max_retries: 3
+    retry_delay: 1.0
+
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 60
+    enable_tools: true
+
+    context:
+      max_tokens: 24000
+      truncation_strategy: "tool_result_compaction"
+      preserve_system_messages: true
+      preserve_recent_turns: 5
+      max_tool_result_chars: 1000
+
+    system_prompt_file: "prompts/hamilton_system.txt"
+    user_prompt_file: "prompts/hamilton_user.txt"
+
+    skills:
+      - pysr
+      - run-sr-experiment
+      - evo-protocol
+
+    tools:
+      builtin: ["str_replace_editor", "think", "finish"]
+
+session:
+  type: "local"
+
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 21600
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
+    gpu_devices: null
+    cpu_devices: null
+    symlinks: {}
+
+experiment:
+  max_rounds: 3
+  governance_mode: slim
+  promotion_policy_instruction: >
+    HCC cold-start pilot rule: every round launches an independent PySR search and no
+    round may declare action "restart". In next_strategy you MUST write the "action"
+    field as a top-level JSON field (not only in prose): "action": "modify" or
+    "action": "continue". Use "modify" (preferred) with exactly one search.*
+    configuration field and its one-entry config_patch, e.g.
+    "config_field": "search.parsimony", "config_patch": {"search.parsimony": 0.0005}.
+    Allowed fields (one per round): search.parsimony, search.niterations,
+    search.populations, search.population_size, search.tournament_selection_n,
+    search.top_k, search.maxsize, search.unary_operators, search.binary_operators.
+    Or use "continue" with "config_field": null and "config_patch": {} only when no
+    change is scientifically justified. Always fill diagnosed_failure, evidence,
+    expected_effect, alternative_explanation, expected_residual_change, falsification,
+    risks (non-empty), and residual_evidence. Never propose search.max_evals; it is
+    controller-owned.
+  require_literature_grounding: false
+  max_total_evals: 4500
+  search_control:
+    search_advancement:
+      min_score_improvement: 0.0
+    trust_region:
+      enabled: true
+      # A scientifically justified hold is a valid intervention: keep the warm
+      # population and spend the next fixed budget without changing parameters.
+      allow_noop_continue: true
+      max_anchor_distance: 2
+      max_step_changes: 1
+      rollback_after_stale_rounds: 3
+    dynamic_budget:
+      enabled: true
+      base_evals: 1500
+      min_evals: 1500
+      max_evals: 1500
+      rounding_quantum: 500
+  pysr_preflight:
+    enabled: true
+    timeout_seconds: 180
+  promotion:
+    max_tokens: 400000
+    # A bridge-pilot recovery attempt is available after the no-op/restart governance
+    # amendment; prior failed attempts remain recorded in state files.
+    max_attempts: 4
+
+llm_output:
+  show_in_console: true
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false
