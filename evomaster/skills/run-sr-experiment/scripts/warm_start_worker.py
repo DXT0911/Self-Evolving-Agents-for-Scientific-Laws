@@ -81,6 +81,9 @@ def _scientific_projection(config: dict[str, Any]) -> dict[str, Any]:
         session.pop("round", None)
         session.pop("final_round", None)
         session.pop("round_action", None)
+        # compatible_change_fields is a controller-owned round directive, not a
+        # scientific search field; a restart round legitimately changes it.
+        session.pop("compatible_change_fields", None)
     return projected
 
 

@@ -108,6 +108,19 @@ class WarmStartRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "random_state"):
             WORKER._validate_transition(first, changed_seed, [])
 
+    def test_restart_transition_ignores_compatible_change_fields_switch(self) -> None:
+        first = config(1)
+        restart = config(2)
+        restart["search"]["unary_operators"] = ["sin", "cos"]
+        restart["search_session"]["round_action"] = "restart"
+        restart["search_session"]["compatible_change_fields"] = ["search.unary_operators"]
+        # The compatible_change_fields directive flips on a restart round; only the
+        # operator change itself should be reported, not the directive switch.
+        self.assertEqual(
+            WORKER._validate_transition(first, restart, ["search.unary_operators"]),
+            ["search.unary_operators"],
+        )
+
     def test_noop_materialization_retains_seed_and_run_directory(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory)
