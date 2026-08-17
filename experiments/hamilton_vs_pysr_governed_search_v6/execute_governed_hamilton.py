@@ -206,7 +206,11 @@ def execute(workspace: Path, arm: str) -> dict[str, Any]:
                     authority="deterministic_controller",
                 )
             elif arm == "arm_b_rule_hamilton":
-                rule_intent = choose_atomic_action(snapshot)
+                rule_intent = choose_atomic_action(
+                    snapshot,
+                    current_operators=current_operators,
+                    allowed_operators=allowed_operators,
+                )
                 binding_next = normalize_atomic_action(
                     rule_intent,
                     current_operators=current_operators,

@@ -5,17 +5,17 @@ interpretation: development_pilot_only_not_confirmatory
 frozen_at: 2026-08-17
 viv_in_scope: false
 
-tasks: [static_s02, dynamic_d01]
-seeds: [8401, 8402, 8403]
+tasks: [static_s02, static_s05, dynamic_d01, dynamic_d02]
+seeds: [8401, 8402, 8403, 8404, 8405, 8406, 8407, 8408, 8409, 8410]
 rounds: 3
 requested_evaluations_per_round: 1500
 requested_evaluations_per_arm_per_seed: 4500
-requested_evaluations_total: 81000
+requested_evaluations_total: 540000
 hamilton_ledger_ceiling_per_seed: 6000
-# Token ceiling applies to arm C (LLM Hamilton) only: 2 tasks x 3 seeds = 6 runs.
-arm_c_run_count: 6
+# Token ceiling applies to arm C (LLM Hamilton) only: 4 tasks x 10 seeds = 40 runs.
+arm_c_run_count: 40
 max_hamilton_tokens_per_run: 60000
-max_hamilton_tokens_total: 360000
+max_hamilton_tokens_total: 2400000
 expected_planner_calls_per_run: 2
 retry_policy:
   maximum_retries_per_arm_seed: 1

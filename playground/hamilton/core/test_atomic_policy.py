@@ -103,13 +103,31 @@ class AtomicActionNormalizationTests(unittest.TestCase):
 
 
 class RuleAtomicInterventionTests(unittest.TestCase):
-    def test_rule_never_proposes_operator_changes(self) -> None:
-        for _ in range(3):
-            intent = choose_atomic_action(stagnant_complex_snapshot())
-            self.assertIn(intent["action"], {"continue_warm", "adjust_parsimony"})
+    def test_rule_adds_available_operator_when_residual_is_material(self) -> None:
+        snap = stagnant_complex_snapshot()
+        snap["material_residual_correlation"] = 0.5
+        intent = choose_atomic_action(
+            snap, current_operators=["sin", "cos", "exp"],
+            allowed_operators=["sin", "cos", "exp", "tanh"],
+        )
+        self.assertEqual(intent["action"], "add_operator")
+        self.assertEqual(intent["operator"], "tanh")
+
+    def test_rule_falls_back_to_parsimony_when_no_operator_available(self) -> None:
+        snap = stagnant_complex_snapshot()
+        snap["material_residual_correlation"] = 0.5
+        intent = choose_atomic_action(
+            snap, current_operators=["sin", "cos", "exp", "tanh"],
+            allowed_operators=["sin", "cos", "exp", "tanh"],
+        )
+        self.assertEqual(intent["action"], "adjust_parsimony")
 
     def test_stagnant_complex_rule_adjusts_parsimony(self) -> None:
-        intent = choose_atomic_action(stagnant_complex_snapshot())
+        intent = choose_atomic_action(
+            stagnant_complex_snapshot(),
+            current_operators=["sin", "cos", "exp"],
+            allowed_operators=["sin", "cos", "exp", "tanh"],
+        )
         self.assertEqual(intent["action"], "adjust_parsimony")
 
 

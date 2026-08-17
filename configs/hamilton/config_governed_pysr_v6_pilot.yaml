@@ -59,7 +59,7 @@ experiment:
       warm_compatible_fields: [search.parsimony]
       thresholds:
         min_score_improvement: 0.0001
-        stale_rounds_before_intervention: 3
+        stale_rounds_before_intervention: 1
         high_complexity_fraction: 0.8
         low_complexity_fraction: 0.25
         material_residual_correlation: 0.3

@@ -415,18 +415,29 @@ def normalize_atomic_action(
 def choose_atomic_action(
     snapshot: dict[str, Any],
     *,
+    current_operators: Iterable[str],
+    allowed_operators: Iterable[str],
     thresholds: PolicyThresholds | None = None,
     warm_compatible_fields: Iterable[str] = ("search.parsimony",),
 ) -> dict[str, Any]:
     """Deterministic rule intervention over the shared atomic action space (arm B).
 
-    Reuses the same frozen thresholds as :func:`choose_action` but never proposes
-    operator changes: the rule can only continue or tune parsimony.  A ``branch`` or
-    ``rollback`` from the underlying policy degrades to ``continue_warm`` because the
-    rule has no operator-reasoning lever and a fixed-seed restart is a deterministic
-    no-op.  The LLM arm (C) may additionally propose operator changes over the same
-    space, so ``C - B`` isolates the LLM's structural reasoning from its mere presence.
+    This is the "best hand-written non-LLM rule": it uses the same diagnostics and the
+    same atomic action space as the LLM, but with a fixed policy.  When the residuals
+    still show material structure and an operator from the frozen envelope is
+    available, the rule adds it (structural intervention); otherwise it falls back to
+    parsimony tuning or continue.  ``C - B`` therefore measures the LLM's reasoning
+    against a matched rule, not against "do nothing".
     """
+    policy = thresholds or PolicyThresholds()
+    available = [op for op in allowed_operators if op not in current_operators]
+    residual = _finite_float(snapshot.get("material_residual_correlation"))
+    if available and residual >= policy.material_residual_correlation:
+        return {
+            "action": "add_operator",
+            "operator": available[0],
+            "reason": "material residual structure remains; add an available operator",
+        }
     decision = choose_action(
         snapshot,
         thresholds=thresholds,

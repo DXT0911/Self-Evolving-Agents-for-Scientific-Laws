@@ -832,7 +832,12 @@ def review_planner_proposal(
         binding["planner_proposal"] = proposal
         return binding
     except (ValueError, KeyError, TypeError) as exc:
-        rule_intent = choose_atomic_action(snapshot, thresholds=thresholds)
+        rule_intent = choose_atomic_action(
+            snapshot,
+            current_operators=current_operators,
+            allowed_operators=allowed_operators,
+            thresholds=thresholds,
+        )
         binding = normalize(
             rule_intent,
             "rule",
