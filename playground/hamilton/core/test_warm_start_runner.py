@@ -3,10 +3,12 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest import mock
 
 import pandas as pd
 
@@ -90,6 +92,27 @@ class WarmStartRunnerTests(unittest.TestCase):
             WORKER._validate_transition(first, second, session["compatible_change_fields"]),
             [],
         )
+
+    def test_live_worker_can_be_closed_after_adaptive_early_stop(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            state_dir = RUNNER.warm_start_state_dir(workspace, "unit-session")
+            state_dir.mkdir(parents=True)
+            (state_dir / "worker.json").write_text(json.dumps({
+                "status": "ready",
+                "pid": os.getpid(),
+                "port": 12345,
+                "token": "secret-token",
+            }), encoding="utf-8")
+            connection = mock.MagicMock()
+            context = mock.MagicMock()
+            context.__enter__.return_value = connection
+            with mock.patch.object(RUNNER.socket, "create_connection", return_value=context), mock.patch.object(
+                RUNNER, "_warm_message", return_value={"status": "completed", "closed": True}
+            ) as send:
+                result = RUNNER.close_warm_start_worker(config(1), workspace)
+            self.assertEqual(result["status"], "closed")
+            self.assertEqual(send.call_args.args[1]["command"], "close")
 
     def test_transition_allows_parsimony_but_rejects_maxsize_and_seed_change(self) -> None:
         first = config(1)

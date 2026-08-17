@@ -215,21 +215,29 @@ def _start_warm_worker(
         "--metadata",
         str(metadata_path),
     ]
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    stdout_path = metadata_path.with_name("worker.stdout.log")
+    stderr_path = metadata_path.with_name("worker.stderr.log")
+    stdout_handle = stdout_path.open("a", encoding="utf-8")
+    stderr_handle = stderr_path.open("a", encoding="utf-8")
     kwargs: dict[str, Any] = {
         "cwd": str(workspace),
         "stdin": subprocess.DEVNULL,
-        "stdout": subprocess.DEVNULL,
-        "stderr": subprocess.DEVNULL,
+        "stdout": stdout_handle,
+        "stderr": stderr_handle,
         "close_fds": True,
     }
     if os.name == "nt":
-        kwargs["creationflags"] = (
-            getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            | getattr(subprocess, "DETACHED_PROCESS", 0)
-        )
+        # DETACHED_PROCESS can prevent Python/Julia DLL initialization on some
+        # Windows hosts. CREATE_NO_WINDOW still keeps the worker unobtrusive.
+        kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
     else:
         kwargs["start_new_session"] = True
-    process = subprocess.Popen(command, **kwargs)
+    try:
+        process = subprocess.Popen(command, **kwargs)
+    finally:
+        stdout_handle.close()
+        stderr_handle.close()
     deadline = time.monotonic() + 180.0
     while time.monotonic() < deadline:
         if metadata_path.is_file():
@@ -306,6 +314,36 @@ def run_warm_start_round(
     if not isinstance(result, dict) or result.get("status") != "completed":
         raise RuntimeError("warm-start worker produced no completed result")
     return result
+
+
+def close_warm_start_worker(config: dict[str, Any], workspace: Path) -> dict[str, Any]:
+    """Gracefully close a live warm-start worker after an adaptive early stop."""
+    session = warm_start_session(config)
+    if session is None:
+        return {"status": "not_applicable"}
+    state_dir = warm_start_state_dir(workspace, session["session_id"])
+    metadata_path = state_dir / "worker.json"
+    if not metadata_path.is_file():
+        return {"status": "already_closed"}
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"status": "metadata_unreadable"}
+    if metadata.get("status") != "ready" or not _worker_alive(metadata.get("pid")):
+        return {"status": "already_closed"}
+    try:
+        with socket.create_connection(
+            ("127.0.0.1", int(metadata["port"])), timeout=30
+        ) as connection:
+            response = _warm_message(connection, {
+                "token": metadata["token"],
+                "command": "close",
+            })
+    except (OSError, ValueError, KeyError) as exc:
+        raise RuntimeError(f"warm-start worker close failed: {exc}") from exc
+    if response.get("status") != "completed" or response.get("closed") is not True:
+        raise RuntimeError(f"warm-start worker rejected close request: {response}")
+    return {"status": "closed", "session_id": session["session_id"]}
 
 
 def require_dict(value: Any, name: str) -> dict[str, Any]:

@@ -7,10 +7,13 @@ import pandas as pd
 
 from playground.hamilton.core.governed_policy import (
     PolicyThresholds,
+    build_llm_action_candidates,
     choose_action,
     diagnostic_snapshot,
+    fallback_planner_decision,
     infer_process_state,
     route_memory,
+    validate_planner_decision,
     validate_planner_proposal,
 )
 from playground.hamilton.core.offline_policy_replay import replay_results
@@ -90,6 +93,66 @@ class GovernedPolicyTests(unittest.TestCase):
             stale_rounds_before=2,
         )
         self.assertEqual(choose_action(snapshot)["action"], "continue")
+
+    def test_llm_can_make_a_binding_choice_only_inside_controller_envelope(self) -> None:
+        snapshot = diagnostic_snapshot(
+            result_payload(0.8, complexity=5, temporal_correlation=0.7),
+            incumbent_score_before=0.8,
+            stale_rounds_before=2,
+        )
+        envelope = build_llm_action_candidates(snapshot, allow_stop=True)
+        decision = validate_planner_decision(
+            {
+                "hypothesis": "the residual may need a less sparse expression",
+                "candidate_variables": ["x"],
+                "candidate_operators": ["cos"],
+                "selected_candidate_id": "decrease_parsimony",
+                "rationale": "the selected equation is simple and residual structure remains",
+                "expected_effect": "validation residual correlation should decrease",
+                "falsification": "score and residual diagnostics do not improve",
+            },
+            action_candidates=envelope["candidates"],
+            allowed_variables=["x"],
+            allowed_operators=["sin", "cos"],
+        )
+        self.assertEqual(decision["planner_status"], "accepted")
+        self.assertEqual(decision["selected_action"]["action"], "modify")
+        self.assertEqual(
+            decision["selected_action"]["authority"],
+            "llm_selected_controller_validated",
+        )
+
+    def test_llm_cannot_invent_candidate_or_config_patch(self) -> None:
+        envelope = build_llm_action_candidates(
+            {"parsimony": 0.01, "score_improvement": 0.0}
+        )
+        with self.assertRaisesRegex(ValueError, "unknown candidate"):
+            validate_planner_decision(
+                {
+                    "hypothesis": "try a much larger search",
+                    "candidate_variables": [],
+                    "candidate_operators": [],
+                    "selected_candidate_id": "set_maxsize_999",
+                    "rationale": "more search may help",
+                    "expected_effect": "lower score",
+                    "falsification": "score does not improve",
+                },
+                action_candidates=envelope["candidates"],
+                allowed_variables=["x"],
+                allowed_operators=["+"],
+            )
+
+    def test_planner_failure_uses_auditable_fallback(self) -> None:
+        envelope = build_llm_action_candidates(
+            {"parsimony": 0.01, "score_improvement": 0.1}
+        )
+        decision = fallback_planner_decision(
+            action_candidates=envelope["candidates"],
+            fallback_candidate_id=envelope["fallback_candidate_id"],
+            reason="provider timeout",
+        )
+        self.assertEqual(decision["planner_status"], "fallback")
+        self.assertEqual(decision["selected_action"]["authority"], "deterministic_fallback")
 
     def test_stagnant_complex_search_increases_parsimony(self) -> None:
         snapshot = diagnostic_snapshot(

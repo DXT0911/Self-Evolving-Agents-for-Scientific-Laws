@@ -138,6 +138,16 @@ def serve(workspace: Path, port: int, token: str, metadata_path: Path) -> int:
                     request = _receive(connection)
                     if request.get("token") != token:
                         raise PermissionError("invalid warm-start worker token")
+                    if request.get("command") == "close":
+                        response = {"status": "completed", "closed": True}
+                        _send(connection, response)
+                        _atomic_json(metadata_path, {
+                            "schema_version": 1,
+                            "status": "closed",
+                            "pid": os.getpid(),
+                            "port": actual_port,
+                        })
+                        return 0
                     request_path = runner.resolve_inside(
                         workspace, request.get("request_file"), "warm-start request file"
                     )
