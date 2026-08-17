@@ -136,6 +136,17 @@ class PromotionExp(BaseExp):
             attempts=attempts,
             prior_closure_errors=prior_closure_errors,
         )
+        experiment = getattr(getattr(self, "config", None), "experiment", {})
+        promotion_policy = (
+            experiment.get("promotion_policy_instruction", "")
+            if isinstance(experiment, dict)
+            else ""
+        )
+        if isinstance(promotion_policy, str) and promotion_policy.strip():
+            recovery_feedback += (
+                "\n\nPilot-specific promotion policy (authoritative):\n"
+                + promotion_policy.strip()
+            )
         # A missing error list is not proof that an audit ran: an interrupted LLM
         # request leaves a pending state with no errors. Only a completed closure
         # audit may explicitly authorize the bounded fast-finish path.
@@ -755,16 +766,30 @@ class PromotionExp(BaseExp):
         ]
         return any(config and config not in previous for config in current)
 
-    def _round_used_noop_continue(self, completed_results: list[str]) -> bool:
+    def _round_search_action(self, completed_results: list[str]) -> str | None:
         if len(completed_results) != 1:
-            return False
+            return None
         config = self._read_result_payload(completed_results[0]).get("config", {})
         session = config.get("search_session") if isinstance(config, dict) else None
-        return (
-            isinstance(session, dict)
-            and session.get("mode") == "warm_start"
-            and session.get("round_action") == "continue"
-        )
+        # The runner's result payload may omit session metadata. The validated
+        # same-round experiment config is the authoritative fallback for closure.
+        if not isinstance(session, dict) and self.run_dir:
+            experiment_path = self.run_dir / "history" / f"round{self.round_num}" / "experiment.json"
+            try:
+                experiment = json.loads(experiment_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                experiment = {}
+            session = experiment.get("search_session") if isinstance(experiment, dict) else None
+        if not isinstance(session, dict) or session.get("mode") != "warm_start":
+            return None
+        action = session.get("round_action")
+        return action if action in {"continue", "restart", "modify"} else None
+
+    def _round_used_noop_continue(self, completed_results: list[str]) -> bool:
+        return self._round_search_action(completed_results) == "continue"
+
+    def _round_used_restart(self, completed_results: list[str]) -> bool:
+        return self._round_search_action(completed_results) == "restart"
 
     def _single_config_change(self, completed_results: list[str]) -> tuple[bool | None, list[str]]:
         if self.round_num <= 1:
@@ -785,7 +810,12 @@ class PromotionExp(BaseExp):
                 "max_step_changes", 1
             )
         )
-        if not changed and self._round_used_noop_continue(completed_results):
+        if not changed and self._round_used_restart(completed_results):
+            return True, changed
+        if not changed:
+            # A scientifically justified hold is valid whenever the trust region
+            # authorizes no-op continuation. Cold-start rounds carry no
+            # warm_start session, so this must not depend on one.
             allow_noop = bool(
                 (control or {}).get("trust_region", {}).get(
                     "allow_noop_continue", False
@@ -1227,36 +1257,48 @@ class PromotionExp(BaseExp):
                 isinstance(strategy.get(field), str) and bool(strategy[field].strip())
                 for field in required
             )
-            action = strategy.get("action", "modify") if isinstance(strategy, dict) else None
+            config_field = (
+                strategy.get("config_field") if isinstance(strategy, dict) else None
+            )
+            config_patch = (
+                strategy.get("config_patch") if isinstance(strategy, dict) else None
+            )
+            action = strategy.get("action") if isinstance(strategy, dict) else None
+            if action is None:
+                # The governed schema example historically omitted ``action``; the LLM
+                # may state it only in prose. Infer it from the config change it implies
+                # so a null-field / empty-patch hold still parses as ``continue``.
+                action = (
+                    "continue"
+                    if config_field in (None, "") and config_patch in ({}, None)
+                    else "modify"
+                )
             strategy_valid = (
                 strategy_valid
-                and action in {"continue", "modify"}
+                and action in {"continue", "modify", "restart"}
                 and isinstance(strategy.get("risks"), list)
                 and bool(strategy["risks"])
                 and all(isinstance(risk, str) and risk.strip() for risk in strategy["risks"])
             )
-            config_patch = (
-                strategy.get("config_patch")
-                if isinstance(strategy, dict)
-                else None
-            )
             if action == "continue":
                 strategy_valid = (
                     strategy_valid
-                    and strategy.get("config_field") in {None, ""}
+                    and config_field in {None, ""}
                     and config_patch == {}
                 )
+            elif action == "restart" and config_field in {None, ""} and config_patch == {}:
+                strategy_valid = strategy_valid
             else:
                 strategy_valid = (
                     strategy_valid
                     and re.fullmatch(
                         r"(?:data|search|verification)(?:\.[A-Za-z0-9_]+)+",
-                        strategy.get("config_field", ""),
+                        config_field or "",
                     )
                     is not None
                     and isinstance(config_patch, dict)
                     and len(config_patch) == 1
-                    and next(iter(config_patch), None) == strategy.get("config_field")
+                    and next(iter(config_patch), None) == config_field
                 )
             residual_evidence = (
                 strategy.get("residual_evidence")
@@ -1451,9 +1493,22 @@ class PromotionExp(BaseExp):
             else (True if continuing else None)
         )
         noop_continue = self._round_used_noop_continue(completed_results)
+        restart = self._round_used_restart(completed_results)
         meaningful_config_change = (
-            True if noop_continue else self._meaningful_config_changed(completed_results)
+            True if noop_continue or restart else self._meaningful_config_changed(completed_results)
         )
+        if meaningful_config_change is False:
+            # Cold-start rounds have no warm_start session, so the hold above is
+            # invisible to _round_used_noop_continue. Authorize a no-op hold
+            # directly from the trust region, mirroring the runner-side audit.
+            control = read_control(self.run_dir) if self.run_dir else None
+            allow_noop = bool(
+                (control or {}).get("trust_region", {}).get(
+                    "allow_noop_continue", False
+                )
+            )
+            if allow_noop:
+                meaningful_config_change = True
         single_config_change, changed_config_fields = self._single_config_change(completed_results)
         grounding_required = self.round_num == 1 and self._literature_grounding_enabled()
         initial_priors = (

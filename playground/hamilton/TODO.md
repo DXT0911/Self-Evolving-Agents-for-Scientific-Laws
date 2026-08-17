@@ -90,6 +90,29 @@ workspace/
 
 ## TODO
 
+### HCC 混合线路：slim 治理修复 + 正式实验（2026-08-17 起）
+
+- [x] 修复：`governance_mode: slim` 未触发 `initialize_control`（旧代码只看
+  `scientific_governance` 布尔），导致无 `.hamilton_search_control.json` →
+  runner 的 `allocate_dynamic_evaluations` 不生效 → Round 1 自由选 `max_evals=4500`
+  吞掉整个预算，Round 2 被累计预算门 `consumed=4500+requested>limit` 阻断。
+  修复：`playground.py` `_init_workspace` 用 `_search_control_active`
+  （full/slim/legacy 布尔）替代旧判断，`promotion_exp._governance_mode` 语义保持一致。
+- [x] 实测 Round 1 成本：discovery 526,536 + promotion 57,906 = 584,442 token；
+  incumbent score 0.676（static_s02，真实方程 + 残差推理，可读记忆质量好）。
+- [x] 复跑 smoke 验证（2026-08-18，exit 0，3 轮全 closed，`experiment_20260818_001612.json`）：
+  - 预算正确分配 1500×3=4500，累计账本无阻断；round2/3 单字段变更 gate 正常
+    （R2 加 unary=square，R3 改 complexity weight 0.05→0.01）；warm-start + trust-region state 持久化正常。
+  - 真实成本（deepseek-v4-flash，static_s02）：R1=219,604 / R2=637,269 / R3=659,826，
+    合计 **1,516,699 token**（≈506k/轮；R2/R3 因 L2 记忆 + 残差反馈 JSON 增长而翻倍）。
+  - ✅ 科学信号（已纠正方向误读）：`scientific_score` 是**越小越好**（`hamilton_system.txt`
+    "Minimize scientific score"；v6 `score < incumbent` → promote；`collect` `left < right` → win）。
+    val R² 单调上升 0.523→0.585→0.601，scientific_score 单调下降 0.7084→0.6682→0.6418，
+    二者**同向单调改进**（score 越低 = loss 越小 = 越好），不存在背离。pilot 主判据方向即
+    "最终 incumbent scientific_score 越小越优，H < B 判 H 胜"。
+  - 每轮改一个字段（先验/operator/复杂度权重）确实改变了下轮搜索，闭环可靠，可读记忆质量高。
+- [ ] 3 seed × 2 task pilot 脚手架（v4-flash，冻结 manifest + 配对 seed + engine evals）。
+
 ### Hamilton v6：LLM 因果消融（2026-08-16 起）
 
 设计文档：`../../docs/sragent/HAMILTON_V6_CAUSAL_ABLATION_DESIGN_2026-08-16.zh-CN.md`

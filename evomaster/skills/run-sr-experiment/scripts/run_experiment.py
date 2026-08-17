@@ -594,7 +594,7 @@ def apply_controller_seed(
         raise ConfigError(
             f"Hamilton seed plan has no seed for round {round_number}"
         )
-    proposed = config["search"]["random_state"]
+    proposed = config.get("search", {}).get("random_state")
     assigned = int(seeds[round_number - 1])
     config["search"]["random_state"] = assigned
     assignment = {
@@ -896,15 +896,33 @@ def expected_adaptive_config_patch(workspace: Path) -> dict[str, Any] | None:
     strategy = decision.get("next_strategy")
     if not isinstance(strategy, dict):
         return None
-    action = strategy.get("action", "modify")
+    action = strategy.get("action")
+    if action is None:
+        # The governed schema example historically omitted ``action``; infer it from
+        # the config change it implies so a null-field / empty-patch hold still parses.
+        config_field = strategy.get("config_field")
+        config_patch = strategy.get("config_patch")
+        action = (
+            "continue"
+            if config_field in (None, "") and config_patch in ({}, None)
+            else "modify"
+        )
     if action == "continue":
         if strategy.get("config_field") not in {None, ""} or strategy.get("config_patch") != {}:
             raise ConfigError(
                 "continue action requires no config_field and an empty config_patch"
             )
         return {}
+    if action == "restart":
+        if strategy.get("config_field") in {None, ""} and strategy.get("config_patch") == {}:
+            return {}
+        config_field = strategy.get("config_field")
+        config_patch = strategy.get("config_patch")
+        if isinstance(config_field, str) and config_field and isinstance(config_patch, dict) and list(config_patch) == [config_field]:
+            return config_patch
+        raise ConfigError("restart action requires either an empty patch or exactly one config field")
     if action != "modify":
-        raise ConfigError("next_strategy.action must be 'continue' or 'modify'")
+        raise ConfigError("next_strategy.action must be 'continue', 'modify', or 'restart'")
     config_field = strategy.get("config_field")
     config_patch = strategy.get("config_patch")
     if not isinstance(config_field, str) or not config_field:
@@ -987,7 +1005,13 @@ def audit_single_field_adaptation(
     binding_policy = state.get("next_round", {}).get("controller_policy")
     if isinstance(binding_policy, dict) and binding_policy.get("binding"):
         expected_action = binding_policy.get("action", {}).get("action")
-        actual_action = config.get("search_session", {}).get("round_action")
+        session = config.get("search_session")
+        if isinstance(session, dict):
+            actual_action = session.get("round_action")
+        else:
+            # Cold-start adaptive rounds carry no search_session. Infer the
+            # action from whether the scientific configuration actually changed.
+            actual_action = "continue" if not changed else "modify"
         if actual_action != expected_action:
             raise ConfigError(
                 "adaptive round_action must match the binding controller policy before "
@@ -1092,7 +1116,10 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     tournament_n = positive_int(search.get("tournament_selection_n"), "search.tournament_selection_n")
     if tournament_n >= search["population_size"]:
         raise ConfigError("search.tournament_selection_n must be smaller than search.population_size")
-    if not isinstance(search.get("random_state"), int) or isinstance(search.get("random_state"), bool):
+    random_state = search.get("random_state")
+    if random_state is not None and (not isinstance(random_state, int) or isinstance(random_state, bool)):
+        # ``random_state`` may be absent on cold-start adaptive rounds: the
+        # controller injects the frozen seed below via ``apply_controller_seed``.
         raise ConfigError("search.random_state must be an integer")
     require_list_of_strings(search.get("binary_operators"), "search.binary_operators")
     unary = search.get("unary_operators", [])
@@ -1284,6 +1311,7 @@ def load_and_validate(config_path: Path, workspace: Path) -> tuple[dict[str, Any
     normalized["verification"]["residual_diagnostics"] = residual
     normalized["verification"]["structural_diagnostics"] = structural
     normalized["verification"]["long_horizon_dynamics"] = long_horizon
+    normalized["verification"]["short_ode"] = short_ode
     apply_controller_seed(
         workspace,
         normalized,

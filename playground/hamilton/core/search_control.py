@@ -736,12 +736,13 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
     policy_snapshot: dict[str, Any] = {}
     policy_decision: dict[str, Any] = {}
     process_state = "unknown"
+    policy_enabled, policy_binding, policy_thresholds, warm_fields = _policy_settings(control)
     persisted_policy = state.get("next_round", {}).get("controller_policy")
     if isinstance(persisted_policy, dict) and persisted_policy.get("enabled"):
         policy_snapshot = persisted_policy.get("snapshot", {})
         policy_decision = persisted_policy.get("action", {})
         process_state = str(persisted_policy.get("process_state", "unknown"))
-    elif incumbent_result_path.is_file():
+    elif policy_enabled and incumbent_result_path.is_file():
         incumbent_result = json.loads(incumbent_result_path.read_text(encoding="utf-8"))
         policy_snapshot = diagnostic_snapshot(
             incumbent_result,
@@ -773,14 +774,16 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
         "controller_policy": {
             "process_state": process_state,
             "snapshot": policy_snapshot,
-            "recommended_action": policy_decision,
+            "recommended_action": policy_decision if policy_enabled else None,
             "binding": bool(
                 isinstance(persisted_policy, dict)
                 and persisted_policy.get("binding")
             ),
             "note": (
                 "When binding is true, the standard runner enforces this action and "
-                "config patch before reserving evaluations."
+                "config patch before reserving evaluations. When binding is false (or "
+                "the deterministic policy is disabled), recommended_action is null or "
+                "advisory only: your own plan.md next_strategy is authoritative."
             ),
         },
     }

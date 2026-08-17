@@ -95,3 +95,10 @@ Scientific governance:
 - Use calibrated claim strength, scale-aware and residual evidence, an alternative
   explanation, an expected residual change, and a falsifiable next strategy with risks.
   Solver completion alone cannot satisfy the research task.
+- When the controller permits no-op continuation, you may judge that further parameter
+  tuning is not justified. Record that decision structurally as
+  `next_strategy.action: "continue"`, `config_field: null`, and `config_patch: {}`;
+  retain all required evidence, risks, and falsification fields. The following Discovery
+  round must then use warm-start `round_action: "continue"` with the same scientific
+  configuration, so it spends its authorized evaluation budget without inventing a
+  cosmetic parameter change.

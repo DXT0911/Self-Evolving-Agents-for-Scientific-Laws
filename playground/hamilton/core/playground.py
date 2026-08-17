@@ -83,6 +83,17 @@ class HamiltonPlayground(BasePlayground):
         """
         super().set_run_dir(run_dir, task_id=task_id)
 
+    @staticmethod
+    def _search_control_active(experiment_cfg: dict) -> bool:
+        """Search control runs under full or slim governance, not only the legacy
+        ``scientific_governance`` boolean flag."""
+        if not isinstance(experiment_cfg, dict):
+            return False
+        mode = experiment_cfg.get("governance_mode")
+        if mode in ("full", "slim"):
+            return True
+        return bool(experiment_cfg.get("scientific_governance"))
+
     def _init_workspace(self) -> None:
         """Initialize workspace with L2 persistent files.
 
@@ -107,7 +118,7 @@ class HamiltonPlayground(BasePlayground):
             )
         if (
             isinstance(experiment_cfg, dict)
-            and experiment_cfg.get("scientific_governance")
+            and self._search_control_active(experiment_cfg)
             and isinstance(experiment_cfg.get("search_control"), dict)
         ):
             initialize_control(workspace, experiment_cfg)
@@ -314,8 +325,14 @@ class HamiltonPlayground(BasePlayground):
                     )
                     governed_task = task_description
                     if controller_directive is not None:
+                        binding = bool(
+                            (controller_directive.get("controller_policy") or {}).get(
+                                "binding"
+                            )
+                        )
+                        authority = "authoritative" if binding else "advisory"
                         governed_task += (
-                            "\n\nController search directive (authoritative):\n"
+                            f"\n\nController search directive ({authority}):\n"
                             + json.dumps(
                                 controller_directive,
                                 ensure_ascii=False,
@@ -325,6 +342,14 @@ class HamiltonPlayground(BasePlayground):
                             "baseline. If rollback_required=true, do not inherit the "
                             "previous failed configuration. The controller, not the "
                             "LLM, owns search.max_evals."
+                            + (
+                                ""
+                                if binding
+                                else "\nThis directive is ADVISORY only: "
+                                "controller_policy.recommended_action is a suggestion, "
+                                "not an instruction. Your own plan.md next_strategy "
+                                "(the EVO_NEXT_ROUND contract) is authoritative."
+                            )
                         )
                     round_exp = RoundExp(self.agent, self.config, round_num)
                     round_exp.set_run_dir(self.workspace_dir)

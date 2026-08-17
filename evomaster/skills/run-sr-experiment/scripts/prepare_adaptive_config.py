@@ -35,7 +35,7 @@ def load_json(path: Path, label: str) -> dict[str, Any]:
     return payload
 
 
-def decision_patch(workspace: Path) -> tuple[str | None, Any]:
+def decision_patch(workspace: Path) -> tuple[str, str | None, Any]:
     content = (workspace / "plan.md").read_text(encoding="utf-8")
     start = content.find(DECISION_BEGIN)
     stop = content.find(DECISION_END, start + len(DECISION_BEGIN))
@@ -51,16 +51,18 @@ def decision_patch(workspace: Path) -> tuple[str | None, Any]:
             raise ValueError("continue action must not declare config_field")
         if strategy.get("config_patch") != {}:
             raise ValueError("continue action requires an empty config_patch")
-        return None, None
-    if action != "modify":
-        raise ValueError("next_strategy.action must be 'continue' or 'modify'")
+        return action, None, None
+    if action not in {"modify", "restart"}:
+        raise ValueError("next_strategy.action must be 'continue', 'modify', or 'restart'")
     field = strategy.get("config_field")
     patch = strategy.get("config_patch")
+    if action == "restart" and field in {None, ""} and patch == {}:
+        return action, None, None
     if not isinstance(field, str) or not field:
         raise ValueError("next_strategy.config_field must be non-empty")
     if not isinstance(patch, dict) or list(patch) != [field]:
         raise ValueError("next_strategy.config_patch must contain exactly config_field")
-    return field, patch[field]
+    return action, field, patch[field]
 
 
 def set_existing_leaf(config: dict[str, Any], field: str, value: Any) -> None:
@@ -92,7 +94,15 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
     config.pop("_config_file", None)
     config.pop("_controller", None)
 
-    field, value = decision_patch(workspace)
+    action, field, value = decision_patch(workspace)
+    bridge_policy_path = workspace / ".hamilton_bridge_policy.json"
+    if action == "restart" and bridge_policy_path.is_file():
+        bridge_policy = load_json(bridge_policy_path, "bridge policy")
+        restart_rounds = bridge_policy.get("restart_rounds")
+        if not isinstance(restart_rounds, list) or round_number not in restart_rounds:
+            raise ValueError(
+                f"restart is not authorized for bridge-pilot round {round_number}"
+            )
     if field is not None:
         set_existing_leaf(config, field, value)
 
@@ -107,7 +117,9 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
     else:
         session["round"] = round_number
         session["final_round"] = round_number == len(seeds)
-        session["round_action"] = "continue" if field is None else "modify"
+        session["round_action"] = action
+        if action == "restart" and field is not None:
+            session["compatible_change_fields"] = [field]
 
     prior_id = str(baseline.get("experiment_id") or config.get("experiment_id") or "")
     if re.search(r"__round\d+$", prior_id):
@@ -137,7 +149,7 @@ def materialize(workspace: Path, round_number: int) -> tuple[Path, dict[str, Any
         "status": "materialized",
         "round": round_number,
         "baseline_result_file": baseline_rel,
-        "action": "continue" if field is None else "modify",
+        "action": action,
         "config_field": field,
         "config_value": value,
         "assigned_seed": config["search"]["random_state"],
