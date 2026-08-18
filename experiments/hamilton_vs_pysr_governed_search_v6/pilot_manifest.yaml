@@ -1,0 +1,53 @@
+schema_version: 1
+experiment_id: hamilton-vs-pysr-governed-search-v6-pilot-01
+status: frozen_pre_execution
+interpretation: development_pilot_only_not_confirmatory
+frozen_at: 2026-08-17
+viv_in_scope: false
+
+tasks: [static_s02, static_s05, dynamic_d01, dynamic_d02]
+seeds: [8401, 8402, 8403, 8404, 8405, 8406, 8407, 8408, 8409, 8410]
+rounds: 3
+requested_evaluations_per_round: 1500
+requested_evaluations_per_arm_per_seed: 4500
+requested_evaluations_total: 540000
+hamilton_ledger_ceiling_per_seed: 6000
+# Token ceiling applies to arm C (LLM Hamilton) only: 4 tasks x 10 seeds = 40 runs.
+arm_c_run_count: 40
+max_hamilton_tokens_per_run: 60000
+max_hamilton_tokens_total: 2400000
+expected_planner_calls_per_run: 2
+retry_policy:
+  maximum_retries_per_arm_seed: 1
+  allowed_only_when_engine_measured_evaluations: 0
+  no_top_up_after_engine_consumption: true
+
+arms:
+  ids: [arm_a_persistent_pysr, arm_b_rule_hamilton, arm_c_llm_hamilton]
+  arm_a: persistent_warm_start_no_intervention
+  arm_b: persistent_warm_start_rule_intervention
+  arm_c: persistent_warm_start_llm_intervention
+
+planner:
+  model: deepseek-v4-flash
+  thinking: disabled
+  response_format: json_object
+  calls_per_round: 1
+  max_output_tokens_per_call: 800
+  authority: propose_one_atomic_action_adopted_or_rejected_by_controller
+
+search:
+  initial_unary_operators: [sin, cos, exp]
+  allowed_unary_operators: [sin, cos, exp, tanh]
+  parsimony_bounds: [1.0e-8, 1.0]
+  warm_compatible_fields: [search.parsimony]
+
+success_gates:
+  all_arm_results_completed: true
+  arm_a_and_b_make_zero_llm_calls: true
+  arm_c_planner_called_once_per_intervention_round: true
+  binding_action_enforced_before_every_adaptive_run: true
+  warm_start_state_preserved_on_warm_rounds: true
+  restart_recorded_on_operator_change: true
+  token_ceiling_respected_per_seed: true
+  performance_claims_permitted: false

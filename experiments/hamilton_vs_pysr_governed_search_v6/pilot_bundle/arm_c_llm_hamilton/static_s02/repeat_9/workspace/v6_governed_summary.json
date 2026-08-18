@@ -1,0 +1,256 @@
+{
+  "arm": "arm_c_llm_hamilton",
+  "completed_at": "2026-08-17T03:54:17.524665+00:00",
+  "execution_mode": "three_arm_governed_ablation",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round2/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1500,
+          "anchor_weight": 868.0,
+          "consumed_before": 1500,
+          "current_weight": 868.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 1500,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1500,
+          "remaining_before": 4500,
+          "round": 2,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 6000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8409,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8409,
+          "round": 2
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2",
+          "x3",
+          "x4"
+        ],
+        "max_rows": null,
+        "search_stride": 10,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__static_s02__repeat_9__round2",
+      "output": {
+        "result_file": "history/round2/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1500,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 1e-08,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8409,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 2,
+        "round_action": "modify",
+        "session_id": "v6-pilot-static_s02-repeat_9-arm_c_llm_hamilton"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "(0.2438878*x2 - 0.06112445304134)/(x3 + (x2 - 0.2506253)*(1.18629415053183*exp((-x1 + x4**2 + 0.21721554)/x4) - 0.164781453477251))",
+    "result_file": "history/round2/results/result.json",
+    "score": 0.31927470937197333
+  },
+  "llm_tokens": 1219,
+  "planner_calls": 2,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_patch": {},
+        "requires_restart": false,
+        "source": "controller"
+      },
+      "engine_measured_evaluations": 2552.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.5653848396311764,
+      "next_binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 1e-08
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 1e-08
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If reducing parsimony does not improve validation NRMSE or scientific score within the next round, the hypothesis is falsified.",
+          "hypothesis": "The material residual correlation of 0.468 indicates that the current model has not captured all structure, and the high complexity fraction (0.613) suggests overfitting. Reducing parsimony from 0.001 to a lower value may encourage a simpler model that generalizes better, potentially improving validation NRMSE."
+        },
+        "reason": "adopted LLM intervention (The material residual correlation of 0.468 indicates that the current model has not captured all structure, and the high complexity fraction (0.613) suggests overfitting. Reducing parsimony from 0.001 to a lower value may encourage a simpler model that generalizes better, potentially improving validation NRMSE.)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "round": 1,
+      "selected_score": 0.5653848396311764
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 1e-08
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 1e-08
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If reducing parsimony does not improve validation NRMSE or scientific score within the next round, the hypothesis is falsified.",
+          "hypothesis": "The material residual correlation of 0.468 indicates that the current model has not captured all structure, and the high complexity fraction (0.613) suggests overfitting. Reducing parsimony from 0.001 to a lower value may encourage a simpler model that generalizes better, potentially improving validation NRMSE."
+        },
+        "reason": "adopted LLM intervention (The material residual correlation of 0.468 indicates that the current model has not captured all structure, and the high complexity fraction (0.613) suggests overfitting. Reducing parsimony from 0.001 to a lower value may encourage a simpler model that generalizes better, potentially improving validation NRMSE.)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2676.0,
+      "incumbent_action": "promote",
+      "incumbent_score": 0.31927470937197333,
+      "next_binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not improve validation NRMSE or scientific score within a few rounds, the hypothesis is rejected.",
+          "hypothesis": "The model is underfitting due to insufficient nonlinear expressiveness; adding tanh may capture material behavior better and improve scientific score."
+        },
+        "reason": "adopted LLM intervention (The model is underfitting due to insufficient nonlinear expressiveness; adding tanh may capture material behavior better and improve scientific score.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "round": 2,
+      "selected_score": 0.31927470937197333
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not improve validation NRMSE or scientific score within a few rounds, the hypothesis is rejected.",
+          "hypothesis": "The model is underfitting due to insufficient nonlinear expressiveness; adding tanh may capture material behavior better and improve scientific score."
+        },
+        "reason": "adopted LLM intervention (The model is underfitting due to insufficient nonlinear expressiveness; adding tanh may capture material behavior better and improve scientific score.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2622.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.31927470937197333,
+      "next_binding_action": null,
+      "round": 3,
+      "selected_score": 0.5503049882270381
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

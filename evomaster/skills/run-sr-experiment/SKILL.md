@@ -1,141 +1,70 @@
 ---
 name: run-sr-experiment
-description: Run deterministic, budget-bounded symbolic-regression experiments from JSON configuration. Use when an agent must discover PySR equation structures and constants from raw variables, enforce a training-data allowlist, use contiguous validation blocks, dynamically rerank multiple candidates with pointwise and ODE metrics, and save machine-readable results without writing ad-hoc experiment code.
+description: Run deterministic, budget-bounded symbolic-regression experiments from JSON configuration. Use when discovering PySR equation structures from raw variables, enforcing a data allowlist, using contiguous validation blocks, reranking candidates, and saving machine-readable results without ad-hoc scripts.
 ---
 
 # Run SR Experiment
 
-Use the bundled runner instead of creating a new Python experiment script.
+Always use the bundled runner; never write a new experiment script.
 
 ## Workflow
 
-1. The Hamilton controller must pass its Julia/PySR preflight before the first agent
-   round. For a manual runner invocation, execute
-   `python playground/hamilton/core/pysr_preflight.py --timeout 180` first.
-   This imports PySR and loads Julia's SymbolicRegression package without fitting,
-   reading data, consuming evaluations, or calling an LLM.
-2. Follow the controller phase exactly. During `hamilton_round`, read `task.md`,
-   `plan.md`, and prior result summaries. During `hamilton_promotion`, skip search
-   configuration and execution: read the controller-generated
-   `promotion_evidence.json`. Do not read the full governed result when the packet says
-   `full_result_read_required=false`.
-3. During round 1, create the frozen baseline JSON under `history/round1/`. For
-   governed round N > 1, do not rewrite the full configuration or reread
-   `config_schema.md`. Materialize the controller baseline plus the L2 single-field
-   patch:
-
-```text
-use_skill(
-  skill_name="run-sr-experiment",
-  action="run_script",
-  script_name="prepare_adaptive_config.py",
-  script_args="--round N"
-)
-```
-
-   This deterministically assigns the frozen round seed for restart-mode protocols. In a
-   warm-start protocol it retains the initial seed, preserves the shared run directory,
-   and materializes either the one-field modification or an authorized no-op continuation.
+1. Before round 1 the controller runs the Julia/PySR preflight. For manual use:
+   `python playground/hamilton/core/pysr_preflight.py --timeout 180`.
+2. Follow the phase. `hamilton_round`: read `task.md`, `plan.md`, prior result summaries.
+   `hamilton_promotion`: read `promotion_evidence.json` only (not the full result when
+   `full_result_read_required=false`); never configure/validate/rerun PySR here.
+3. Round 1: write the frozen baseline under `history/round1/`. Round N>1: don't rewrite
+   the full config; materialize baseline + L2 single-field patch via:
+   `use_skill(skill_name="run-sr-experiment", action="run_script", script_name="prepare_adaptive_config.py", script_args="--round N")`.
 4. Validate before spending compute:
-
-```text
-use_skill(
-  skill_name="run-sr-experiment",
-  action="run_script",
-  script_name="run_experiment.py",
-  script_args="--config experiment.json --validate-only"
-)
-```
-
-5. Fix every validation error. Do not bypass data or budget checks.
-6. Execute:
-
-```text
-use_skill(
-  skill_name="run-sr-experiment",
-  action="run_script",
-  script_name="run_experiment.py",
-  script_args="--config experiment.json"
-)
-```
-
-7. During `hamilton_round`, read the returned summary and result JSON. Compare the
-   selected candidate with the diagnostic-only linear fit and inspect candidate
-   rankings, structured residual diagnostics, and ODE failures. Update only
-   `trace.md`, then call `finish(task_completed="false")`. Do not read
-   `scientific_governance.md` or update `plan.md` or `findings.md`.
-8. During `hamilton_promotion`, read `scientific_governance.md`, update `trace.md`,
-   `plan.md`, and `findings.md`, write the governed decision and residual-feedback
-   blocks, and then call `finish`. Read the compact evidence and three L2 files in
-   parallel, issue all three edits in one subsequent response, and then finish. Never
-   configure, validate, or rerun PySR in this phase.
-   Do not rewrite optional narrative sections. Replace the decision and next-round
-   contract together in one `plan.md` edit; use one concise current-round append for
-   each of `trace.md` and `findings.md`.
-   Do not reread files after editing. Call `finish` immediately and let deterministic
-   closure verify the artifacts.
+   `use_skill(..., action="run_script", script_name="run_experiment.py", script_args="--config experiment.json --validate-only")`.
+   Fix every error; never bypass data/budget checks.
+5. Execute:
+   `use_skill(..., action="run_script", script_name="run_experiment.py", script_args="--config experiment.json")`.
+6. `hamilton_round`: read the summary + result JSON, compare the selected candidate with
+   the linear-fit diagnostic, inspect rankings/residuals/ODE failures. Update only
+   `trace.md`, then `finish(task_completed="false")`. Don't touch plan.md/findings.md or
+   read scientific_governance.md.
+7. `hamilton_promotion`: read `scientific_governance.md`, update trace.md/plan.md/
+   findings.md, write the decision + residual-feedback blocks, then `finish`. Read the
+   compact evidence + three L2 files in parallel, issue the three edits in one response,
+   then finish without rereading.
 
 ## Rules
 
-- Put all choices in JSON; never edit or copy the runner.
-- List every permitted input in `data.allowed_files`. The runner rejects a training file outside this list or workspace.
-- Never open tabular data with an LLM-facing editor. Let this local runner read it and use
-  only the machine-readable result or compact console summary.
-- Use a contiguous tail block for internal validation. Never random-split time series.
-- Set `data.max_rows` to `null` for the complete file. Use `data.search_stride` to sample
-  across the entire discovery block while calculating reported metrics on every row.
-- Keep test and OOD files out of `allowed_files` during search and model selection.
-- Let PySR discover structures and constants from the configured variables. Do not add a
-  known target equation's terms as engineered input features.
-- When feature or target scales differ materially, prefer `data.standardize_search=true`.
-  The runner fits the transform on the discovery block only, searches in standardized
-  coordinates, and restores candidates to original variables and target units before
-  validation and ODE checks. Treat `search_space_equation` as an internal representation;
-  report and interpret `simplified_equation` as the physical law.
-- Enable `verification.candidate_ranking` for scientific runs. Treat its linear raw-feature
-  fit as a pipeline diagnostic only, never as a discovered equation.
-- Governed scientific rounds must keep `verification.residual_diagnostics` enabled;
-  Promotion closure rejects disabled, missing, or failed diagnostics. Interpret
-  validation residual structure before changing the next search field:
-  state/absolute-state dependence suggests unresolved state structure; autocorrelation,
-  trend, or narrow spectral peaks suggest unresolved dynamics or correlated measurement
-  error; upper-band spectral power may reflect derivative-estimation noise. None uniquely
-  identifies a missing term.
-- Never translate one residual correlation or bin pattern directly into an engineered
-  feature or equation template. State at least one alternative explanation and make the
-  next intervention falsifiable.
-- Treat `status="completed"` as execution success, not scientific success. Inspect metrics and verification results.
-- Minimize `scientific_score`; advance the search incumbent when a new result is strictly
-  better and passes the search-advancement gates. Keep final scientific-success gates
-  separate.
-- Compare standardized effects or term contributions across variables, never raw
-  coefficients with different units.
-- Calibrate causal language to the evidence and make every next strategy falsifiable.
-- Treat the controller-provided strong/weak evidence memory as read-only. Strong entries
-  are scoped numerical observations; weak entries are exploration hints only. Never edit
-  `.hamilton_evidence_memory.json` or use weak memory to override numerical gates.
-- If `status="failed"`, use `error.type`, `error.message`, and `error.stage` to change the next configuration.
-- Keep `search.random_state`, deterministic serial execution, config, result JSON, and Git revision together for reproducibility.
-- The runner writes `.hamilton_evaluation_ledger.json` and reserves the effective
-  `search.max_evals` before entering PySR. When dynamic budgeting is enabled this field is
-  controller-owned: the runner sizes it from search-space weight, recent stagnation, the
-  remaining cumulative budget, and a minimum reserve for future rounds. Completed,
-  failed, rejected, interrupted, and
-  replayed attempts all retain their reservation. When `.hamilton_budget.json` exists,
-  a new reservation that would exceed cumulative `max_total_evals` is rejected.
-- For `history/roundN/` with `N > 1`, validation compares the normalized scientific
-  configuration with the controller-declared trust-region baseline. It enforces the
-  configured step size and maximum distance from the stored incumbent anchor before
-  evaluations are reserved. After repeated non-improving rounds the controller changes
-  the baseline to the incumbent configuration and requires rollback. An explicit
-  controller-approved increase may raise, but never remove or decrease, an existing
-  evaluation-ledger limit; the increase is recorded in `budget_limit_history`.
+- Put all choices in JSON; never edit/copy the runner.
+- List every permitted input in `data.allowed_files`; the runner rejects anything else.
+- Never open tabular data with an LLM editor; use the runner's machine-readable result.
+- Use a contiguous tail block for validation; never random-split time series.
+- `data.max_rows=null` for the full file; `data.search_stride` samples search rows while
+  metrics use every row.
+- Keep test/OOD files out of `allowed_files` during search.
+- Let PySR discover structures; don't engineer known-target terms as features.
+- `data.standardize_search=true` when scales differ; interpret `simplified_equation`
+  (not `search_space_equation`) as the physical law.
+- Enable `verification.candidate_ranking`; its linear fit is a diagnostic, not a law.
+- Keep `verification.residual_diagnostics` enabled (closure rejects disabled/missing/
+  failed). Residual structure is non-unique: state dependence → unresolved state;
+  autocorrelation/trend/narrow peaks → unresolved dynamics/noise. Never map one
+  correlation directly to an engineered feature; state ≥1 alternative explanation and
+  make the intervention falsifiable.
+- `status="completed"` = execution success, not scientific success. Minimize
+  `scientific_score`; advance the incumbent only on a strictly better result passing
+  gates; keep scientific-success gates separate.
+- Compare standardized effects/term contributions, never raw cross-unit coefficients.
+- Calibrate causal language; make each next strategy falsifiable.
+- Evidence memory is read-only: strong = scoped observations, weak = hints; never edit
+  `.hamilton_evidence_memory.json` or let weak memory override gates.
+- On `status="failed"`, use `error.type/.message/.stage` to change the next config.
+- Keep `random_state`, serial execution, config, result, and Git revision together.
+- The runner reserves `search.max_evals` before PySR via `.hamilton_evaluation_ledger.json`;
+  dynamic budgeting makes this controller-owned. Every attempt retains its reservation; a
+  new reservation exceeding `max_total_evals` is rejected.
+- Round N>1 validates the config against the trust-region baseline (step size + anchor
+  distance) before reserving evals; repeated stagnation triggers rollback. A budget limit
+  may only be raised (recorded), never removed/decreased.
 
-Read [config_schema.md](references/config_schema.md) when creating or changing a configuration.
-For adaptive runs, also read [adaptive_rounds.md](references/adaptive_rounds.md).
-During `hamilton_promotion` with `experiment.scientific_governance=true`, read
-[scientific_governance.md](references/scientific_governance.md). Do not load it during
-`hamilton_round`.
-Before claiming cross-condition or final generalization, read
-[ood_protocol.md](references/ood_protocol.md). Tier 1--3 evaluation is a
-controller-only operation on a frozen candidate; never add sealed data to the runner.
+Read `config_schema.md` when creating/changing a config; `adaptive_rounds.md` for adaptive
+runs; `scientific_governance.md` only during governed promotion; `ood_protocol.md` before
+cross-condition/generalization claims (Tier 1-3 is controller-only).

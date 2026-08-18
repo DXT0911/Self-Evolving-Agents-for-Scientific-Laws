@@ -1,0 +1,11 @@
+{
+  "controller_owned": true,
+  "repeat_id": "repeat_3",
+  "round_seeds": [
+    8403,
+    8403,
+    8403
+  ],
+  "schema_version": 1,
+  "task_id": "dynamic_d01"
+}

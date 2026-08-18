@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T04:01:03.665793+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "8d5e5f8effe56f5c9f73f00eff1512700382a1c96deabe637cf4a4f314a24587",
+      "usage": {
+        "prompt_tokens": 513,
+        "completion_tokens": 126,
+        "total_tokens": 639
+      },
+      "proposal": {
+        "hypothesis": "The current model has a high validation NRMSE and a material residual correlation, suggesting that the existing unary operators (sin, cos, exp) are insufficient to capture the underlying nonlinearity. Adding the tanh operator may provide a more flexible functional form, potentially improving the model's fit and scientific score.",
+        "falsification": "If adding tanh does not lead to a decrease in validation NRMSE or an improvement in scientific score within a few rounds, the hypothesis is falsified, and the operator should be removed.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T04:01:14.193740+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "a71907195b577308aaeb281dff12e045a9a473d481124f1321a09856659906e1",
+      "usage": {
+        "prompt_tokens": 521,
+        "completion_tokens": 151,
+        "total_tokens": 672
+      },
+      "proposal": {
+        "hypothesis": "The high material residual correlation (0.887) indicates that the current model is missing significant structure, and the low parsimony (0.001) is allowing overly complex models that may be overfitting, as evidenced by the negative score improvement. Reducing parsimony pressure could help the search focus on simpler, more generalizable expressions that capture the remaining structure.",
+        "falsification": "If reducing parsimony does not lead to an improvement in scientific score or a reduction in material residual correlation within a few rounds, then the hypothesis is falsified, and the issue may lie elsewhere, such as in the operator set or the search strategy.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.1
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1311
+}

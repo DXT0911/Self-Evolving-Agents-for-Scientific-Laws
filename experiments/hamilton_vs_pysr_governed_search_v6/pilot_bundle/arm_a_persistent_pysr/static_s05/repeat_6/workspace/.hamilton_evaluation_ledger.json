@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "max_total_evals": 6000,
+  "created_at": "2026-08-17T02:15:37.902073+00:00",
+  "attempts": [
+    {
+      "attempt_id": "b5389d5a-d70e-4b5b-bb02-f089be2f006e",
+      "experiment_id": "v6_pilot_arm_a_persistent_pysr__static_s05__repeat_6__round1",
+      "config_sha256": "dc4f20f55e6883723e6828217789d115225627bd9cf5b0797f118ba8441a4aee",
+      "result_file": "history/round1/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T02:15:37.903829+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 1,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 0,
+        "total_limit": 6000,
+        "remaining_before": 6000,
+        "future_minimum_reserve": 3000,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 868.0,
+        "current_weight": 868.0
+      },
+      "finished_at": "2026-08-17T02:16:07.369194+00:00",
+      "result_sha256": "1fafda54cb832130bbe3d8c29c053c8a4447203f385ec1d0a5021eb99d1484d6"
+    },
+    {
+      "attempt_id": "f00f9dd0-c9ed-4dc4-b1fd-8ed2ab70b578",
+      "experiment_id": "v6_pilot_arm_a_persistent_pysr__static_s05__repeat_6__round2",
+      "config_sha256": "888e81639121747f12e11148e474faaaf0fced1b1f8292fe87884618903b23e3",
+      "result_file": "history/round2/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T02:16:08.474834+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 2,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 1500,
+        "total_limit": 6000,
+        "remaining_before": 4500,
+        "future_minimum_reserve": 1500,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 868.0,
+        "current_weight": 868.0
+      },
+      "finished_at": "2026-08-17T02:16:14.657501+00:00",
+      "result_sha256": "b48b329fddf3eb6549a8ddba013724be41444ef64349b32bb9169d0b12b70e3d"
+    },
+    {
+      "attempt_id": "29b7fbb5-629c-42bc-b21b-41ade292c286",
+      "experiment_id": "v6_pilot_arm_a_persistent_pysr__static_s05__repeat_6__round3",
+      "config_sha256": "e50dab479e01a262f876f4a55c3577a08a71840b102dd852c2e66403da23ca40",
+      "result_file": "history/round3/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T02:16:15.739314+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 3,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 3000,
+        "total_limit": 6000,
+        "remaining_before": 3000,
+        "future_minimum_reserve": 0,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 868.0,
+        "current_weight": 868.0
+      },
+      "finished_at": "2026-08-17T02:16:20.509279+00:00",
+      "result_sha256": "2d0443bfd0053d1210789a2b39a5b9a11c35f151c62dd4e1f6d026dfe1efa627"
+    }
+  ]
+}

@@ -1,0 +1,2475 @@
+{
+  "arm_summaries": {
+    "arm_a_persistent_pysr": {
+      "completed_runs": 40,
+      "median_scientific_score": 0.4853664016656185
+    },
+    "arm_b_rule_hamilton": {
+      "completed_runs": 40,
+      "median_scientific_score": 0.4464279174965856
+    },
+    "arm_c_llm_hamilton": {
+      "completed_runs": 40,
+      "median_scientific_score": 0.4911446340673282
+    }
+  },
+  "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
+  "head_to_head": {
+    "b_vs_a": {
+      "losses": 18,
+      "ties": 5,
+      "wins": 17
+    },
+    "c_vs_a": {
+      "losses": 25,
+      "ties": 3,
+      "wins": 12
+    },
+    "c_vs_b": {
+      "losses": 19,
+      "ties": 16,
+      "wins": 5
+    }
+  },
+  "interpretation": "development_pilot_only_not_confirmatory",
+  "paired_comparisons": [
+    {
+      "arm_a_engine_evals": 8768.0,
+      "arm_a_score": 0.7066441254340071,
+      "arm_b_engine_evals": 8622.0,
+      "arm_b_score": 0.647504948690569,
+      "arm_c_engine_evals": 8862.0,
+      "arm_c_score": 0.647504948690569,
+      "repeat_id": "repeat_1",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6898.0,
+      "arm_a_score": 0.5928725141299508,
+      "arm_b_engine_evals": 7838.0,
+      "arm_b_score": 0.6091897478441428,
+      "arm_c_engine_evals": 7869.0,
+      "arm_c_score": 0.6187587028682527,
+      "repeat_id": "repeat_10",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6842.0,
+      "arm_a_score": 0.8724686598075282,
+      "arm_b_engine_evals": 6970.0,
+      "arm_b_score": 0.6416574199356169,
+      "arm_c_engine_evals": 7305.0,
+      "arm_c_score": 0.6416574199356169,
+      "repeat_id": "repeat_2",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6836.0,
+      "arm_a_score": 0.31480893172747054,
+      "arm_b_engine_evals": 7625.0,
+      "arm_b_score": 0.5921970471234722,
+      "arm_c_engine_evals": 7445.0,
+      "arm_c_score": 0.5921970471234722,
+      "repeat_id": "repeat_3",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6147.0,
+      "arm_a_score": 0.7663698246520642,
+      "arm_b_engine_evals": 7039.0,
+      "arm_b_score": 0.5800016597205478,
+      "arm_c_engine_evals": 6426.0,
+      "arm_c_score": 0.8762816396156088,
+      "repeat_id": "repeat_4",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 7278.0,
+      "arm_a_score": 0.6701288616423097,
+      "arm_b_engine_evals": 8184.0,
+      "arm_b_score": 0.6701288616423097,
+      "arm_c_engine_evals": 8066.0,
+      "arm_c_score": 0.6701288616423097,
+      "repeat_id": "repeat_5",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6715.0,
+      "arm_a_score": 0.780819087110064,
+      "arm_b_engine_evals": 6742.0,
+      "arm_b_score": 0.6585999520395688,
+      "arm_c_engine_evals": 7635.0,
+      "arm_c_score": 0.6585999520395688,
+      "repeat_id": "repeat_6",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 6905.0,
+      "arm_a_score": 0.4879497808329812,
+      "arm_b_engine_evals": 6649.0,
+      "arm_b_score": 0.8353468038900638,
+      "arm_c_engine_evals": 7498.0,
+      "arm_c_score": 0.8353468038900638,
+      "repeat_id": "repeat_7",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 7971.0,
+      "arm_a_score": 0.72550975221602,
+      "arm_b_engine_evals": 7209.0,
+      "arm_b_score": 0.28662786517809136,
+      "arm_c_engine_evals": 6786.0,
+      "arm_c_score": 0.7527992879180548,
+      "repeat_id": "repeat_8",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 7712.0,
+      "arm_a_score": 0.7316590398951098,
+      "arm_b_engine_evals": 7133.0,
+      "arm_b_score": 0.5247530602415542,
+      "arm_c_engine_evals": 7057.0,
+      "arm_c_score": 0.5799215668307521,
+      "repeat_id": "repeat_9",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm_a_engine_evals": 8224.0,
+      "arm_a_score": 0.17859983857823564,
+      "arm_b_engine_evals": 7887.0,
+      "arm_b_score": 0.09035791967666656,
+      "arm_c_engine_evals": 7712.0,
+      "arm_c_score": 0.2595143179041299,
+      "repeat_id": "repeat_1",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7807.0,
+      "arm_a_score": 0.2360814897501672,
+      "arm_b_engine_evals": 6911.0,
+      "arm_b_score": 0.1646304849468026,
+      "arm_c_engine_evals": 7774.0,
+      "arm_c_score": 0.44558810453180675,
+      "repeat_id": "repeat_10",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7636.0,
+      "arm_a_score": 0.6121953461687437,
+      "arm_b_engine_evals": 7608.0,
+      "arm_b_score": 0.7624098295071986,
+      "arm_c_engine_evals": 7478.0,
+      "arm_c_score": 0.8162823789957764,
+      "repeat_id": "repeat_2",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7609.0,
+      "arm_a_score": 0.2798471291664716,
+      "arm_b_engine_evals": 7634.0,
+      "arm_b_score": 0.08976621480517724,
+      "arm_c_engine_evals": 7634.0,
+      "arm_c_score": 0.08976621480517724,
+      "repeat_id": "repeat_3",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7775.0,
+      "arm_a_score": 0.12501215611110794,
+      "arm_b_engine_evals": 7689.0,
+      "arm_b_score": 0.1621228554323994,
+      "arm_c_engine_evals": 7512.0,
+      "arm_c_score": 0.1621228554323994,
+      "repeat_id": "repeat_4",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7707.0,
+      "arm_a_score": 0.5082741702364283,
+      "arm_b_engine_evals": 7500.0,
+      "arm_b_score": 0.33630868876085207,
+      "arm_c_engine_evals": 7612.0,
+      "arm_c_score": 0.19340934682202324,
+      "repeat_id": "repeat_5",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7307.0,
+      "arm_a_score": 0.09903497907975732,
+      "arm_b_engine_evals": 7412.0,
+      "arm_b_score": 0.12670268495584797,
+      "arm_c_engine_evals": 7556.0,
+      "arm_c_score": 0.12670268495584797,
+      "repeat_id": "repeat_6",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7697.0,
+      "arm_a_score": 0.2107879875546655,
+      "arm_b_engine_evals": 8073.0,
+      "arm_b_score": 0.10896103227834301,
+      "arm_c_engine_evals": 7893.0,
+      "arm_c_score": 0.10674597626688696,
+      "repeat_id": "repeat_7",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7527.0,
+      "arm_a_score": 0.2019463058907019,
+      "arm_b_engine_evals": 7776.0,
+      "arm_b_score": 0.19788279125107058,
+      "arm_c_engine_evals": 7527.0,
+      "arm_c_score": 0.21023145499535076,
+      "repeat_id": "repeat_8",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7606.0,
+      "arm_a_score": 0.11865554493422334,
+      "arm_b_engine_evals": 7303.0,
+      "arm_b_score": 0.2525407583635695,
+      "arm_c_engine_evals": 7303.0,
+      "arm_c_score": 0.2525407583635695,
+      "repeat_id": "repeat_9",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm_a_engine_evals": 7841.0,
+      "arm_a_score": 0.24538379778797867,
+      "arm_b_engine_evals": 7750.0,
+      "arm_b_score": 0.33662207119769694,
+      "arm_c_engine_evals": 7781.0,
+      "arm_c_score": 0.456467407089721,
+      "repeat_id": "repeat_1",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7586.0,
+      "arm_a_score": 0.09916603210613759,
+      "arm_b_engine_evals": 7788.0,
+      "arm_b_score": 0.4464279174965856,
+      "arm_c_engine_evals": 7771.0,
+      "arm_c_score": 0.4464279174965856,
+      "repeat_id": "repeat_10",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7883.0,
+      "arm_a_score": 0.5406907774765684,
+      "arm_b_engine_evals": 7798.0,
+      "arm_b_score": 0.37060483399995287,
+      "arm_c_engine_evals": 7980.0,
+      "arm_c_score": 0.37060483399995287,
+      "repeat_id": "repeat_2",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7560.0,
+      "arm_a_score": 0.689142424100474,
+      "arm_b_engine_evals": 7727.0,
+      "arm_b_score": 0.3582572742636959,
+      "arm_c_engine_evals": 7693.0,
+      "arm_c_score": 0.4911446340673282,
+      "repeat_id": "repeat_3",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7951.0,
+      "arm_a_score": 0.4873648297624878,
+      "arm_b_engine_evals": 7548.0,
+      "arm_b_score": 0.5181628507623207,
+      "arm_c_engine_evals": 7281.0,
+      "arm_c_score": 0.5181628507623207,
+      "repeat_id": "repeat_4",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7723.0,
+      "arm_a_score": 0.5348914019528197,
+      "arm_b_engine_evals": 7760.0,
+      "arm_b_score": 0.5129746074148437,
+      "arm_c_engine_evals": 7697.0,
+      "arm_c_score": 0.6019715248051003,
+      "repeat_id": "repeat_5",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 8032.0,
+      "arm_a_score": 0.03131783896970844,
+      "arm_b_engine_evals": 7693.0,
+      "arm_b_score": 0.3290818926523622,
+      "arm_c_engine_evals": 7712.0,
+      "arm_c_score": 0.5434603879636546,
+      "repeat_id": "repeat_6",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 6604.0,
+      "arm_a_score": 0.4853664016656185,
+      "arm_b_engine_evals": 6523.0,
+      "arm_b_score": 0.5080679811735327,
+      "arm_c_engine_evals": 6813.0,
+      "arm_c_score": 0.44518209976590234,
+      "repeat_id": "repeat_7",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7887.0,
+      "arm_a_score": 0.3118889129330715,
+      "arm_b_engine_evals": 7657.0,
+      "arm_b_score": 0.5586917109901182,
+      "arm_c_engine_evals": 7485.0,
+      "arm_c_score": 0.5586917109901182,
+      "repeat_id": "repeat_8",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7462.0,
+      "arm_a_score": 0.33181330267724524,
+      "arm_b_engine_evals": 7755.0,
+      "arm_b_score": 0.5032344951161588,
+      "arm_c_engine_evals": 7850.0,
+      "arm_c_score": 0.31927470937197333,
+      "repeat_id": "repeat_9",
+      "task_id": "static_s02"
+    },
+    {
+      "arm_a_engine_evals": 7355.0,
+      "arm_a_score": 0.37131547902567624,
+      "arm_b_engine_evals": 7309.0,
+      "arm_b_score": 0.7566364043613107,
+      "arm_c_engine_evals": 7212.0,
+      "arm_c_score": 0.7728009473419117,
+      "repeat_id": "repeat_1",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7893.0,
+      "arm_a_score": 0.7469528644760703,
+      "arm_b_engine_evals": 7616.0,
+      "arm_b_score": 0.7469528644760703,
+      "arm_c_engine_evals": 7399.0,
+      "arm_c_score": 0.7469528644760703,
+      "repeat_id": "repeat_10",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7474.0,
+      "arm_a_score": 0.28890033064713244,
+      "arm_b_engine_evals": 7637.0,
+      "arm_b_score": 0.3139807984569842,
+      "arm_c_engine_evals": 7988.0,
+      "arm_c_score": 0.3139807984569842,
+      "repeat_id": "repeat_2",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7851.0,
+      "arm_a_score": 0.28567532110702304,
+      "arm_b_engine_evals": 7722.0,
+      "arm_b_score": 0.5674014119850719,
+      "arm_c_engine_evals": 7480.0,
+      "arm_c_score": 0.6120208171151839,
+      "repeat_id": "repeat_3",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7678.0,
+      "arm_a_score": 0.2891850787472648,
+      "arm_b_engine_evals": 7678.0,
+      "arm_b_score": 0.2891850787472648,
+      "arm_c_engine_evals": 7751.0,
+      "arm_c_score": 0.2921262993146849,
+      "repeat_id": "repeat_4",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7908.0,
+      "arm_a_score": 0.2856743672445164,
+      "arm_b_engine_evals": 7978.0,
+      "arm_b_score": 0.35837727200129627,
+      "arm_c_engine_evals": 8140.0,
+      "arm_c_score": 0.2859207660689111,
+      "repeat_id": "repeat_5",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7604.0,
+      "arm_a_score": 0.5329451618963277,
+      "arm_b_engine_evals": 6654.0,
+      "arm_b_score": 0.3973692634883366,
+      "arm_c_engine_evals": 6628.0,
+      "arm_c_score": 0.40059507314682663,
+      "repeat_id": "repeat_6",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7533.0,
+      "arm_a_score": 0.48716648701639476,
+      "arm_b_engine_evals": 7633.0,
+      "arm_b_score": 0.48716648701639476,
+      "arm_c_engine_evals": 7669.0,
+      "arm_c_score": 0.49699833159301166,
+      "repeat_id": "repeat_7",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 7299.0,
+      "arm_a_score": 0.3894758134846041,
+      "arm_b_engine_evals": 7299.0,
+      "arm_b_score": 0.3894758134846041,
+      "arm_c_engine_evals": 7313.0,
+      "arm_c_score": 0.39711034011791174,
+      "repeat_id": "repeat_8",
+      "task_id": "static_s05"
+    },
+    {
+      "arm_a_engine_evals": 6384.0,
+      "arm_a_score": 0.48558267450199827,
+      "arm_b_engine_evals": 7661.0,
+      "arm_b_score": 0.3752069663581138,
+      "arm_c_engine_evals": 7306.0,
+      "arm_c_score": 0.48558267450199827,
+      "repeat_id": "repeat_9",
+      "task_id": "static_s05"
+    }
+  ],
+  "rows": [
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7841.0,
+      "final_scientific_score": 0.24538379778797867,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7750.0,
+      "final_scientific_score": 0.33662207119769694,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7781.0,
+      "final_scientific_score": 0.456467407089721,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1249,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7883.0,
+      "final_scientific_score": 0.5406907774765684,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7798.0,
+      "final_scientific_score": 0.37060483399995287,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7980.0,
+      "final_scientific_score": 0.37060483399995287,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1261,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7560.0,
+      "final_scientific_score": 0.689142424100474,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7727.0,
+      "final_scientific_score": 0.3582572742636959,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7693.0,
+      "final_scientific_score": 0.4911446340673282,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1251,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7951.0,
+      "final_scientific_score": 0.4873648297624878,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7548.0,
+      "final_scientific_score": 0.5181628507623207,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7281.0,
+      "final_scientific_score": 0.5181628507623207,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1308,
+      "planner_calls": 2,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7723.0,
+      "final_scientific_score": 0.5348914019528197,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7760.0,
+      "final_scientific_score": 0.5129746074148437,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7697.0,
+      "final_scientific_score": 0.6019715248051003,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1277,
+      "planner_calls": 2,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 8032.0,
+      "final_scientific_score": 0.03131783896970844,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7693.0,
+      "final_scientific_score": 0.3290818926523622,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7712.0,
+      "final_scientific_score": 0.5434603879636546,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1268,
+      "planner_calls": 2,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6604.0,
+      "final_scientific_score": 0.4853664016656185,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6523.0,
+      "final_scientific_score": 0.5080679811735327,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6813.0,
+      "final_scientific_score": 0.44518209976590234,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1288,
+      "planner_calls": 2,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7887.0,
+      "final_scientific_score": 0.3118889129330715,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7657.0,
+      "final_scientific_score": 0.5586917109901182,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7485.0,
+      "final_scientific_score": 0.5586917109901182,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1231,
+      "planner_calls": 2,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7462.0,
+      "final_scientific_score": 0.33181330267724524,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7755.0,
+      "final_scientific_score": 0.5032344951161588,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7850.0,
+      "final_scientific_score": 0.31927470937197333,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1219,
+      "planner_calls": 2,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7586.0,
+      "final_scientific_score": 0.09916603210613759,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7788.0,
+      "final_scientific_score": 0.4464279174965856,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7771.0,
+      "final_scientific_score": 0.4464279174965856,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1273,
+      "planner_calls": 2,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7355.0,
+      "final_scientific_score": 0.37131547902567624,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7309.0,
+      "final_scientific_score": 0.7566364043613107,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7212.0,
+      "final_scientific_score": 0.7728009473419117,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1312,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7474.0,
+      "final_scientific_score": 0.28890033064713244,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7637.0,
+      "final_scientific_score": 0.3139807984569842,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7988.0,
+      "final_scientific_score": 0.3139807984569842,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1254,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7851.0,
+      "final_scientific_score": 0.28567532110702304,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7722.0,
+      "final_scientific_score": 0.5674014119850719,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7480.0,
+      "final_scientific_score": 0.6120208171151839,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1265,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7678.0,
+      "final_scientific_score": 0.2891850787472648,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7678.0,
+      "final_scientific_score": 0.2891850787472648,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7751.0,
+      "final_scientific_score": 0.2921262993146849,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1230,
+      "planner_calls": 2,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7908.0,
+      "final_scientific_score": 0.2856743672445164,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7978.0,
+      "final_scientific_score": 0.35837727200129627,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8140.0,
+      "final_scientific_score": 0.2859207660689111,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1225,
+      "planner_calls": 2,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7604.0,
+      "final_scientific_score": 0.5329451618963277,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6654.0,
+      "final_scientific_score": 0.3973692634883366,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6628.0,
+      "final_scientific_score": 0.40059507314682663,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1240,
+      "planner_calls": 2,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7533.0,
+      "final_scientific_score": 0.48716648701639476,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7633.0,
+      "final_scientific_score": 0.48716648701639476,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7669.0,
+      "final_scientific_score": 0.49699833159301166,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1311,
+      "planner_calls": 2,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7299.0,
+      "final_scientific_score": 0.3894758134846041,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7299.0,
+      "final_scientific_score": 0.3894758134846041,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7313.0,
+      "final_scientific_score": 0.39711034011791174,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1349,
+      "planner_calls": 2,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6384.0,
+      "final_scientific_score": 0.48558267450199827,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7661.0,
+      "final_scientific_score": 0.3752069663581138,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7306.0,
+      "final_scientific_score": 0.48558267450199827,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1254,
+      "planner_calls": 2,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7893.0,
+      "final_scientific_score": 0.7469528644760703,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7616.0,
+      "final_scientific_score": 0.7469528644760703,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "restart": 2
+      },
+      "engine_measured_evaluations_total": 7399.0,
+      "final_scientific_score": 0.7469528644760703,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1397,
+      "planner_calls": 2,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "static_s05"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 8768.0,
+      "final_scientific_score": 0.7066441254340071,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8622.0,
+      "final_scientific_score": 0.647504948690569,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8862.0,
+      "final_scientific_score": 0.647504948690569,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1285,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6842.0,
+      "final_scientific_score": 0.8724686598075282,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6970.0,
+      "final_scientific_score": 0.6416574199356169,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7305.0,
+      "final_scientific_score": 0.6416574199356169,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1298,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6836.0,
+      "final_scientific_score": 0.31480893172747054,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7625.0,
+      "final_scientific_score": 0.5921970471234722,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7445.0,
+      "final_scientific_score": 0.5921970471234722,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1271,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6147.0,
+      "final_scientific_score": 0.7663698246520642,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7039.0,
+      "final_scientific_score": 0.5800016597205478,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "modify": 1
+      },
+      "engine_measured_evaluations_total": 6426.0,
+      "final_scientific_score": 0.8762816396156088,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1303,
+      "planner_calls": 2,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7278.0,
+      "final_scientific_score": 0.6701288616423097,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8184.0,
+      "final_scientific_score": 0.6701288616423097,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8066.0,
+      "final_scientific_score": 0.6701288616423097,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1325,
+      "planner_calls": 2,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6715.0,
+      "final_scientific_score": 0.780819087110064,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6742.0,
+      "final_scientific_score": 0.6585999520395688,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7635.0,
+      "final_scientific_score": 0.6585999520395688,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1216,
+      "planner_calls": 2,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6905.0,
+      "final_scientific_score": 0.4879497808329812,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6649.0,
+      "final_scientific_score": 0.8353468038900638,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7498.0,
+      "final_scientific_score": 0.8353468038900638,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1231,
+      "planner_calls": 2,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7971.0,
+      "final_scientific_score": 0.72550975221602,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7209.0,
+      "final_scientific_score": 0.28662786517809136,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6786.0,
+      "final_scientific_score": 0.7527992879180548,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1282,
+      "planner_calls": 2,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7712.0,
+      "final_scientific_score": 0.7316590398951098,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7133.0,
+      "final_scientific_score": 0.5247530602415542,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7057.0,
+      "final_scientific_score": 0.5799215668307521,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1226,
+      "planner_calls": 2,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 6898.0,
+      "final_scientific_score": 0.5928725141299508,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7838.0,
+      "final_scientific_score": 0.6091897478441428,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7869.0,
+      "final_scientific_score": 0.6187587028682527,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1252,
+      "planner_calls": 2,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d01"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 8224.0,
+      "final_scientific_score": 0.17859983857823564,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7887.0,
+      "final_scientific_score": 0.09035791967666656,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7712.0,
+      "final_scientific_score": 0.2595143179041299,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1260,
+      "planner_calls": 2,
+      "repeat_id": "repeat_1",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7636.0,
+      "final_scientific_score": 0.6121953461687437,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7608.0,
+      "final_scientific_score": 0.7624098295071986,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7478.0,
+      "final_scientific_score": 0.8162823789957764,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1273,
+      "planner_calls": 2,
+      "repeat_id": "repeat_2",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7609.0,
+      "final_scientific_score": 0.2798471291664716,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7634.0,
+      "final_scientific_score": 0.08976621480517724,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7634.0,
+      "final_scientific_score": 0.08976621480517724,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1174,
+      "planner_calls": 2,
+      "repeat_id": "repeat_3",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7775.0,
+      "final_scientific_score": 0.12501215611110794,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7689.0,
+      "final_scientific_score": 0.1621228554323994,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7512.0,
+      "final_scientific_score": 0.1621228554323994,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1310,
+      "planner_calls": 2,
+      "repeat_id": "repeat_4",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7707.0,
+      "final_scientific_score": 0.5082741702364283,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7500.0,
+      "final_scientific_score": 0.33630868876085207,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7612.0,
+      "final_scientific_score": 0.19340934682202324,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1224,
+      "planner_calls": 2,
+      "repeat_id": "repeat_5",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7307.0,
+      "final_scientific_score": 0.09903497907975732,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7412.0,
+      "final_scientific_score": 0.12670268495584797,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7556.0,
+      "final_scientific_score": 0.12670268495584797,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1284,
+      "planner_calls": 2,
+      "repeat_id": "repeat_6",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7697.0,
+      "final_scientific_score": 0.2107879875546655,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 8073.0,
+      "final_scientific_score": 0.10896103227834301,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7893.0,
+      "final_scientific_score": 0.10674597626688696,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1245,
+      "planner_calls": 2,
+      "repeat_id": "repeat_7",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7527.0,
+      "final_scientific_score": 0.2019463058907019,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7776.0,
+      "final_scientific_score": 0.19788279125107058,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7527.0,
+      "final_scientific_score": 0.21023145499535076,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1240,
+      "planner_calls": 2,
+      "repeat_id": "repeat_8",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7606.0,
+      "final_scientific_score": 0.11865554493422334,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7303.0,
+      "final_scientific_score": 0.2525407583635695,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7303.0,
+      "final_scientific_score": 0.2525407583635695,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1296,
+      "planner_calls": 2,
+      "repeat_id": "repeat_9",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_a_persistent_pysr",
+      "binding_action_counts": {
+        "continue": 3
+      },
+      "engine_measured_evaluations_total": 7807.0,
+      "final_scientific_score": 0.2360814897501672,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_b_rule_hamilton",
+      "binding_action_counts": {
+        "continue": 2,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 6911.0,
+      "final_scientific_score": 0.1646304849468026,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 0,
+      "planner_calls": 0,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    },
+    {
+      "arm": "arm_c_llm_hamilton",
+      "binding_action_counts": {
+        "continue": 1,
+        "modify": 1,
+        "restart": 1
+      },
+      "engine_measured_evaluations_total": 7774.0,
+      "final_scientific_score": 0.44558810453180675,
+      "llm_adopted": 2,
+      "llm_rejected": 0,
+      "llm_tokens": 1303,
+      "planner_calls": 2,
+      "repeat_id": "repeat_10",
+      "seed": null,
+      "status": "completed",
+      "task_id": "dynamic_d02"
+    }
+  ],
+  "schema_version": 1,
+  "status": "collected"
+}

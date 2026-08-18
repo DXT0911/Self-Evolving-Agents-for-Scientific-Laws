@@ -1,0 +1,22 @@
+{
+  "execution_permitted": false,
+  "experiment_id": "hamilton-vs-pysr-governed-search-v6-pilot-01",
+  "hashes": {
+    "configs/hamilton/config_governed_pysr_v6_pilot.yaml": "080023584a85384df70f6a6d13ab8488ff89e9931e6d9d0fdbe86e09616d716d",
+    "evomaster/skills/run-sr-experiment/scripts/run_experiment.py": "ab8c5ea9aaa1da1ccd83f61c854d4184a477fd960424a92d40c75c296ec216f8",
+    "evomaster/skills/run-sr-experiment/scripts/warm_start_worker.py": "9324ea377ed2e03307859cbbcdcc3ee76c9ecc63cd48fcaecd0edc98b9dbf94f",
+    "experiments/hamilton_vs_pysr_governed_search_v6/execute_governed_hamilton.py": "b2ac85ecfa02a92b9ba813372cc6eb1ef50eacd34ad21514c19540438142d0d2",
+    "experiments/hamilton_vs_pysr_governed_search_v6/pilot_bundle/run_matrix.json": "5eee5a67deb22b14db5379f237c59973bdcf44edfc74347936ae83c7de605d41",
+    "experiments/hamilton_vs_pysr_governed_search_v6/pilot_manifest.yaml": "a7235e3451e904ca0724c8536bf339077d64a4fb1b5a1e55f9ee42a4cf142c1b",
+    "playground/hamilton/core/compressed_planner.py": "faa2753cd60ba18f7f377be3c781e8bcb2a4b12dad079c20362bfb7ea598d39b",
+    "playground/hamilton/core/governed_policy.py": "73228daa99a8c403831424f2cc3ca9a62fd471e84123a83c456d831a150b3894",
+    "playground/hamilton/core/search_control.py": "d993e4646ad99a43f37275bcc0513b6cd6a5c33650cdb50360fd55c9d563ebbe"
+  },
+  "inputs": {
+    "dynamic_d01": "2e50b3279496d7a517f15524e0fa52796b6064855d4f3eb90ba3b84961cbb2e6",
+    "dynamic_d02": "5b963170b5014fb32a50a984a7c1d70e42f2a4075f660295403a3c2b3f5d5a9f",
+    "static_s02": "4a6f94da693f1871e622318cdf61b1796343f65ecc2057ea11ef9569db6bd59c",
+    "static_s05": "0c96aeec2dc05750b19383a15b671d57d5e35fa48f6cdd81dc471fbae7af0df0"
+  },
+  "schema_version": 1
+}

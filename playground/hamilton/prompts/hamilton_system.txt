@@ -3,6 +3,12 @@
 You are the single Hamilton scientific agent. EvoMaster invokes you in one of two Exp
 phases. Follow only the phase named by the task type:
 
+Workspace file layout (exact paths):
+- `history/roundN/trace.md` — L1 per-round work log, inside the round directory.
+- `findings.md` — L2 knowledge, at the workspace ROOT (append-only).
+- `plan.md` — L2 strategy, at the workspace ROOT (current-best + scientific decision).
+- `history/roundN/promotion_evidence.json` — frozen promotion input, inside the round directory.
+
 - `hamilton_round`: execute Literature Grounding when required, Discovery, and
   Verification. Produce a completed result JSON, update `trace.md`, and call `finish`
   with `task_completed="false"`. Do not perform Promotion or rewrite the scientific
@@ -49,7 +55,9 @@ The complete research round contains these phases:
 
 3. Promotion
    - Execute this section only for `hamilton_promotion`.
-   - Update the current round's `trace.md`, `findings.md`, and `plan.md`.
+   - Update `history/roundN/trace.md` (current round) and the workspace-root
+     `findings.md` + `plan.md` (L2). Do not put findings.md or plan.md inside
+     `history/roundN/`.
    - Append the exact current-round `EVO_RESIDUAL_FEEDBACK` block required by
      `scientific_governance.md`, and propagate it into a falsifiable next strategy and
      `EVO_NEXT_ROUND` contract.
@@ -87,3 +95,10 @@ Scientific governance:
 - Use calibrated claim strength, scale-aware and residual evidence, an alternative
   explanation, an expected residual change, and a falsifiable next strategy with risks.
   Solver completion alone cannot satisfy the research task.
+- When the controller permits no-op continuation, you may judge that further parameter
+  tuning is not justified. Record that decision structurally as
+  `next_strategy.action: "continue"`, `config_field: null`, and `config_patch: {}`;
+  retain all required evidence, risks, and falsification fields. The following Discovery
+  round must then use warm-start `round_action: "continue"` with the same scientific
+  configuration, so it spends its authorized evaluation budget without inventing a
+  cosmetic parameter change.

@@ -18,8 +18,10 @@ from typing import Any
 from .governed_policy import (
     PolicyThresholds,
     choose_action,
+    choose_atomic_action,
     diagnostic_snapshot,
     infer_process_state,
+    normalize_atomic_action,
     route_memory,
 )
 
@@ -734,12 +736,13 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
     policy_snapshot: dict[str, Any] = {}
     policy_decision: dict[str, Any] = {}
     process_state = "unknown"
+    policy_enabled, policy_binding, policy_thresholds, warm_fields = _policy_settings(control)
     persisted_policy = state.get("next_round", {}).get("controller_policy")
     if isinstance(persisted_policy, dict) and persisted_policy.get("enabled"):
         policy_snapshot = persisted_policy.get("snapshot", {})
         policy_decision = persisted_policy.get("action", {})
         process_state = str(persisted_policy.get("process_state", "unknown"))
-    elif incumbent_result_path.is_file():
+    elif policy_enabled and incumbent_result_path.is_file():
         incumbent_result = json.loads(incumbent_result_path.read_text(encoding="utf-8"))
         policy_snapshot = diagnostic_snapshot(
             incumbent_result,
@@ -771,14 +774,90 @@ def round_directive(workspace: Path, round_num: int) -> dict[str, Any] | None:
         "controller_policy": {
             "process_state": process_state,
             "snapshot": policy_snapshot,
-            "recommended_action": policy_decision,
+            "recommended_action": policy_decision if policy_enabled else None,
             "binding": bool(
                 isinstance(persisted_policy, dict)
                 and persisted_policy.get("binding")
             ),
             "note": (
                 "When binding is true, the standard runner enforces this action and "
-                "config patch before reserving evaluations."
+                "config patch before reserving evaluations. When binding is false (or "
+                "the deterministic policy is disabled), recommended_action is null or "
+                "advisory only: your own plan.md next_strategy is authoritative."
             ),
         },
     }
+
+
+def review_planner_proposal(
+    proposal: dict[str, Any],
+    snapshot: dict[str, Any],
+    *,
+    current_operators: list[str],
+    allowed_operators: list[str],
+    parsimony_bounds: tuple[float, float],
+    thresholds: PolicyThresholds | None = None,
+) -> dict[str, Any]:
+    """Adopt a legal LLM atomic action, or fall back to the deterministic rule.
+
+    The controller always retains final execution authority: it validates the LLM's
+    intent against the frozen envelope and single-field trust region, and rejects any
+    illegal or empty proposal by substituting the deterministic rule intervention.
+    The returned binding action has ``action`` in ``{continue, modify, restart}`` and
+    is exactly what the runner's trust-region audit enforces next round.
+    """
+
+    def normalize(intent: object, source: str, *, reason: str = "") -> dict[str, Any]:
+        binding = normalize_atomic_action(
+            intent,
+            current_operators=current_operators,
+            allowed_operators=allowed_operators,
+            parsimony_bounds=parsimony_bounds,
+            reason=reason,
+        )
+        binding["source"] = source
+        binding["authority"] = "deterministic_controller"
+        return binding
+
+    atomic = proposal.get("atomic_action") if isinstance(proposal, dict) else None
+    hypothesis = (
+        proposal.get("hypothesis", "")
+        if isinstance(proposal, dict)
+        else ""
+    )
+    try:
+        binding = normalize(
+            atomic,
+            "llm",
+            reason=f"adopted LLM intervention ({hypothesis.strip()})" if hypothesis.strip() else "",
+        )
+        binding["adopted"] = True
+        binding["planner_proposal"] = proposal
+        return binding
+    except (ValueError, KeyError, TypeError) as exc:
+        rule_intent = choose_atomic_action(
+            snapshot,
+            current_operators=current_operators,
+            allowed_operators=allowed_operators,
+            thresholds=thresholds,
+        )
+        binding = normalize(
+            rule_intent,
+            "rule",
+            reason=rule_intent.get("reason", ""),
+        )
+        binding["adopted"] = False
+        binding["reject_reason"] = str(exc)
+        binding["planner_proposal"] = proposal
+        return binding
+
+
+def persist_binding_action(workspace: Path, binding: dict[str, Any]) -> dict[str, Any]:
+    """Overwrite the persisted next-round controller policy with the final binding action."""
+    state = read_state(workspace)
+    policy = state.setdefault("next_round", {}).setdefault("controller_policy", {})
+    policy["action"] = dict(binding)
+    policy["source"] = binding.get("source")
+    policy["adopted"] = bool(binding.get("adopted"))
+    atomic_write_json(workspace / STATE_FILE, state)
+    return state

@@ -90,6 +90,66 @@ workspace/
 
 ## TODO
 
+### HCC 混合线路：slim 治理修复 + 正式实验（2026-08-17 起）
+
+- [x] 修复：`governance_mode: slim` 未触发 `initialize_control`（旧代码只看
+  `scientific_governance` 布尔），导致无 `.hamilton_search_control.json` →
+  runner 的 `allocate_dynamic_evaluations` 不生效 → Round 1 自由选 `max_evals=4500`
+  吞掉整个预算，Round 2 被累计预算门 `consumed=4500+requested>limit` 阻断。
+  修复：`playground.py` `_init_workspace` 用 `_search_control_active`
+  （full/slim/legacy 布尔）替代旧判断，`promotion_exp._governance_mode` 语义保持一致。
+- [x] 实测 Round 1 成本：discovery 526,536 + promotion 57,906 = 584,442 token；
+  incumbent score 0.676（static_s02，真实方程 + 残差推理，可读记忆质量好）。
+- [x] 复跑 smoke 验证（2026-08-18，exit 0，3 轮全 closed，`experiment_20260818_001612.json`）：
+  - 预算正确分配 1500×3=4500，累计账本无阻断；round2/3 单字段变更 gate 正常
+    （R2 加 unary=square，R3 改 complexity weight 0.05→0.01）；warm-start + trust-region state 持久化正常。
+  - 真实成本（deepseek-v4-flash，static_s02）：R1=219,604 / R2=637,269 / R3=659,826，
+    合计 **1,516,699 token**（≈506k/轮；R2/R3 因 L2 记忆 + 残差反馈 JSON 增长而翻倍）。
+  - ✅ 科学信号（已纠正方向误读）：`scientific_score` 是**越小越好**（`hamilton_system.txt`
+    "Minimize scientific score"；v6 `score < incumbent` → promote；`collect` `left < right` → win）。
+    val R² 单调上升 0.523→0.585→0.601，scientific_score 单调下降 0.7084→0.6682→0.6418，
+    二者**同向单调改进**（score 越低 = loss 越小 = 越好），不存在背离。pilot 主判据方向即
+    "最终 incumbent scientific_score 越小越优，H < B 判 H 胜"。
+  - 每轮改一个字段（先验/operator/复杂度权重）确实改变了下轮搜索，闭环可靠，可读记忆质量高。
+- [x] 3 seed × 2 task pilot（v4-flash，冻结 manifest + 配对 seed + engine evals），
+  2026-08-18 跑完 12/12 cells（B 臂 6/6 rc=0 + H 臂 6/6，H 臂 5 个 rc=0 + 1 个 rc=1）。
+  - **主判据（配对符号检验，scientific_score 越小越优）**：H 胜 2 / 负 0 / 平 4，n=2，
+    p_two_sided=0.5（不显著；开发性 pilot，n 太小，结论为"从不劣于 B，无统计显著信号"）。
+    - static_s02：r1 平(0.02419)、r2 平(0.02508)、r3 **H 胜**(0.29924 vs 0.35061)。
+    - dynamic_d01：r1 平(0.73408)、r2 平(0.82218，stale，见下)、r3 **H 胜**(0.60685 vs 0.75157)。
+  - **发现（已按"接受现状"记录）**：`experiment.promotion.max_tokens: 400000` 对 dynamic_d01
+    偏低。dynamic_d01/repeat_2 第 3 轮 promotion 阶段 LLM 已耗 254,729 token、下一次调用需
+    再 ~148k → 超 400k → `Token budget preflight stopped run` 截断，finish 未调用 → round-3
+    晋升（0.54047，已产生并验证于 `history/round3/results/result.json`，promotion 裁决确认
+    `promote`）未写回 `.hamilton_search_state.json`，incumbent 停留在 round-1 的 0.82218。
+    - 若计入 round-3 真实分数，该 cell 应为 H 胜（0.54047 < 0.82218），sign test 变
+      3 胜 0 负 3 平（n=3，p=0.25），仍不显著。
+    - 处理：主判据采纳 stale 值（平局）；token 预算失败作为 pilot finding 记录，不在本 pilot 重跑。
+    - 复现者注意：H 臂单 run 实测 1.01M–1.90M token（与 smoke 的 ~1.5M 一致），manifest 软上限
+      3M 正确，但 `promotion.max_tokens` 是 promotion 阶段的**硬**上限，dynamic 类任务建议 ≥1M。
+
+### Hamilton v6：LLM 因果消融（2026-08-16 起）
+
+设计文档：`../../docs/sragent/HAMILTON_V6_CAUSAL_ABLATION_DESIGN_2026-08-16.zh-CN.md`
+运行清单：`../../docs/sragent/HAMILTON_V6_RUN_CHECKLIST_2026-08-17.zh-CN.md`
+
+- [x] 打通 LLM 因果路径：原子动作白名单（continue_warm / adjust_parsimony /
+  add_operator / remove_operator / restart_same）
+- [x] `governed_policy.py`：`normalize_atomic_action` + `choose_atomic_action`（arm B 规则）
+- [x] `compressed_planner.py`：`call_atomic_planner`（arm C 原子动作 planner）
+- [x] `search_control.py`：`review_planner_proposal`（采纳/拒绝 + 规则回退）+ `persist_binding_action`
+- [x] runner + warm worker 支持 restart 轮（`round_action=restart` → `model=None` 重建 + 算子字段兼容）
+- [x] 契约测试 `test_atomic_policy.py`（15 用例，离线）
+- [x] 新建 `experiments/hamilton_vs_pysr_governed_search_v6/`（manifest/build/execute/collect）
+- [x] `configs/hamilton/config_governed_pysr_v6_pilot.yaml`
+- [x] 冻结值：3 臂 A/B/C × static_s02 + dynamic_d01 × seeds 8401–8403，每 arm/seed 4500 evals
+- [ ] 请求用户授权实际运行（需 `HAMILTON_API_KEY` + PySR/Julia）
+- [ ] 运行后 collect + 归因（C−A、C−B、B−A、engine evals 对齐）
+
+关键约束：warm worker 跨轮只允许改 `search.parsimony`；算子变更等价于冷重启（丢种群）。
+这是 v6 的核心权衡——v1 唯一的正信号（加 tanh）正是算子变更，而 A/B/C 三臂同等承担
+重启成本，归因时按 engine-measured evals 对齐。
+
 ### Hamilton v4：确定性治理优化（2026-08-14）
 
 - [x] 收缩 LLM 权限为受限结构假设；controller 负责动作、候选保留、回滚和预算

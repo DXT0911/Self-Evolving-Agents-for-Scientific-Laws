@@ -1,0 +1,93 @@
+# Hamilton 混合线路 smoke 配置
+# = HCC 循环主体（自由 LLM + 可读 plan/findings + 发现→验证→提炼）
+#   - 强制文献搜索：关（以后要用再开）
+#   - scientific governance：smoke 阶段先关（瘦身版治理在正式版实现）
+#   - LLM 看真实方程/残差 + 发现→验证→提炼闭环：保留（HCC 循环本身）
+#   - 测量纪律（配对 seed / engine evals / 预注册判据）：正式版再加
+
+llm:
+  openai:
+    provider: "openai"
+    model: "deepseek-v4-flash"
+    api_key: "${HAMILTON_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    temperature: 0.0
+    max_tokens: 128000
+    timeout: 120
+    max_retries: 3
+    retry_delay: 1.0
+
+  default: "openai"
+
+agents:
+  hamilton:
+    llm: "openai"
+    max_turns: 60
+    enable_tools: true
+
+    context:
+      max_tokens: 24000
+      truncation_strategy: "tool_result_compaction"
+      preserve_system_messages: true
+      preserve_recent_turns: 5
+      max_tool_result_chars: 1000
+
+    system_prompt_file: "prompts/hamilton_system.txt"
+    user_prompt_file: "prompts/hamilton_user.txt"
+
+    skills:
+      - pysr
+      - run-sr-experiment
+      - evo-protocol
+
+    tools:
+      builtin: ["str_replace_editor", "think", "finish"]
+
+session:
+  type: "local"
+
+  local:
+    working_dir: "./playground/hamilton/workspace"
+    timeout: 21600
+    blocked_read_extensions: [".csv", ".tsv", ".parquet", ".feather"]
+    gpu_devices: null
+    cpu_devices: null
+    symlinks: {}
+
+experiment:
+  max_rounds: 3
+  governance_mode: slim
+  require_literature_grounding: false
+  max_total_evals: 4500
+  search_control:
+    search_advancement:
+      min_score_improvement: 0.0
+    trust_region:
+      enabled: true
+      max_anchor_distance: 2
+      max_step_changes: 1
+      rollback_after_stale_rounds: 3
+    dynamic_budget:
+      enabled: true
+      base_evals: 1500
+      min_evals: 1500
+      max_evals: 1500
+      rounding_quantum: 500
+  pysr_preflight:
+    enabled: true
+    timeout_seconds: 180
+  promotion:
+    max_tokens: 200000
+    max_attempts: 2
+
+llm_output:
+  show_in_console: true
+  log_to_file: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+
+project_root: "."
+debug: false

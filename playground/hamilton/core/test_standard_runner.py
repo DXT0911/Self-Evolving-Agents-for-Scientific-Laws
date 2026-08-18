@@ -2278,6 +2278,22 @@ class ScientificGovernanceTests(unittest.TestCase):
         audit = self.exp._audit_scientific_decision("false")
         self.assertFalse(audit["plan_quality_valid"])
 
+    def test_accepts_evidence_backed_noop_next_strategy(self) -> None:
+        self.write_decision()
+        plan = self.workspace / "plan.md"
+        content = plan.read_text(encoding="utf-8")
+        content = content.replace(
+            '"config_field": "search.max_evals",',
+            '"action": "continue", "config_field": null,',
+        ).replace(
+            '"config_patch": {"search.max_evals": 30}',
+            '"config_patch": {}',
+        )
+        plan.write_text(content, encoding="utf-8")
+        audit = self.exp._audit_scientific_decision("false")
+        self.assertTrue(audit["plan_quality_valid"])
+        self.assertTrue(audit["valid"])
+
     def test_rejects_next_strategy_patch_with_multiple_fields(self) -> None:
         self.write_decision()
         plan = self.workspace / "plan.md"

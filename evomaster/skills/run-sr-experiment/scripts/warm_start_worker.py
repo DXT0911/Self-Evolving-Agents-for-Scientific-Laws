@@ -81,6 +81,9 @@ def _scientific_projection(config: dict[str, Any]) -> dict[str, Any]:
         session.pop("round", None)
         session.pop("final_round", None)
         session.pop("round_action", None)
+        # compatible_change_fields is a controller-owned round directive, not a
+        # scientific search field; a restart round legitimately changes it.
+        session.pop("compatible_change_fields", None)
     return projected
 
 
@@ -156,6 +159,13 @@ def serve(workspace: Path, port: int, token: str, metadata_path: Path) -> int:
                         )
                     else:
                         changes = []
+                    restarted = bool(session["round_action"] == "restart")
+                    if restarted:
+                        # A restart round rebuilds the PySR model so the (possibly
+                        # changed) operator set takes effect; the warm population is
+                        # intentionally dropped.  A reused model would silently ignore
+                        # operator changes.
+                        model = None
                     cumulative_requested += int(config["search"]["max_evals"])
                     paths = {
                         "train": runner.resolve_inside(workspace, config["data"]["train_file"], "train"),
@@ -181,6 +191,7 @@ def serve(workspace: Path, port: int, token: str, metadata_path: Path) -> int:
                         "round": expected_round,
                         "changed_fields": changes,
                         "cumulative_requested_evaluations": cumulative_requested,
+                        "restarted": restarted,
                     }
                     response_path = runner.resolve_inside(
                         workspace, payload["response_file"], "warm-start response file"

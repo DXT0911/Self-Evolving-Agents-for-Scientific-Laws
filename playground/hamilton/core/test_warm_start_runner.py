@@ -108,6 +108,19 @@ class WarmStartRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "random_state"):
             WORKER._validate_transition(first, changed_seed, [])
 
+    def test_restart_transition_ignores_compatible_change_fields_switch(self) -> None:
+        first = config(1)
+        restart = config(2)
+        restart["search"]["unary_operators"] = ["sin", "cos"]
+        restart["search_session"]["round_action"] = "restart"
+        restart["search_session"]["compatible_change_fields"] = ["search.unary_operators"]
+        # The compatible_change_fields directive flips on a restart round; only the
+        # operator change itself should be reported, not the directive switch.
+        self.assertEqual(
+            WORKER._validate_transition(first, restart, ["search.unary_operators"]),
+            ["search.unary_operators"],
+        )
+
     def test_noop_materialization_retains_seed_and_run_directory(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory)
@@ -136,6 +149,41 @@ class WarmStartRunnerTests(unittest.TestCase):
             self.assertEqual(materialized["search"]["random_state"], 7)
             self.assertEqual(materialized["output"]["run_directory"], "warm_start_session/pysr")
             self.assertEqual(materialized["search_session"]["round_action"], "continue")
+
+    def test_restart_materialization_marks_cold_restart_and_single_patch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / "history" / "round1" / "results").mkdir(parents=True)
+            baseline = config(1)
+            (workspace / "history" / "round1" / "results" / "result.json").write_text(
+                json.dumps({"status": "completed", "experiment_id": "unit__round1", "config": baseline}),
+                encoding="utf-8",
+            )
+            (workspace / ".hamilton_search_state.json").write_text(json.dumps({
+                "next_round": {"baseline_result_file": "history/round1/results/result.json"}
+            }), encoding="utf-8")
+            (workspace / ".hamilton_seed_plan.json").write_text(json.dumps({
+                "round_seeds": [7, 7, 7]
+            }), encoding="utf-8")
+            (workspace / "plan.md").write_text(
+                "<!-- EVO_SCIENTIFIC_DECISION_BEGIN -->\n"
+                + json.dumps({"next_strategy": {
+                    "action": "restart",
+                    "config_field": "search.maxsize",
+                    "config_patch": {"search.maxsize": 12},
+                }})
+                + "\n<!-- EVO_SCIENTIFIC_DECISION_END -->\n",
+                encoding="utf-8",
+            )
+            output, summary = PREPARE.materialize(workspace, 2)
+            materialized = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(summary["action"], "restart")
+            self.assertEqual(materialized["search"]["maxsize"], 12)
+            self.assertEqual(materialized["search_session"]["round_action"], "restart")
+            self.assertEqual(
+                materialized["search_session"]["compatible_change_fields"],
+                ["search.maxsize"],
+            )
 
 
 if __name__ == "__main__":

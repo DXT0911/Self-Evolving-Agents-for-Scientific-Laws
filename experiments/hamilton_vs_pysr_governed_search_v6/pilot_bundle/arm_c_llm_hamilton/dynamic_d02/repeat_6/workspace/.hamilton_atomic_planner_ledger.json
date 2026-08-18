@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T05:09:33.508760+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "6c459dd280f0b6d85a682c25bec7386ddde6912064e17669aaaf8e92be46fb4c",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 139,
+        "total_tokens": 655
+      },
+      "proposal": {
+        "hypothesis": "The high material residual correlation (0.998) indicates that the current model is missing a significant structural component, likely due to the absence of a nonlinear transformation that can capture the remaining pattern. Adding the tanh operator may enable the model to represent this structure, improving the scientific score without violating the frozen envelope.",
+        "falsification": "If adding tanh does not lead to a material reduction in residual correlation (e.g., correlation remains above 0.9) or if the scientific score does not improve within a few rounds, the hypothesis is falsified, and the operator should be removed.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T05:09:46.185060+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "2baa64a31381d4a87c5ca924a932eb475c246482b7211aacb8698377c3f1dd37",
+      "usage": {
+        "prompt_tokens": 514,
+        "completion_tokens": 115,
+        "total_tokens": 629
+      },
+      "proposal": {
+        "hypothesis": "The model is still improving and the high material residual correlation suggests the current expression is close to the data, but the low scientific score indicates that the expression may be overfitting or not generalizing well. Adjusting parsimony to a slightly higher value could improve generalization without sacrificing fit.",
+        "falsification": "If increasing parsimony does not improve the validation NRMSE or scientific score, then the current complexity is appropriate and the model is not overfitting.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.01
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1284
+}

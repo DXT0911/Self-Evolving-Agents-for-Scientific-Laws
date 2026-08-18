@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T03:53:53.670043+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "d571a0523edaa92feeb62f8b76c61a50e5015d2afbb756a98c6a12c869865e24",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 118,
+        "total_tokens": 634
+      },
+      "proposal": {
+        "hypothesis": "The material residual correlation of 0.468 indicates that the current model has not captured all structure, and the high complexity fraction (0.613) suggests overfitting. Reducing parsimony from 0.001 to a lower value may encourage a simpler model that generalizes better, potentially improving validation NRMSE.",
+        "falsification": "If reducing parsimony does not improve validation NRMSE or scientific score within the next round, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 1e-08
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T03:54:05.068215+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "144d9f2811177125bfd64a5f5373ab16c5ba4390ec59e198026a2f4f07b1754a",
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 74,
+        "total_tokens": 585
+      },
+      "proposal": {
+        "hypothesis": "The model is underfitting due to insufficient nonlinear expressiveness; adding tanh may capture material behavior better and improve scientific score.",
+        "falsification": "If adding tanh does not improve validation NRMSE or scientific score within a few rounds, the hypothesis is rejected.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1219
+}

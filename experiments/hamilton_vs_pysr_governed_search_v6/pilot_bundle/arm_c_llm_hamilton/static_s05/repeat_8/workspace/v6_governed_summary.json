@@ -1,0 +1,256 @@
+{
+  "arm": "arm_c_llm_hamilton",
+  "completed_at": "2026-08-17T04:02:19.950715+00:00",
+  "execution_mode": "three_arm_governed_ablation",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round1/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1500,
+          "anchor_weight": 868.0,
+          "consumed_before": 0,
+          "current_weight": 868.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 3000,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1500,
+          "remaining_before": 6000,
+          "round": 1,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 6000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8408,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8408,
+          "round": 1
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2",
+          "x3",
+          "x4"
+        ],
+        "max_rows": null,
+        "search_stride": 10,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__static_s05__repeat_8__round1",
+      "output": {
+        "result_file": "history/round1/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1500,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8408,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 1,
+        "round_action": "initialize",
+        "session_id": "v6-pilot-static_s05-repeat_8-arm_c_llm_hamilton"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "-0.7336544538878*sin(x4) - sin(sin(x3 + 0.14291829)) + 3.0515576",
+    "result_file": "history/round1/results/result.json",
+    "score": 0.39711034011791174
+  },
+  "llm_tokens": 1349,
+  "planner_calls": 2,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_patch": {},
+        "requires_restart": false,
+        "source": "controller"
+      },
+      "engine_measured_evaluations": 2498.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.39711034011791174,
+      "next_binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.01
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 0.01
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If increasing parsimony does not improve the scientific score or validation NRMSE within a few rounds, or if the model becomes too simple and loses important terms, the hypothesis is falsified. The controller will monitor the next diagnostic snapshot for score improvement or degradation.",
+          "hypothesis": "The current model has a moderate material residual correlation (0.266) and a low scientific score (0.397), with no recent improvement. The parsimony is at the lower bound (0.001), which may allow overly complex expressions that hinder generalization. Increasing parsimony could simplify the model and improve scientific score by reducing overfitting, especially since the validation NRMSE is relatively high (0.3745)."
+        },
+        "reason": "adopted LLM intervention (The current model has a moderate material residual correlation (0.266) and a low scientific score (0.397), with no recent improvement. The parsimony is at the lower bound (0.001), which may allow overly complex expressions that hinder generalization. Increasing parsimony could simplify the model and improve scientific score by reducing overfitting, especially since the validation NRMSE is relatively high (0.3745).)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "round": 1,
+      "selected_score": 0.39711034011791174
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.01
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 0.01
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If increasing parsimony does not improve the scientific score or validation NRMSE within a few rounds, or if the model becomes too simple and loses important terms, the hypothesis is falsified. The controller will monitor the next diagnostic snapshot for score improvement or degradation.",
+          "hypothesis": "The current model has a moderate material residual correlation (0.266) and a low scientific score (0.397), with no recent improvement. The parsimony is at the lower bound (0.001), which may allow overly complex expressions that hinder generalization. Increasing parsimony could simplify the model and improve scientific score by reducing overfitting, especially since the validation NRMSE is relatively high (0.3745)."
+        },
+        "reason": "adopted LLM intervention (The current model has a moderate material residual correlation (0.266) and a low scientific score (0.397), with no recent improvement. The parsimony is at the lower bound (0.001), which may allow overly complex expressions that hinder generalization. Increasing parsimony could simplify the model and improve scientific score by reducing overfitting, especially since the validation NRMSE is relatively high (0.3745).)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2490.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.39711034011791174,
+      "next_binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not improve the validation NRMSE or scientific score within a few rounds, or if the model becomes overfit (complexity increases significantly without score improvement), then the hypothesis is falsified.",
+          "hypothesis": "The current model is underfit and the validation NRMSE is high, suggesting that the search may benefit from a more complex expression. However, the parsimony is already low, and the material residual correlation is moderate, indicating that the model may be missing a nonlinear relationship. Adding the tanh operator could help capture saturating behavior that sin, cos, and exp cannot represent, potentially improving the scientific score without increasing complexity too much."
+        },
+        "reason": "adopted LLM intervention (The current model is underfit and the validation NRMSE is high, suggesting that the search may benefit from a more complex expression. However, the parsimony is already low, and the material residual correlation is moderate, indicating that the model may be missing a nonlinear relationship. Adding the tanh operator could help capture saturating behavior that sin, cos, and exp cannot represent, potentially improving the scientific score without increasing complexity too much.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "round": 2,
+      "selected_score": 0.39711034011791174
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not improve the validation NRMSE or scientific score within a few rounds, or if the model becomes overfit (complexity increases significantly without score improvement), then the hypothesis is falsified.",
+          "hypothesis": "The current model is underfit and the validation NRMSE is high, suggesting that the search may benefit from a more complex expression. However, the parsimony is already low, and the material residual correlation is moderate, indicating that the model may be missing a nonlinear relationship. Adding the tanh operator could help capture saturating behavior that sin, cos, and exp cannot represent, potentially improving the scientific score without increasing complexity too much."
+        },
+        "reason": "adopted LLM intervention (The current model is underfit and the validation NRMSE is high, suggesting that the search may benefit from a more complex expression. However, the parsimony is already low, and the material residual correlation is moderate, indicating that the model may be missing a nonlinear relationship. Adding the tanh operator could help capture saturating behavior that sin, cos, and exp cannot represent, potentially improving the scientific score without increasing complexity too much.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2325.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.39711034011791174,
+      "next_binding_action": null,
+      "round": 3,
+      "selected_score": 0.7856648419386316
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

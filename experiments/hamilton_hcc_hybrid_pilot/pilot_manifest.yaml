@@ -1,0 +1,53 @@
+schema_version: 1
+experiment_id: hamilton-hcc-hybrid-pilot-01
+status: frozen_pre_execution
+interpretation: development_pilot_only_not_confirmatory
+frozen_at: 2026-08-18
+viv_in_scope: false
+
+tasks: [static_s02, dynamic_d01]
+seeds: [8401, 8402, 8403]
+rounds: 3
+requested_evaluations_per_round: 1500
+requested_evaluations_per_run: 4500
+
+arms:
+  ids: [hcc_llm, bare_pysr]
+  hcc_llm: free_llm_hcc_loop_slim_governance
+  bare_pysr: independent_cold_start_pysr_no_llm_no_adaptation
+
+model: deepseek-v4-flash
+# 软上限：超过此值在 collect 阶段标记（smoke 实测 static_s02 三轮 ~1.5M token）。
+max_hamilton_tokens_per_run: 3000000
+
+frozen_round1:
+  engine: pysr
+  binary_operators: ["+", "-", "*", "/"]
+  unary_operators: []
+  niterations: 40
+  max_evals: 1500
+  populations: 8
+  population_size: 32
+  tournament_selection_n: 12
+  maxsize: 31
+  parsimony: 0.001
+  top_k: 10
+
+primary_criterion:
+  metric: final_incumbent_scientific_score
+  direction: minimize
+  comparison: paired_sign_test
+  pairs: 6
+  test: two_sided_binomial
+
+secondary_criteria:
+  - val_r2
+  - tokens_per_run
+  - engine_measured_evaluations_alignment
+  - closure_reliability
+  - round1_config_compliance
+
+retry_policy:
+  maximum_retries_per_run: 1
+  allowed_only_when_engine_measured_evaluations: 0
+  no_top_up_after_engine_consumption: true

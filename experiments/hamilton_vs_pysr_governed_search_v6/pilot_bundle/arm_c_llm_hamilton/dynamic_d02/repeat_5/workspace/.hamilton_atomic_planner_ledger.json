@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T05:08:42.631592+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "22fb2d3fd87604c43d44060bbd1e0925b0973aa69d9bb7a635a8855c6e2f5c96",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 93,
+        "total_tokens": 609
+      },
+      "proposal": {
+        "hypothesis": "The model is underfit due to insufficient complexity, as indicated by high material residual correlation and low parsimony, suggesting that adding a nonlinear operator (tanh) could capture remaining structure and improve fit.",
+        "falsification": "If adding tanh does not reduce material residual correlation or improve validation NRMSE within the next round, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "add_operator",
+          "operator": "tanh"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T05:08:50.939247+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "995fb3ceb58315c2ba9cd6e6e1c00521c8517c34c8ea7660e244dd345a35404b",
+      "usage": {
+        "prompt_tokens": 522,
+        "completion_tokens": 93,
+        "total_tokens": 615
+      },
+      "proposal": {
+        "hypothesis": "The search is stuck in a poor local optimum with high residual correlation and low scientific score; reducing parsimony pressure may allow exploration of more complex expressions that better capture the underlying structure.",
+        "falsification": "If reducing parsimony does not lead to an improved scientific score or reduced residual correlation within a few rounds, the hypothesis is falsified.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.0001
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1224
+}

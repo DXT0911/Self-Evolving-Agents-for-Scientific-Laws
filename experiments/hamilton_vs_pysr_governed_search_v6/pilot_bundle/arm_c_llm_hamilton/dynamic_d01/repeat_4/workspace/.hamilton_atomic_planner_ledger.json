@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "model": "deepseek-v4-flash",
+  "token_ceiling": 60000,
+  "calls": [
+    {
+      "round": 1,
+      "called_at": "2026-08-17T09:31:16.329841+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "218b05c9483b7a2b31ad10c409e05bb3b1e65fbeb41eca80a24d0c56f23c9d3b",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 152,
+        "total_tokens": 668
+      },
+      "proposal": {
+        "hypothesis": "The material residual correlation of 0.716862 indicates that the current model has not captured all underlying structure, and the high complexity fraction (0.774) suggests overfitting. Since the parsimony is at its lower bound (0.001), increasing parsimony may help regularize the model and reduce overfitting, potentially improving generalization and reducing residual correlation.",
+        "falsification": "If increasing parsimony does not reduce the material residual correlation or improve the validation NRMSE (currently 0.837572), then the hypothesis is falsified, indicating that the residual structure is not due to overfitting but rather missing functional forms.",
+        "atomic_action": {
+          "action": "adjust_parsimony",
+          "value": 0.1
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    },
+    {
+      "round": 2,
+      "called_at": "2026-08-17T09:31:33.154976+00:00",
+      "model": "deepseek-v4-flash",
+      "thinking": "disabled",
+      "response_format": "json_object",
+      "input_sha256": "a3c93639ae7547fd236595455a74e2170a71872d55c7ecc5111d5d0a62822821",
+      "usage": {
+        "prompt_tokens": 516,
+        "completion_tokens": 119,
+        "total_tokens": 635
+      },
+      "proposal": {
+        "hypothesis": "The material residual correlation of 0.716862 indicates that the current model has not captured all structure, but the scientific score is high and complexity is moderate. Since the model has not improved and no rollback is required, a warm continuation may allow further refinement without risking overfitting.",
+        "falsification": "If continuing warm does not reduce the material residual correlation or improve the score within a few rounds, then the current operator set is insufficient and a different action (e.g., adding tanh) would be needed.",
+        "atomic_action": {
+          "action": "continue_warm"
+        },
+        "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller"
+      }
+    }
+  ],
+  "total_token_usage": 1303
+}

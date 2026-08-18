@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-17T02:21:20.552787+00:00",
+  "last_closed_round": 3,
+  "stale_rounds": 1,
+  "rollback_required": false,
+  "incumbent": {
+    "result_file": "history/round2/results/result.json",
+    "score": 0.31480893172747054,
+    "equation": "4*x2 + 3.13137430381721*(-x1 + x2 + sin(x1 + sin(x1)))*exp(x1*x2) - 0.0911641052084157",
+    "config": {
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 1,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    }
+  },
+  "next_round": {
+    "baseline_result_file": "history/round3/results/result.json",
+    "mode": "local_step",
+    "max_step_changes": 1,
+    "max_anchor_distance": 2,
+    "controller_policy": {
+      "enabled": true,
+      "binding": true,
+      "process_state": "complex_valid",
+      "snapshot": {
+        "scientific_score": 0.3219476291956282,
+        "validation_nrmse": 0.28001214532466046,
+        "score_improvement": -0.007138697468157651,
+        "improved": false,
+        "complexity_fraction": 0.8387096774193549,
+        "parsimony": 0.001,
+        "state_residual_correlation": 0.5906293618828328,
+        "temporal_residual_correlation": 0.971226284498371,
+        "material_residual_correlation": 0.971226284498371,
+        "positive_influence_terms": 5,
+        "stale_rounds_before": 0,
+        "rollback_required": false
+      },
+      "action": {
+        "action": "modify",
+        "reason": "search is stagnant and the incumbent is near the complexity ceiling",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.002
+        },
+        "requires_restart": false,
+        "authority": "deterministic_controller"
+      }
+    }
+  }
+}

@@ -22,6 +22,18 @@ ALLOWED_PLAN_KEYS = {
     "falsification",
 }
 
+# v6 atomic action space shared by the deterministic rule (arm B) and the LLM (arm C).
+# Each action changes at most one search field.  Restart-requiring actions rebuild the
+# PySR model (losing the warm population) because the warm worker cannot change operators.
+ATOMIC_ACTIONS = {
+    "continue_warm",
+    "adjust_parsimony",
+    "add_operator",
+    "remove_operator",
+    "restart_same",
+}
+RESTART_REQUIRING_ACTIONS = {"add_operator", "remove_operator", "restart_same"}
+
 
 @dataclass(frozen=True)
 class PolicyThresholds:
@@ -302,3 +314,140 @@ def policy_manifest(thresholds: PolicyThresholds | None = None) -> dict[str, Any
             "budget",
         ],
     }
+
+
+def _atomic_decision(
+    action: str,
+    patch: dict[str, Any],
+    *,
+    requires_restart: bool,
+    reason: str,
+) -> dict[str, Any]:
+    field = next(iter(patch)) if patch else None
+    return {
+        "action": action,
+        "reason": reason,
+        "config_field": field,
+        "config_patch": patch,
+        "requires_restart": bool(requires_restart),
+    }
+
+
+def normalize_atomic_action(
+    proposed: dict[str, Any],
+    *,
+    current_operators: Iterable[str],
+    allowed_operators: Iterable[str],
+    parsimony_bounds: tuple[float, float],
+    reason: str = "",
+) -> dict[str, Any]:
+    """Validate an atomic action and project it onto the runner-enforceable shape.
+
+    The LLM/rule states an *intent* (e.g. add ``tanh``); this function computes the
+    actual ``config_patch`` from the current operator set and frozen envelope, so the
+    model never authors a concrete config value directly.  The returned ``action`` is
+    one of ``{continue, modify, restart}`` (matching ``search_session.round_action``),
+    with a single-field patch and a ``requires_restart`` flag the runner can enforce.
+    """
+    if not isinstance(proposed, dict):
+        raise ValueError("atomic action must be an object")
+    action = proposed.get("action")
+    if action not in ATOMIC_ACTIONS:
+        raise ValueError(f"atomic action must be one of {sorted(ATOMIC_ACTIONS)}")
+    current = list(current_operators)
+    envelope = set(allowed_operators)
+    low = float(parsimony_bounds[0])
+    high = float(parsimony_bounds[1])
+
+    if action == "continue_warm":
+        return _atomic_decision(
+            "continue", {}, requires_restart=False,
+            reason=reason or "continue persistent search",
+        )
+    if action == "restart_same":
+        return _atomic_decision(
+            "restart", {}, requires_restart=True,
+            reason=reason or "explicit cold restart with the same configuration",
+        )
+
+    if action == "adjust_parsimony":
+        try:
+            value = float(proposed.get("value"))
+        except (TypeError, ValueError):
+            raise ValueError("adjust_parsimony requires a numeric value")
+        if not low <= value <= high:
+            raise ValueError(
+                f"adjust_parsimony value {value} outside frozen bounds [{low}, {high}]"
+            )
+        return _atomic_decision(
+            "modify", {"search.parsimony": value}, requires_restart=False,
+            reason=reason or "adjust parsimony within the frozen interval",
+        )
+
+    operator = proposed.get("operator")
+    if not isinstance(operator, str) or not operator:
+        raise ValueError(f"{action} requires a non-empty operator name")
+    if operator not in envelope:
+        raise ValueError(
+            f"operator {operator!r} is not in the frozen envelope {sorted(envelope)}"
+        )
+    if action == "add_operator":
+        if operator in current:
+            raise ValueError(f"operator {operator!r} is already present")
+        new_operators = sorted(set(current) | {operator})
+        return _atomic_decision(
+            "restart", {"search.unary_operators": new_operators},
+            requires_restart=True, reason=reason or f"add operator {operator}",
+        )
+    if action == "remove_operator":
+        if operator not in current:
+            raise ValueError(f"operator {operator!r} is not present")
+        if len(current) <= 1:
+            raise ValueError("remove_operator would leave the search without unary operators")
+        new_operators = sorted(set(current) - {operator})
+        return _atomic_decision(
+            "restart", {"search.unary_operators": new_operators},
+            requires_restart=True, reason=reason or f"remove operator {operator}",
+        )
+    raise ValueError(f"unsupported atomic action: {action}")
+
+
+def choose_atomic_action(
+    snapshot: dict[str, Any],
+    *,
+    current_operators: Iterable[str],
+    allowed_operators: Iterable[str],
+    thresholds: PolicyThresholds | None = None,
+    warm_compatible_fields: Iterable[str] = ("search.parsimony",),
+) -> dict[str, Any]:
+    """Deterministic rule intervention over the shared atomic action space (arm B).
+
+    This is the "best hand-written non-LLM rule": it uses the same diagnostics and the
+    same atomic action space as the LLM, but with a fixed policy.  When the residuals
+    still show material structure and an operator from the frozen envelope is
+    available, the rule adds it (structural intervention); otherwise it falls back to
+    parsimony tuning or continue.  ``C - B`` therefore measures the LLM's reasoning
+    against a matched rule, not against "do nothing".
+    """
+    policy = thresholds or PolicyThresholds()
+    available = [op for op in allowed_operators if op not in current_operators]
+    residual = _finite_float(snapshot.get("material_residual_correlation"))
+    if available and residual >= policy.material_residual_correlation:
+        return {
+            "action": "add_operator",
+            "operator": available[0],
+            "reason": "material residual structure remains; add an available operator",
+        }
+    decision = choose_action(
+        snapshot,
+        thresholds=thresholds,
+        warm_compatible_fields=warm_compatible_fields,
+    )
+    action = decision.get("action")
+    if action == "modify" and decision.get("config_field") == "search.parsimony":
+        return {
+            "action": "adjust_parsimony",
+            "value": decision["config_patch"]["search.parsimony"],
+            "reason": decision["reason"],
+        }
+    return {"action": "continue_warm", "reason": decision["reason"]}

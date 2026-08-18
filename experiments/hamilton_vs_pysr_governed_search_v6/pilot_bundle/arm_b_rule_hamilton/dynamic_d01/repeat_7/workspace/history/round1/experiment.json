@@ -1,0 +1,82 @@
+{
+  "data": {
+    "allowed_files": [
+      "input/data.csv"
+    ],
+    "feature_columns": [
+      "x1",
+      "x2"
+    ],
+    "max_rows": null,
+    "search_stride": 1,
+    "standardize_search": false,
+    "target_column": "y",
+    "time_column": "t",
+    "train_file": "input/data.csv",
+    "validation_fraction": 0.2
+  },
+  "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d01__repeat_7__round1",
+  "output": {
+    "result_file": "history/round1/results/result.json",
+    "run_directory": "session/pysr"
+  },
+  "schema_version": 1,
+  "search": {
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "engine": "pysr",
+    "max_evals": 1500,
+    "maxsize": 31,
+    "niterations": 1000,
+    "parsimony": 0.001,
+    "population_size": 32,
+    "populations": 8,
+    "random_state": 8407,
+    "top_k": 10,
+    "tournament_selection_n": 12,
+    "unary_operators": [
+      "sin",
+      "cos",
+      "exp"
+    ]
+  },
+  "search_session": {
+    "compatible_change_fields": [
+      "search.parsimony"
+    ],
+    "final_round": false,
+    "mode": "warm_start",
+    "round": 1,
+    "round_action": "initialize",
+    "session_id": "v6-pilot-dynamic_d01-repeat_7-arm_b_rule_hamilton"
+  },
+  "verification": {
+    "candidate_ranking": {
+      "enabled": true,
+      "failure_penalty": 100.0,
+      "max_candidates": 10,
+      "weights": {
+        "complexity": 0.05,
+        "trajectory_nrmse": 0.0,
+        "validation_nrmse": 1.0
+      }
+    },
+    "residual_diagnostics": {
+      "enabled": true,
+      "feature_bins": 4,
+      "high_frequency_fraction": 0.25,
+      "max_lag": 50,
+      "phase_bins": 8
+    },
+    "short_ode": {
+      "enabled": false
+    },
+    "structural_diagnostics": {
+      "enabled": true
+    }
+  }
+}

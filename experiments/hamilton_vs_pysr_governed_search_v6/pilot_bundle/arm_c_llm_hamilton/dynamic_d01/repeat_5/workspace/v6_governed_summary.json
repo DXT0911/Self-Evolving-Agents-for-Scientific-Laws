@@ -1,0 +1,254 @@
+{
+  "arm": "arm_c_llm_hamilton",
+  "completed_at": "2026-08-17T04:59:41.576146+00:00",
+  "execution_mode": "three_arm_governed_ablation",
+  "incumbent": {
+    "config": {
+      "_config_file": "history/round1/experiment.json",
+      "_controller": {
+        "budget_allocation": {
+          "allocated_evals": 1500,
+          "anchor_weight": 434.0,
+          "consumed_before": 0,
+          "current_weight": 434.0,
+          "difficulty_factor": 1.0,
+          "future_minimum_reserve": 3000,
+          "mode": "dynamic_cumulative_ledger",
+          "proposed_evals_ignored": 1500,
+          "remaining_before": 6000,
+          "round": 1,
+          "space_factor": 1.0,
+          "stale_rounds": 0,
+          "total_limit": 6000
+        },
+        "seed_assignment": {
+          "assigned_seed": 8405,
+          "mode": "controller_frozen_round_seed",
+          "proposed_seed_ignored": 8405,
+          "round": 1
+        }
+      },
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 1,
+        "standardize_search": false,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "experiment_id": "v6_pilot_arm_c_llm_hamilton__dynamic_d01__repeat_5__round1",
+      "output": {
+        "result_file": "history/round1/results/result.json",
+        "run_directory": "session/pysr"
+      },
+      "schema_version": 1,
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "max_evals": 1500,
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "random_state": 8405,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "search_session": {
+        "compatible_change_fields": [
+          "search.parsimony"
+        ],
+        "final_round": false,
+        "mode": "warm_start",
+        "round": 1,
+        "round_action": "initialize",
+        "session_id": "v6-pilot-dynamic_d01-repeat_5-arm_c_llm_hamilton"
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "long_horizon_penalty": 0.0,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "long_horizon_dynamics": {
+          "enabled": false
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    },
+    "equation": "3.96014604068163*x2*(x2 + 2.2224174)*(-x1 + x2 + sin(x1 + 0.7007148)) - 0.08897266",
+    "result_file": "history/round1/results/result.json",
+    "score": 0.6701288616423097
+  },
+  "llm_tokens": 1325,
+  "planner_calls": 2,
+  "rounds": [
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "continue",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_patch": {},
+        "requires_restart": false,
+        "source": "controller"
+      },
+      "engine_measured_evaluations": 2798.0,
+      "incumbent_action": "initialize",
+      "incumbent_score": 0.6701288616423097,
+      "next_binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not reduce the material residual correlation or improve the scientific score within a few rounds, the hypothesis is falsified, and the operator should be removed.",
+          "hypothesis": "The model has reached a local optimum where the current operator set (sin, cos, exp) is insufficient to capture the remaining material residual structure, as indicated by the high material residual correlation (0.9148) and no score improvement. Adding the tanh operator may provide the nonlinear flexibility needed to reduce residual correlation and improve the scientific score."
+        },
+        "reason": "adopted LLM intervention (The model has reached a local optimum where the current operator set (sin, cos, exp) is insufficient to capture the remaining material residual structure, as indicated by the high material residual correlation (0.9148) and no score improvement. Adding the tanh operator may provide the nonlinear flexibility needed to reduce residual correlation and improve the scientific score.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "round": 1,
+      "selected_score": 0.6701288616423097
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "restart",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.unary_operators",
+        "config_patch": {
+          "search.unary_operators": [
+            "cos",
+            "exp",
+            "sin",
+            "tanh"
+          ]
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "add_operator",
+            "operator": "tanh"
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If adding tanh does not reduce the material residual correlation or improve the scientific score within a few rounds, the hypothesis is falsified, and the operator should be removed.",
+          "hypothesis": "The model has reached a local optimum where the current operator set (sin, cos, exp) is insufficient to capture the remaining material residual structure, as indicated by the high material residual correlation (0.9148) and no score improvement. Adding the tanh operator may provide the nonlinear flexibility needed to reduce residual correlation and improve the scientific score."
+        },
+        "reason": "adopted LLM intervention (The model has reached a local optimum where the current operator set (sin, cos, exp) is insufficient to capture the remaining material residual structure, as indicated by the high material residual correlation (0.9148) and no score improvement. Adding the tanh operator may provide the nonlinear flexibility needed to reduce residual correlation and improve the scientific score.)",
+        "requires_restart": true,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2766.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.6701288616423097,
+      "next_binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.1
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 0.1
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If increasing parsimony does not lead to a reduction in material residual correlation or an improvement in scientific score within a few rounds, then the hypothesis that parsimony is the limiting factor is false.",
+          "hypothesis": "The search is stagnant with a high material residual correlation (0.90954) and a negative score improvement, indicating that the current model is underfitting and leaving significant structure in the residuals. The parsimony is extremely low (0.001), which may be allowing overly complex models that are not generalizing. Adjusting parsimony to a higher value could encourage simpler models that better capture the underlying pattern, potentially reducing residual correlation and improving validation performance."
+        },
+        "reason": "adopted LLM intervention (The search is stagnant with a high material residual correlation (0.90954) and a negative score improvement, indicating that the current model is underfitting and leaving significant structure in the residuals. The parsimony is extremely low (0.001), which may be allowing overly complex models that are not generalizing. Adjusting parsimony to a higher value could encourage simpler models that better capture the underlying pattern, potentially reducing residual correlation and improving validation performance.)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "round": 2,
+      "selected_score": 1.1096818120082166
+    },
+    {
+      "attempts": 1,
+      "binding_action": {
+        "action": "modify",
+        "adopted": true,
+        "authority": "deterministic_controller",
+        "config_field": "search.parsimony",
+        "config_patch": {
+          "search.parsimony": 0.1
+        },
+        "planner_proposal": {
+          "atomic_action": {
+            "action": "adjust_parsimony",
+            "value": 0.1
+          },
+          "authority": "propose_one_atomic_action_adopted_or_rejected_by_controller",
+          "falsification": "If increasing parsimony does not lead to a reduction in material residual correlation or an improvement in scientific score within a few rounds, then the hypothesis that parsimony is the limiting factor is false.",
+          "hypothesis": "The search is stagnant with a high material residual correlation (0.90954) and a negative score improvement, indicating that the current model is underfitting and leaving significant structure in the residuals. The parsimony is extremely low (0.001), which may be allowing overly complex models that are not generalizing. Adjusting parsimony to a higher value could encourage simpler models that better capture the underlying pattern, potentially reducing residual correlation and improving validation performance."
+        },
+        "reason": "adopted LLM intervention (The search is stagnant with a high material residual correlation (0.90954) and a negative score improvement, indicating that the current model is underfitting and leaving significant structure in the residuals. The parsimony is extremely low (0.001), which may be allowing overly complex models that are not generalizing. Adjusting parsimony to a higher value could encourage simpler models that better capture the underlying pattern, potentially reducing residual correlation and improving validation performance.)",
+        "requires_restart": false,
+        "source": "llm"
+      },
+      "engine_measured_evaluations": 2502.0,
+      "incumbent_action": "retain",
+      "incumbent_score": 0.6701288616423097,
+      "next_binding_action": null,
+      "round": 3,
+      "selected_score": 1.0166995437915642
+    }
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-17T02:24:54.792618+00:00",
+  "last_closed_round": 3,
+  "stale_rounds": 0,
+  "rollback_required": false,
+  "incumbent": {
+    "result_file": "history/round3/results/result.json",
+    "score": 0.72550975221602,
+    "equation": "-x2*(10.166011*x1*x2*((x1 - x2)*(x1 - exp(x1) + 0.77844036) + 1) - 3*x1 + 3*exp(x1) - 2.33532108)/(x1 - exp(x1) + 0.77844036)",
+    "config": {
+      "data": {
+        "allowed_files": [
+          "input/data.csv"
+        ],
+        "feature_columns": [
+          "x1",
+          "x2"
+        ],
+        "max_rows": null,
+        "search_stride": 1,
+        "target_column": "y",
+        "time_column": "t",
+        "train_file": "input/data.csv",
+        "validation_fraction": 0.2
+      },
+      "search": {
+        "binary_operators": [
+          "+",
+          "-",
+          "*",
+          "/"
+        ],
+        "engine": "pysr",
+        "maxsize": 31,
+        "niterations": 1000,
+        "parsimony": 0.001,
+        "population_size": 32,
+        "populations": 8,
+        "top_k": 10,
+        "tournament_selection_n": 12,
+        "unary_operators": [
+          "sin",
+          "cos",
+          "exp"
+        ]
+      },
+      "verification": {
+        "candidate_ranking": {
+          "enabled": true,
+          "failure_penalty": 100.0,
+          "max_candidates": 10,
+          "weights": {
+            "complexity": 0.05,
+            "trajectory_nrmse": 0.0,
+            "validation_nrmse": 1.0
+          }
+        },
+        "residual_diagnostics": {
+          "enabled": true,
+          "feature_bins": 4,
+          "high_frequency_fraction": 0.25,
+          "max_lag": 50,
+          "phase_bins": 8
+        },
+        "short_ode": {
+          "enabled": false
+        },
+        "structural_diagnostics": {
+          "enabled": true,
+          "max_terms": 12
+        }
+      }
+    }
+  },
+  "next_round": {
+    "baseline_result_file": "history/round3/results/result.json",
+    "mode": "local_step",
+    "max_step_changes": 1,
+    "max_anchor_distance": 2,
+    "controller_policy": {
+      "enabled": true,
+      "binding": true,
+      "process_state": "improving",
+      "snapshot": {
+        "scientific_score": 0.72550975221602,
+        "validation_nrmse": 0.6835742683450522,
+        "score_improvement": 0.02728953570203485,
+        "improved": true,
+        "complexity_fraction": 0.8387096774193549,
+        "parsimony": 0.001,
+        "state_residual_correlation": 0.4375299495377304,
+        "temporal_residual_correlation": 0.9397493029484967,
+        "material_residual_correlation": 0.9397493029484967,
+        "positive_influence_terms": 10,
+        "stale_rounds_before": 1,
+        "rollback_required": false
+      },
+      "action": {
+        "action": "continue",
+        "reason": "incumbent is still improving",
+        "config_field": null,
+        "config_patch": {},
+        "requires_restart": false,
+        "authority": "deterministic_controller"
+      }
+    }
+  }
+}

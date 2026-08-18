@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "max_total_evals": 6000,
+  "created_at": "2026-08-17T03:41:19.502561+00:00",
+  "attempts": [
+    {
+      "attempt_id": "4ee9f445-87f8-4b85-a412-02fcf7427498",
+      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d02__repeat_6__round1",
+      "config_sha256": "e0461dca3c55c071ece1b443513f0d2b4f77c1609d0653b47da4bd670d2edeaa",
+      "result_file": "history/round1/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:41:19.503964+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 1,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 0,
+        "total_limit": 6000,
+        "remaining_before": 6000,
+        "future_minimum_reserve": 3000,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 434.0,
+        "current_weight": 434.0
+      },
+      "finished_at": "2026-08-17T03:41:47.209400+00:00",
+      "result_sha256": "fd33fdd463aff11433811d0002fecbc17cd0cbea8581486e2c3661b34829cf34"
+    },
+    {
+      "attempt_id": "ddc38931-06e2-431e-8bac-e80dd493a7cf",
+      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d02__repeat_6__round2",
+      "config_sha256": "c0806a67e321258d55dd5511903c3edba4c9f0e6b94995fdd00c7e8e7a46b131",
+      "result_file": "history/round2/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:41:48.349414+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 2,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 1500,
+        "total_limit": 6000,
+        "remaining_before": 4500,
+        "future_minimum_reserve": 1500,
+        "space_factor": 1.0690449676496976,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 434.0,
+        "current_weight": 496.0
+      },
+      "finished_at": "2026-08-17T03:41:55.341603+00:00",
+      "result_sha256": "67a6884affd60f9fee247ad6381016afd722e567a14623756a0eedbe962204af"
+    },
+    {
+      "attempt_id": "e665de59-0f67-49cb-a554-09ce8a5f714c",
+      "experiment_id": "v6_pilot_arm_b_rule_hamilton__dynamic_d02__repeat_6__round3",
+      "config_sha256": "30bff1ddf61264a3293c619554386f1198feb47640d9ed7b6106417382a8b228",
+      "result_file": "history/round3/results/result.json",
+      "requested_evals": 1500,
+      "status": "completed",
+      "reserved_at": "2026-08-17T03:41:56.457349+00:00",
+      "budget_allocation": {
+        "mode": "dynamic_cumulative_ledger",
+        "round": 3,
+        "proposed_evals_ignored": 1500,
+        "allocated_evals": 1500,
+        "consumed_before": 3000,
+        "total_limit": 6000,
+        "remaining_before": 3000,
+        "future_minimum_reserve": 0,
+        "space_factor": 1.0,
+        "stale_rounds": 0,
+        "difficulty_factor": 1.0,
+        "anchor_weight": 496.0,
+        "current_weight": 496.0
+      },
+      "finished_at": "2026-08-17T03:42:03.290160+00:00",
+      "result_sha256": "ed23284ce78db60731c808f62e781411207c66bb3fcc533828981644536bdaa0"
+    }
+  ]
+}

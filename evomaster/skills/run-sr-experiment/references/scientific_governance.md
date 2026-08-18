@@ -48,6 +48,7 @@ decision block in `plan.md` after every experiment:
   "next_strategy": {
     "diagnosed_failure": "specific failed gate",
     "evidence": "result path plus metric",
+    "action": "modify",
     "residual_evidence": {
       "result_file": "history/round1/results/example.json",
       "finding": "state_dependence",
@@ -192,7 +193,12 @@ start another adaptive round.
 ## Plan quality and success
 
 Tie the next configuration field to a failed gate and state its expected effect, risks,
-and falsification result. Adding division or other unstable operators must mention
+and falsification result. When the controller enables no-op continuation, a justified
+decision to hold the scientific configuration is also valid: set `action` to `continue`,
+`config_field` to `null`, and `config_patch` to `{}` while retaining the same evidence,
+alternative-explanation, residual-change, risk, and falsification requirements. The
+following round must use warm-start `round_action: "continue"`; it still consumes its
+authorized budget and is not an early task completion. Adding division or other unstable operators must mention
 singularity/domain risks.
 
 When dynamic budgeting is enabled, `search.max_evals` is controller-owned. Do not select
